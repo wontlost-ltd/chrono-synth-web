@@ -6,7 +6,9 @@ vi.stubGlobal('fetch', mockFetch);
 
 vi.mock('../config', () => ({ API_BASE_URL: 'http://test-api' }));
 vi.mock('../store/session', () => ({
-  getSession: () => ({ apiKey: 'test-key', tenantId: 'test-tenant', mode: 'demo' }),
+  getSession: () => ({ apiKey: 'test-key', tenantId: 'test-tenant', mode: 'demo', accessToken: '', user: null }),
+  setSession: vi.fn(),
+  clearSession: vi.fn(),
 }));
 
 beforeEach(() => {

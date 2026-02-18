@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
 import { useCreateSimulation } from '../api/queries/simulations';
 import type { CreateSimulationRequest } from '../types';
+import type { TFunction } from 'i18next';
 
 interface PathDraft {
   id: string;
@@ -17,43 +19,44 @@ const EMPTY_PATH: PathDraft = {
   id: '', label: '', description: '', income: 300000, savings: 500000, branches: [],
 };
 
-function validateStep0(paths: PathDraft[]): string | null {
+function validateStep0(t: TFunction, paths: PathDraft[]): string | null {
   for (let i = 0; i < paths.length; i++) {
-    if (!paths[i]!.id.trim()) return `路径 ${i + 1} 的 ID 不能为空`;
-    if (!paths[i]!.label.trim()) return `路径 ${i + 1} 的名称不能为空`;
+    if (!paths[i]!.id.trim()) return t('wizard.pathIdRequired', { index: i + 1 });
+    if (!paths[i]!.label.trim()) return t('wizard.pathNameRequired', { index: i + 1 });
   }
   const ids = paths.map(p => p.id.trim());
-  if (new Set(ids).size !== ids.length) return '路径 ID 不能重复';
+  if (new Set(ids).size !== ids.length) return t('wizard.duplicatePathIds');
   return null;
 }
 
-function validateStep1(paths: PathDraft[]): string | null {
+function validateStep1(t: TFunction, paths: PathDraft[]): string | null {
   for (const p of paths) {
     if (p.branches.length === 0) continue;
     for (const br of p.branches) {
-      if (!br.label.trim()) return `路径 "${p.label}" 中有分支名称为空`;
-      if (Number.isNaN(br.probability)) return `分支 "${br.label}" 的概率不是有效数字`;
-      if (br.probability < 0 || br.probability > 1) return `分支 "${br.label}" 的概率必须在 0-1 之间`;
+      if (!br.label.trim()) return t('wizard.branchNameRequired', { label: p.label });
+      if (Number.isNaN(br.probability)) return t('wizard.invalidProbability', { label: br.label });
+      if (br.probability < 0 || br.probability > 1) return t('wizard.probabilityOutOfRange', { label: br.label });
     }
     const sum = p.branches.reduce((s, br) => s + br.probability, 0);
     if (Math.abs(sum - 1) > 0.01 && p.branches.length > 0) {
-      return `路径 "${p.label}" 分支概率之和 (${sum.toFixed(2)}) 应为 1.0`;
+      return t('wizard.probabilitySumInvalid', { label: p.label, sum: sum.toFixed(2) });
     }
   }
   return null;
 }
 
-function validateStep2(age: number, horizonYears: number, paths: PathDraft[]): string | null {
-  if (Number.isNaN(age) || age < 1 || age > 120) return '年龄必须在 1-120 之间';
-  if (Number.isNaN(horizonYears) || horizonYears < 1 || horizonYears > 80) return '模拟年数必须在 1-80 之间';
+function validateStep2(t: TFunction, age: number, horizonYears: number, paths: PathDraft[]): string | null {
+  if (Number.isNaN(age) || age < 1 || age > 120) return t('wizard.ageOutOfRange');
+  if (Number.isNaN(horizonYears) || horizonYears < 1 || horizonYears > 80) return t('wizard.horizonOutOfRange');
   for (const p of paths) {
-    if (!Number.isFinite(p.income) || p.income < 0) return `路径 "${p.label}" 的收入必须是有效的非负数`;
-    if (!Number.isFinite(p.savings) || p.savings < 0) return `路径 "${p.label}" 的储蓄必须是有效的非负数`;
+    if (!Number.isFinite(p.income) || p.income < 0) return t('wizard.invalidIncome', { label: p.label });
+    if (!Number.isFinite(p.savings) || p.savings < 0) return t('wizard.invalidSavings', { label: p.label });
   }
   return null;
 }
 
 export function SimulationWizard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const createSim = useCreateSimulation();
 
@@ -83,9 +86,9 @@ export function SimulationWizard() {
 
   function tryNext() {
     let err: string | null = null;
-    if (step === 0) err = validateStep0(paths);
-    else if (step === 1) err = validateStep1(paths);
-    else if (step === 2) err = validateStep2(age, horizonYears, paths);
+    if (step === 0) err = validateStep0(t, paths);
+    else if (step === 1) err = validateStep1(t, paths);
+    else if (step === 2) err = validateStep2(t, age, horizonYears, paths);
     if (err) { setValidationError(err); return; }
     setValidationError(null);
     setStep(s => s + 1);
@@ -109,17 +112,17 @@ export function SimulationWizard() {
       try { localStorage.setItem('last-sim-id', result.simulationId); } catch { /* ignored */ }
       navigate(`/simulations/${encodeURIComponent(result.simulationId)}/paths`);
     } catch (err) {
-      setValidationError(err instanceof Error ? err.message : '创建模拟失败');
+      setValidationError(err instanceof Error ? err.message : t('wizard.createError'));
     }
   }
 
-  const STEPS = ['定义路径', '分支设置', '参数配置', '预览提交'];
+  const STEPS = [t('wizard.stepDefinePaths'), t('wizard.stepBranches'), t('wizard.stepParameters'), t('wizard.stepPreview')];
 
   return (
     <>
-      <PageHeader title="创建人生模拟" subtitle={`步骤 ${step + 1}/${STEPS.length}: ${STEPS[step]}`} />
+      <PageHeader title={t('wizard.title')} subtitle={t('wizard.stepSubtitle', { step: step + 1, total: STEPS.length, name: STEPS[step] })} />
 
-      <div className="mb-6 flex gap-1" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={STEPS.length} aria-label="向导进度">
+      <div className="mb-6 flex gap-1" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={STEPS.length} aria-label={t('wizard.title')}>
         {STEPS.map((s, i) => (
           <div
             key={s}
@@ -140,29 +143,29 @@ export function SimulationWizard() {
           {paths.map((p, i) => (
             <div key={i} className="rounded-xl border border-border bg-surface-elevated p-4">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="font-medium">路径 {i + 1}</h3>
+                <h3 className="font-medium">{t('wizard.pathLabel', { index: i + 1 })}</h3>
                 {paths.length > 1 && (
-                  <button type="button" onClick={() => setPaths(prev => prev.filter((_, j) => j !== i))} className="text-xs text-warning" aria-label={`删除路径 ${i + 1}`}>删除</button>
+                  <button type="button" onClick={() => setPaths(prev => prev.filter((_, j) => j !== i))} className="text-xs text-warning" aria-label={`${t('wizard.delete')} ${t('wizard.pathLabel', { index: i + 1 })}`}>{t('wizard.delete')}</button>
                 )}
               </div>
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <label className="block">
-                  <span className="text-xs text-text-secondary">ID</span>
-                  <input className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={p.id} onChange={e => updatePath(i, { id: e.target.value })} placeholder="stable" required aria-invalid={validationError?.includes('ID') || undefined} aria-describedby={validationError ? 'wizard-error' : undefined} />
+                  <span className="text-xs text-text-secondary">{t('wizard.idLabel')}</span>
+                  <input className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={p.id} onChange={e => updatePath(i, { id: e.target.value })} placeholder={t('wizard.idPlaceholder')} required aria-describedby={validationError ? 'wizard-error' : undefined} />
                 </label>
                 <label className="block">
-                  <span className="text-xs text-text-secondary">名称</span>
-                  <input className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={p.label} onChange={e => updatePath(i, { label: e.target.value })} placeholder="稳定路径" required aria-invalid={validationError?.includes('名称') || undefined} aria-describedby={validationError ? 'wizard-error' : undefined} />
+                  <span className="text-xs text-text-secondary">{t('wizard.nameLabel')}</span>
+                  <input className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={p.label} onChange={e => updatePath(i, { label: e.target.value })} placeholder={t('wizard.namePlaceholder')} required aria-describedby={validationError ? 'wizard-error' : undefined} />
                 </label>
                 <label className="block sm:col-span-2">
-                  <span className="text-xs text-text-secondary">描述</span>
-                  <input className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={p.description} onChange={e => updatePath(i, { description: e.target.value })} placeholder="保持现状" />
+                  <span className="text-xs text-text-secondary">{t('wizard.descriptionLabel')}</span>
+                  <input className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={p.description} onChange={e => updatePath(i, { description: e.target.value })} placeholder={t('wizard.descriptionPlaceholder')} />
                 </label>
               </div>
             </div>
           ))}
           <button type="button" onClick={() => setPaths(prev => [...prev, { ...EMPTY_PATH }])} className="rounded-lg border border-dashed border-border px-4 py-2 text-sm text-text-secondary hover:border-primary">
-            + 添加路径
+            {t('wizard.addPath')}
           </button>
         </div>
       )}
@@ -171,15 +174,14 @@ export function SimulationWizard() {
         <div className="space-y-4">
           {paths.map((p, pi) => (
             <div key={pi} className="rounded-xl border border-border bg-surface-elevated p-4">
-              <h3 className="mb-3 font-medium">{p.label || `路径 ${pi + 1}`} 的分支</h3>
+              <h3 className="mb-3 font-medium">{t('wizard.branchesForPath', { label: p.label || t('wizard.pathLabel', { index: pi + 1 }) })}</h3>
               {p.branches.map((br, bi) => (
                 <div key={bi} className="mb-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
                   <label className="block">
-                    <span className="sr-only">分支名称</span>
+                    <span className="sr-only">{t('wizard.branchNamePlaceholder')}</span>
                     <input
                       className="w-full rounded-lg border border-border px-3 py-1.5 text-sm"
-                      value={br.label} placeholder="分支名称"
-                      aria-invalid={validationError?.includes('分支名称') || undefined}
+                      value={br.label} placeholder={t('wizard.branchNamePlaceholder')}
                       aria-describedby={validationError ? 'wizard-error' : undefined}
                       onChange={e => {
                         const branches = [...p.branches];
@@ -189,7 +191,7 @@ export function SimulationWizard() {
                     />
                   </label>
                   <label className="block">
-                    <span className="sr-only">概率</span>
+                    <span className="sr-only">{t('wizard.probabilityLabel')}</span>
                     <input
                       type="number" step="0.1" min="0" max="1"
                       className="w-full rounded-lg border border-border px-3 py-1.5 text-sm"
@@ -199,7 +201,6 @@ export function SimulationWizard() {
                         branches[bi] = { ...br, probability: +e.target.value };
                         updatePath(pi, { branches });
                       }}
-                      aria-invalid={validationError?.includes('概率') || undefined}
                       aria-describedby={validationError ? 'wizard-error' : undefined}
                     />
                   </label>
@@ -207,13 +208,13 @@ export function SimulationWizard() {
                     type="button"
                     onClick={() => updatePath(pi, { branches: p.branches.filter((_, j) => j !== bi) })}
                     className="text-xs text-warning"
-                    aria-label={`删除分支 ${br.label || bi + 1}`}
+                    aria-label={t('wizard.deleteBranchAria', { label: br.label || String(bi + 1) })}
                   >
-                    删除
+                    {t('wizard.delete')}
                   </button>
                 </div>
               ))}
-              <button type="button" onClick={() => addBranch(pi)} className="text-sm text-primary">+ 添加分支</button>
+              <button type="button" onClick={() => addBranch(pi)} className="text-sm text-primary">{t('wizard.addBranch')}</button>
             </div>
           ))}
         </div>
@@ -223,22 +224,22 @@ export function SimulationWizard() {
         <div className="rounded-xl border border-border bg-surface-elevated p-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <label className="block">
-              <span className="text-xs text-text-secondary">年龄</span>
-              <input type="number" min="1" max="120" className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={age} onChange={e => { setAge(+e.target.value); setValidationError(null); }} aria-invalid={validationError?.includes('年龄') || undefined} aria-describedby={validationError ? 'wizard-error' : undefined} />
+              <span className="text-xs text-text-secondary">{t('wizard.ageLabel')}</span>
+              <input type="number" min="1" max="120" className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={age} onChange={e => { setAge(+e.target.value); setValidationError(null); }} aria-describedby={validationError ? 'wizard-error' : undefined} />
             </label>
             <label className="block">
-              <span className="text-xs text-text-secondary">模拟年数</span>
-              <input type="number" min="1" max="80" className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={horizonYears} onChange={e => { setHorizonYears(+e.target.value); setValidationError(null); }} aria-invalid={validationError?.includes('模拟年数') || undefined} aria-describedby={validationError ? 'wizard-error' : undefined} />
+              <span className="text-xs text-text-secondary">{t('wizard.horizonYearsLabel')}</span>
+              <input type="number" min="1" max="80" className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={horizonYears} onChange={e => { setHorizonYears(+e.target.value); setValidationError(null); }} aria-describedby={validationError ? 'wizard-error' : undefined} />
             </label>
             {paths.map((p, i) => (
               <div key={i} className="grid grid-cols-2 gap-3 sm:col-span-2">
                 <label className="block">
-                  <span className="text-xs text-text-secondary">{p.label || `路径${i + 1}`} 收入</span>
-                  <input type="number" min="0" className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={p.income} onChange={e => updatePath(i, { income: +e.target.value })} aria-invalid={validationError?.includes('收入') || undefined} aria-describedby={validationError ? 'wizard-error' : undefined} />
+                  <span className="text-xs text-text-secondary">{t('wizard.incomeLabel', { label: p.label || t('wizard.pathLabel', { index: i + 1 }) })}</span>
+                  <input type="number" min="0" className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={p.income} onChange={e => updatePath(i, { income: +e.target.value })} aria-describedby={validationError ? 'wizard-error' : undefined} />
                 </label>
                 <label className="block">
-                  <span className="text-xs text-text-secondary">{p.label || `路径${i + 1}`} 储蓄</span>
-                  <input type="number" min="0" className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={p.savings} onChange={e => updatePath(i, { savings: +e.target.value })} aria-invalid={validationError?.includes('储蓄') || undefined} aria-describedby={validationError ? 'wizard-error' : undefined} />
+                  <span className="text-xs text-text-secondary">{t('wizard.savingsLabel', { label: p.label || t('wizard.pathLabel', { index: i + 1 }) })}</span>
+                  <input type="number" min="0" className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm" value={p.savings} onChange={e => updatePath(i, { savings: +e.target.value })} aria-describedby={validationError ? 'wizard-error' : undefined} />
                 </label>
               </div>
             ))}
@@ -248,7 +249,7 @@ export function SimulationWizard() {
 
       {step === 3 && (
         <div className="rounded-xl border border-border bg-surface-elevated p-4">
-          <h3 className="mb-3 font-medium">配置摘要</h3>
+          <h3 className="mb-3 font-medium">{t('wizard.configSummary')}</h3>
           <pre className="overflow-x-auto rounded-lg bg-surface p-3 text-xs">
             {JSON.stringify({ paths: paths.map(p => ({ id: p.id, label: p.label, branches: p.branches.length })), age, horizonYears }, null, 2)}
           </pre>
@@ -263,11 +264,11 @@ export function SimulationWizard() {
           disabled={step === 0}
           className="rounded-lg border border-border px-4 py-2 text-sm disabled:opacity-30"
         >
-          上一步
+          {t('wizard.previous')}
         </button>
         {step < STEPS.length - 1 ? (
           <button type="button" onClick={tryNext} className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
-            下一步
+            {t('wizard.next')}
           </button>
         ) : (
           <button
@@ -276,7 +277,7 @@ export function SimulationWizard() {
             disabled={createSim.isPending}
             className="rounded-lg bg-primary px-4 py-2 text-sm text-white disabled:opacity-50"
           >
-            {createSim.isPending ? '创建中...' : '创建模拟'}
+            {createSim.isPending ? t('wizard.creating') : t('wizard.create')}
           </button>
         )}
       </div>

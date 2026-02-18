@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
 import { DeltaChart } from '../components/charts/DeltaChart';
 import { MetricCard } from '../components/ui/MetricCard';
@@ -9,12 +10,13 @@ import { useCreateStressTest } from '../api/queries/simulations';
 import { useSimulationId } from '../hooks/useSimulationId';
 
 export function StressTest() {
+  const { t } = useTranslation();
   const simId = useSimulationId();
   const { data, isLoading, error } = useStressComparison(simId);
   const createStress = useCreateStressTest(simId);
 
   const [form, setForm] = useState({
-    variantLabel: '压力测试',
+    variantLabel: '',
     incomeFreezeYears: 2,
     marketDownturnFactor: 0.5,
     healthShock: 0.2,
@@ -22,10 +24,10 @@ export function StressTest() {
   const [formError, setFormError] = useState<string | null>(null);
 
   async function handleCreate() {
-    if (!form.variantLabel.trim()) { setFormError('变体名称不能为空'); return; }
-    if (!Number.isFinite(form.incomeFreezeYears) || form.incomeFreezeYears < 0) { setFormError('收入冻结年数必须是有效的非负数'); return; }
-    if (!Number.isFinite(form.marketDownturnFactor) || form.marketDownturnFactor < 0 || form.marketDownturnFactor > 1) { setFormError('市场衰退因子必须在 0-1 之间'); return; }
-    if (!Number.isFinite(form.healthShock) || form.healthShock < 0 || form.healthShock > 1) { setFormError('健康冲击必须在 0-1 之间'); return; }
+    if (!form.variantLabel.trim()) { setFormError(t('stressTest.variantNameRequired')); return; }
+    if (!Number.isFinite(form.incomeFreezeYears) || form.incomeFreezeYears < 0) { setFormError(t('stressTest.invalidIncomeFreeze')); return; }
+    if (!Number.isFinite(form.marketDownturnFactor) || form.marketDownturnFactor < 0 || form.marketDownturnFactor > 1) { setFormError(t('stressTest.invalidMarketDownturn')); return; }
+    if (!Number.isFinite(form.healthShock) || form.healthShock < 0 || form.healthShock > 1) { setFormError(t('stressTest.invalidHealthShock')); return; }
     setFormError(null);
     try {
       await createStress.mutateAsync({
@@ -37,60 +39,55 @@ export function StressTest() {
         },
       });
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : '创建压力测试失败');
+      setFormError(err instanceof Error ? err.message : t('stressTest.createError'));
     }
   }
 
   return (
     <>
-      <PageHeader title="压力测试" subtitle="模拟极端场景对各路径的影响" />
+      <PageHeader title={t('stressTest.title')} subtitle={t('stressTest.subtitle')} />
 
-      {/* 创建表单 */}
       <form className="mb-6 rounded-xl border border-border bg-surface-elevated p-4" onSubmit={e => { e.preventDefault(); handleCreate(); }}>
-        <h3 className="mb-3 text-sm font-medium text-text-secondary">运行新压力测试</h3>
+        <h3 className="mb-3 text-sm font-medium text-text-secondary">{t('stressTest.formTitle')}</h3>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <label className="block">
-            <span className="text-xs text-text-secondary">变体名称</span>
+            <span className="text-xs text-text-secondary">{t('stressTest.variantNameLabel')}</span>
             <input
               className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm"
               value={form.variantLabel}
               onChange={e => { setForm(f => ({ ...f, variantLabel: e.target.value })); setFormError(null); }}
-              aria-invalid={formError?.includes('名称') || undefined}
               aria-describedby={formError ? 'stress-form-error' : undefined}
             />
           </label>
           <label className="block">
-            <span className="text-xs text-text-secondary">收入冻结年数</span>
+            <span className="text-xs text-text-secondary">{t('stressTest.incomeFreezeLabel')}</span>
             <input
               type="number"
               className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm"
               value={form.incomeFreezeYears}
               onChange={e => { setForm(f => ({ ...f, incomeFreezeYears: +e.target.value })); setFormError(null); }}
-              aria-invalid={formError?.includes('冻结') || undefined}
               aria-describedby={formError ? 'stress-form-error' : undefined}
             />
           </label>
           <label className="block">
-            <span className="text-xs text-text-secondary">市场衰退因子</span>
+            <span className="text-xs text-text-secondary">{t('stressTest.marketDownturnLabel')}</span>
             <input
               type="number"
               step="0.1" min="0" max="1"
               className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm"
               value={form.marketDownturnFactor}
               onChange={e => { setForm(f => ({ ...f, marketDownturnFactor: +e.target.value })); setFormError(null); }}
-              aria-invalid={formError?.includes('衰退') || undefined}
               aria-describedby={formError ? 'stress-form-error' : undefined}
             />
           </label>
           <label className="block">
-            <span className="text-xs text-text-secondary">健康冲击</span>
+            <span className="text-xs text-text-secondary">{t('stressTest.healthShockLabel')}</span>
             <input
               type="number"
               step="0.1" min="0" max="1"
               className="mt-1 w-full rounded-lg border border-border px-3 py-1.5 text-sm"
               value={form.healthShock}
               onChange={e => { setForm(f => ({ ...f, healthShock: +e.target.value })); setFormError(null); }}
-              aria-invalid={formError?.includes('健康') || undefined}
               aria-describedby={formError ? 'stress-form-error' : undefined}
             />
           </label>
@@ -105,12 +102,12 @@ export function StressTest() {
           disabled={createStress.isPending}
           className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm text-white disabled:opacity-50"
         >
-          {createStress.isPending ? '运行中...' : '运行压力测试'}
+          {createStress.isPending ? t('stressTest.running') : t('stressTest.run')}
         </button>
       </form>
 
       {error ? (
-        <EmptyState variant="error" message={`加载失败: ${error.message}`} />
+        <EmptyState variant="error" message={t('stressTest.loadError', { message: error.message })} />
       ) : isLoading ? (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -124,7 +121,7 @@ export function StressTest() {
           {data.variants.map(variant => (
             <div key={variant.simulationId} className="mb-6">
               <h3 className="mb-3 text-sm font-medium">
-                变体: {variant.simulationId.slice(0, 16)}...
+                {t('stressTest.variantLabel', { id: variant.simulationId.slice(0, 16) })}
                 <span className={`ml-2 rounded px-2 py-0.5 text-xs ${
                   variant.status === 'completed' ? 'bg-success/10 text-success' : 'bg-accent/10 text-accent'
                 }`}>
@@ -135,7 +132,7 @@ export function StressTest() {
                 {variant.deltas.map(d => (
                   <MetricCard
                     key={d.pathId}
-                    title={`${d.pathId} 评分Δ`}
+                    title={t('stressTest.deltaScoreLabel', { pathId: d.pathId })}
                     value={d.compositeScoreDelta}
                     trend={d.compositeScoreDelta >= 0 ? 'up' : 'down'}
                   />
@@ -148,7 +145,7 @@ export function StressTest() {
           ))}
         </>
       ) : (
-        <EmptyState message="尚无压力测试变体" />
+        <EmptyState message={t('stressTest.noVariants')} />
       )}
     </>
   );

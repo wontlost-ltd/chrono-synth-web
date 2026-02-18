@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
 import { MilestoneTimeline } from '../components/charts/MilestoneTimeline';
 import { MetricSelector } from '../components/ui/MetricSelector';
@@ -9,6 +10,7 @@ import { useSimulationId } from '../hooks/useSimulationId';
 import type { MetricKey } from '../types';
 
 export function Milestones() {
+  const { t } = useTranslation();
   const simId = useSimulationId();
   const [metrics, setMetrics] = useState<MetricKey[]>(['wealth', 'healthIndex']);
   const metricsParam = metrics.join(',');
@@ -16,14 +18,14 @@ export function Milestones() {
 
   return (
     <>
-      <PageHeader title="里程碑" subtitle="关键时间节点事件" />
+      <PageHeader title={t('milestones.title')} subtitle={t('milestones.subtitle')} />
 
       <div className="mb-4">
         <MetricSelector selected={metrics} onChange={setMetrics} metricMeta={data?.metricMeta} />
       </div>
 
       {error ? (
-        <EmptyState variant="error" message={`加载失败: ${error.message}`} />
+        <EmptyState variant="error" message={t('milestones.loadError', { message: error.message })} />
       ) : isLoading ? (
         <Skeleton variant="chart" />
       ) : data && data.milestones.length > 0 ? (
@@ -34,13 +36,12 @@ export function Milestones() {
               {m.events.length > 0 ? (
                 <MilestoneTimeline events={m.events} />
               ) : (
-                <p className="text-sm text-text-secondary">此路径无里程碑事件</p>
+                <p className="text-sm text-text-secondary">{t('milestones.noEvents')}</p>
               )}
 
-              {/* 起终点快照 */}
               <div className="mt-4 flex flex-wrap gap-4 border-t border-border pt-3">
                 <div>
-                  <span className="text-xs text-text-secondary">起点</span>
+                  <span className="text-xs text-text-secondary">{t('milestones.startLabel')}</span>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(m.summary.startSnapshot).map(([k, v]) => (
                       <span key={k} className="rounded bg-surface px-2 py-0.5 text-xs">
@@ -50,7 +51,7 @@ export function Milestones() {
                   </div>
                 </div>
                 <div>
-                  <span className="text-xs text-text-secondary">终点</span>
+                  <span className="text-xs text-text-secondary">{t('milestones.endLabel')}</span>
                   <div className="flex flex-wrap gap-2">
                     {Object.entries(m.summary.endSnapshot).map(([k, v]) => (
                       <span key={k} className="rounded bg-surface px-2 py-0.5 text-xs">
@@ -64,7 +65,7 @@ export function Milestones() {
           ))}
         </div>
       ) : (
-        <EmptyState message="无里程碑数据" />
+        <EmptyState message={t('milestones.noData')} />
       )}
     </>
   );

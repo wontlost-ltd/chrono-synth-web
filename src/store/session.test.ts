@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { getSession, setSession } from './session';
+import { getSession, setSession, clearSession } from './session';
 
 beforeEach(() => {
-  sessionStorage.clear();
-  setSession({ apiKey: '', tenantId: 'default', mode: 'demo' });
+  localStorage.clear();
+  clearSession();
 });
 
 describe('getSession', () => {
@@ -12,6 +12,8 @@ describe('getSession', () => {
     expect(session.apiKey).toBe('');
     expect(session.tenantId).toBe('default');
     expect(session.mode).toBe('demo');
+    expect(session.accessToken).toBe('');
+    expect(session.user).toBeNull();
   });
 });
 
@@ -23,9 +25,9 @@ describe('setSession', () => {
     expect(session.tenantId).toBe('default');
   });
 
-  it('persists to sessionStorage', () => {
+  it('persists to localStorage', () => {
     setSession({ tenantId: 'tenant-1', mode: 'subscriber' });
-    const raw = sessionStorage.getItem('chrono-session');
+    const raw = localStorage.getItem('chrono-session');
     expect(raw).toBeTruthy();
     const parsed = JSON.parse(raw!);
     expect(parsed.tenantId).toBe('tenant-1');
@@ -45,5 +47,34 @@ describe('setSession', () => {
     expect(getSession().mode).toBe('subscriber');
     setSession({ mode: 'demo' });
     expect(getSession().mode).toBe('demo');
+  });
+
+  it('stores JWT access token in memory', () => {
+    setSession({ accessToken: 'at-123' });
+    const session = getSession();
+    expect(session.accessToken).toBe('at-123');
+    /* accessToken 不持久化到 localStorage */
+    const raw = localStorage.getItem('chrono-session');
+    expect(raw).toBeTruthy();
+    const parsed = JSON.parse(raw!);
+    expect(parsed.accessToken).toBeUndefined();
+  });
+
+  it('stores user info', () => {
+    setSession({ user: { email: 'test@example.com', role: 'admin', userId: 'user-1' } });
+    const session = getSession();
+    expect(session.user?.email).toBe('test@example.com');
+    expect(session.user?.role).toBe('admin');
+  });
+});
+
+describe('clearSession', () => {
+  it('resets to default values', () => {
+    setSession({ accessToken: 'token', user: { email: 'a@b.c', role: 'admin', userId: 'u1' } });
+    clearSession();
+    const session = getSession();
+    expect(session.accessToken).toBe('');
+    expect(session.user).toBeNull();
+    expect(session.mode).toBe('demo');
   });
 });

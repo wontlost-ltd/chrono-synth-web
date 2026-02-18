@@ -1,4 +1,6 @@
 import { Component, type ReactNode } from 'react';
+import * as Sentry from '@sentry/react';
+import i18n from '../i18n';
 
 interface Props {
   children: ReactNode;
@@ -18,6 +20,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: React.ErrorInfo): void {
     console.error('[ErrorBoundary]', error, info.componentStack);
+    Sentry.captureException(error, { extra: { componentStack: info.componentStack } });
   }
 
   private reset = () => this.setState({ error: null });
@@ -28,9 +31,9 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-8" role="alert">
-          <h2 className="text-lg font-bold text-warning">页面渲染出错</h2>
+          <h2 className="text-lg font-bold text-warning">{i18n.t('errorBoundary.errorTitle')}</h2>
           <p className="max-w-md text-center text-sm text-text-secondary">
-            {this.state.error.message || '未知错误'}
+            {this.state.error.message || i18n.t('errorBoundary.unknownError')}
           </p>
           <div className="flex gap-3">
             <button
@@ -38,14 +41,14 @@ export class ErrorBoundary extends Component<Props, State> {
               onClick={this.reset}
               className="rounded-lg bg-primary px-4 py-2 text-sm text-white"
             >
-              重试
+              {i18n.t('errorBoundary.retry')}
             </button>
             <button
               type="button"
               onClick={() => { window.location.href = '/dashboard'; }}
               className="rounded-lg border border-border px-4 py-2 text-sm"
             >
-              返回首页
+              {i18n.t('errorBoundary.goHome')}
             </button>
           </div>
         </div>

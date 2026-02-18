@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
 import { TimeSeriesChart } from '../components/charts/TimeSeriesChart';
 import { MetricSelector } from '../components/ui/MetricSelector';
@@ -14,6 +15,7 @@ import type { MetricKey, Resolution } from '../types';
 const DEFAULT_METRICS: MetricKey[] = ['wealth', 'healthIndex', 'overallScore', 'emotionalState.valence'];
 
 export function PathComparison() {
+  const { t } = useTranslation();
   const simId = useSimulationId();
   const [metrics, setMetrics] = useState<MetricKey[]>(DEFAULT_METRICS);
   const [resolution, setResolution] = useState<Resolution>('year');
@@ -29,7 +31,7 @@ export function PathComparison() {
 
   return (
     <>
-      <PageHeader title="路径对比" subtitle="多路径时间序列可视化" />
+      <PageHeader title={t('pathComparison.title')} subtitle={t('pathComparison.subtitle')} />
 
       <div className="mb-4 flex flex-wrap items-center gap-4">
         <MetricSelector
@@ -45,13 +47,13 @@ export function PathComparison() {
           options={metricOptions}
           value={activeMetric}
           onChange={setActiveMetric}
-          label="活跃指标"
+          label={t('pathComparison.activeMetricLabel')}
           className="mb-2"
         />
       )}
 
       {error ? (
-        <EmptyState variant="error" message={`加载失败: ${error.message}`} />
+        <EmptyState variant="error" message={t('pathComparison.loadError', { message: error.message })} />
       ) : isLoading ? (
         <Skeleton variant="chart" />
       ) : data ? (
@@ -64,7 +66,7 @@ export function PathComparison() {
             />
           </div>
           <div className="mt-6 rounded-xl border border-border bg-surface-elevated p-4">
-            <h3 className="mb-3 text-sm font-medium text-text-secondary">统计汇总</h3>
+            <h3 className="mb-3 text-sm font-medium text-text-secondary">{t('pathComparison.statsSummary')}</h3>
             <StatsTable
               rows={data.series.map(s => ({ label: s.label, stats: s.stats }))}
               metrics={metrics}
@@ -73,7 +75,7 @@ export function PathComparison() {
           </div>
         </>
       ) : (
-        <EmptyState message="无路径数据" />
+        <EmptyState message={t('pathComparison.noData')} />
       )}
     </>
   );

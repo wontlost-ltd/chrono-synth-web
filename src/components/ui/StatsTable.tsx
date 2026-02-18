@@ -1,6 +1,7 @@
 import type { SeriesStats, MetricKey, MetricMeta } from '../../types';
 import { formatMetricValue } from '../../utils/format';
 import type { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface StatsTableProps {
   rows: Array<{ label: string; stats: SeriesStats }>;
@@ -9,6 +10,7 @@ interface StatsTableProps {
 }
 
 export function StatsTable({ rows, metrics, metricMeta }: StatsTableProps) {
+  const { t } = useTranslation();
   function metaFor(key: MetricKey) {
     return metricMeta?.find(m => m.key === key);
   }
@@ -16,10 +18,10 @@ export function StatsTable({ rows, metrics, metricMeta }: StatsTableProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
-        <caption className="sr-only">路径统计汇总</caption>
+        <caption className="sr-only">{t('statsTable.caption')}</caption>
         <thead>
           <tr className="border-b border-border text-text-secondary">
-            <th scope="col" className="px-3 py-2">路径</th>
+            <th scope="col" className="px-3 py-2">{t('statsTable.pathHeader')}</th>
             {metrics.map(m => {
               const meta = metaFor(m);
               return (
@@ -33,10 +35,10 @@ export function StatsTable({ rows, metrics, metricMeta }: StatsTableProps) {
             <th scope="col" className="px-3 py-1" />
             {metrics.map(m => (
               <Fragment key={m}>
-                <th scope="col" className="px-2 py-1">Min</th>
-                <th scope="col" className="px-2 py-1">Max</th>
-                <th scope="col" className="px-2 py-1">Avg</th>
-                <th scope="col" className="px-2 py-1">Last</th>
+                <th scope="col" className="px-2 py-1">{t('statsTable.min')}</th>
+                <th scope="col" className="px-2 py-1">{t('statsTable.max')}</th>
+                <th scope="col" className="px-2 py-1">{t('statsTable.avg')}</th>
+                <th scope="col" className="px-2 py-1">{t('statsTable.last')}</th>
               </Fragment>
             ))}
           </tr>

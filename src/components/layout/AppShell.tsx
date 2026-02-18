@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Sidebar } from './Sidebar';
 
 interface AppShellProps {
@@ -7,6 +8,7 @@ interface AppShellProps {
 }
 
 export function AppShell({ children }: AppShellProps) {
+  const { t } = useTranslation();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
@@ -61,7 +63,7 @@ export function AppShell({ children }: AppShellProps) {
         type="button"
         onClick={() => setMobileOpen(true)}
         className="fixed left-3 top-3 z-20 rounded-lg bg-surface-elevated p-2 shadow-sm lg:hidden"
-        aria-label="打开导航"
+        aria-label={t('appShell.openNav')}
         aria-expanded={mobileOpen}
         aria-controls="nav-drawer"
       >
@@ -73,7 +75,7 @@ export function AppShell({ children }: AppShellProps) {
         id="nav-drawer"
         role="dialog"
         aria-modal={mobileOpen || undefined}
-        aria-label="导航菜单"
+        aria-label={t('appShell.navMenu')}
         className={`fixed inset-y-0 left-0 z-40 transition-transform lg:static lg:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
