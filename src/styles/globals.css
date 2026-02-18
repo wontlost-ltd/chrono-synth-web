@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --color-primary: #1E3A8A;
+  --color-primary-light: #3B82F6;
+  --color-secondary: #0F766E;
+  --color-secondary-light: #14B8A6;
+  --color-accent: #B45309;
+  --color-accent-light: #F59E0B;
+  --color-success: #15803D;
+  --color-warning: #B91C1C;
+  --color-surface: #F8FAFC;
+  --color-surface-elevated: #FFFFFF;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #475569;
+  --color-border: #E2E8F0;
+  --color-chart-1: #1E3A8A;
+  --color-chart-2: #0F766E;
+  --color-chart-3: #B45309;
+  --color-chart-4: #6D28D9;
+  --color-chart-5: #B91C1C;
+  --color-chart-6: #15803D;
+  --color-chart-grid: #E2E8F0;
+  --color-chart-positive: #15803D;
+  --color-chart-negative: #B91C1C;
+  --font-size-chart-label: 12px;
+  --font-size-chart-annotation: 11px;
+}
+
+body {
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
+
+/* 图表容器响应式 */
+.recharts-responsive-container {
+  width: 100% !important;
+}
