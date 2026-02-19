@@ -22,16 +22,15 @@ test.describe('Navigation', () => {
   });
 
   test('SSO callback page renders without crash', async ({ page }) => {
-    /* 拦截 SSO 相关 API 请求，避免因无后端导致测试 flaky */
-    await page.route('**/api/**', route => route.fulfill({ status: 200, body: '{}' }));
-    await page.goto('/sso/callback');
-    const body = page.locator('body');
-    await expect(body).not.toBeEmpty();
+    const response = await page.goto('/sso/callback');
+    expect(response?.ok()).toBeTruthy();
+    await expect(page.locator('#root')).toBeAttached();
+    await expect(page).toHaveURL(/\/sso\/callback/);
   });
 
   test('login page navigation elements are accessible', async ({ page }) => {
     await page.goto('/login');
-    const loginButton = page.getByRole('button', { name: /登录|Login/i });
+    const loginButton = page.getByRole('button', { name: /^(登录|Login)$/i });
     await expect(loginButton).toBeVisible();
     await expect(loginButton).toBeEnabled();
   });

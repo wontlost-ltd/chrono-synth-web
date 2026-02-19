@@ -10,7 +10,7 @@ test.describe('Authentication', () => {
     await page.goto('/login');
     await expect(page.getByLabel(/邮箱|Email/i)).toBeVisible();
     await expect(page.getByLabel(/密码|Password/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /登录|Login/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^(登录|Login)$/i })).toBeVisible();
   });
 
   test('login page has link to register', async ({ page }) => {
@@ -33,7 +33,7 @@ test.describe('Authentication', () => {
 
   test('login shows validation on empty submit', async ({ page }) => {
     await page.goto('/login');
-    await page.getByRole('button', { name: /登录|Login/i }).click();
+    await page.getByRole('button', { name: /^(登录|Login)$/i }).click();
     // Form should still be on login page (no navigation)
     await expect(page).toHaveURL(/\/login/);
   });

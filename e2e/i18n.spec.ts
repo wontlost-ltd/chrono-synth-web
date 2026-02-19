@@ -4,7 +4,7 @@ test.describe('i18n', () => {
   test('login page renders in default language (zh-CN)', async ({ page }) => {
     await page.goto('/login');
     // Default fallback is zh-CN
-    await expect(page.getByRole('button', { name: '登录' })).toBeVisible();
+    await expect(page.getByRole('button', { name: /^登录$/ })).toBeVisible();
   });
 
   test('register page renders in default language (zh-CN)', async ({ page }) => {

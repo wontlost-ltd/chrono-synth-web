@@ -55,8 +55,11 @@ test.describe('Accessibility', () => {
   test('keyboard focus is visible on form inputs', async ({ page }) => {
     await page.goto('/login');
     /* 使用 Tab 键模拟键盘导航，触发真实的 :focus-visible */
+    const emailInput = page.getByLabel(/邮箱|Email/i);
+    const passwordInput = page.getByLabel(/密码|Password/i);
+    await emailInput.focus();
+    await expect(emailInput).toBeFocused();
     await page.keyboard.press('Tab');
-    const activeElement = page.locator(':focus');
-    await expect(activeElement).toBeVisible();
+    await expect(passwordInput).toBeFocused();
   });
 });
