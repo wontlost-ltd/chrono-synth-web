@@ -1,6 +1,9 @@
 import { initSentry } from './lib/sentry';
 initSentry();
 
+import { reportWebVitals } from './lib/web-vitals';
+reportWebVitals();
+
 import './i18n';
 
 import { StrictMode } from 'react';
