@@ -308,6 +308,7 @@
     "error": "Error",
     "notFound": "Page not found",
     "language": "Language",
-    "offline": "You are offline. Changes will sync when connection is restored."
+    "offline": "You are offline. Changes will sync when connection is restored.",
+    "lastSynced": "Last synced: {{time}}"
   }
 }

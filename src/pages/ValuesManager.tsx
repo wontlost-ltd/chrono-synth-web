@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -90,25 +91,68 @@ export function ValuesManager() {
           <Skeleton variant="card" />
         </div>
       ) : values && values.length > 0 ? (
-        <div className="space-y-2">
-          {values.map(v => (
-            <div key={v.id} className="flex flex-col gap-2 rounded-xl border border-border bg-surface-elevated p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <span className="font-medium">{v.label}</span>
-                <span className="ml-2 text-sm text-text-secondary">ID: {v.id}</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="h-2 w-24 overflow-hidden rounded-full bg-border" role="progressbar" aria-valuenow={v.weight * 100} aria-valuemin={0} aria-valuemax={100} aria-label={`${v.label} ${t('values.weightLabel')}`}>
-                  <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${v.weight * 100}%` }} />
-                </div>
-                <span className="w-10 text-right text-sm font-medium">{v.weight.toFixed(2)}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ValuesList values={values} weightLabel={t('values.weightLabel')} />
       ) : (
         <EmptyState message={t('values.emptyState')} />
       )}
     </>
+  );
+}
+
+const VIRTUAL_THRESHOLD = 50;
+const ITEM_HEIGHT = 72;
+
+function ValuesList({ values, weightLabel }: { values: { id: string; label: string; weight: number }[]; weightLabel: string }) {
+  const parentRef = useRef<HTMLDivElement>(null);
+  const virtualizer = useVirtualizer({
+    count: values.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => ITEM_HEIGHT,
+    overscan: 10,
+  });
+
+  if (values.length < VIRTUAL_THRESHOLD) {
+    return (
+      <div role="list" className="space-y-2">
+        {values.map(v => <ValueRow key={v.id} v={v} weightLabel={weightLabel} />)}
+      </div>
+    );
+  }
+
+  return (
+    <div ref={parentRef} className="max-h-[min(600px,60vh)] overflow-auto rounded-xl border border-border">
+      <div role="list" className="relative" style={{ height: virtualizer.getTotalSize() }}>
+        {virtualizer.getVirtualItems().map(row => {
+          const v = values[row.index]!;
+          return (
+            <div
+              key={v.id}
+              role="listitem"
+              className="absolute left-0 w-full px-1"
+              style={{ height: row.size, transform: `translateY(${row.start}px)` }}
+            >
+              <ValueRow v={v} weightLabel={weightLabel} />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ValueRow({ v, weightLabel }: { v: { id: string; label: string; weight: number }; weightLabel: string }) {
+  return (
+    <div className="flex flex-col gap-2 rounded-xl border border-border bg-surface-elevated p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <span className="font-medium truncate max-w-[200px] inline-block align-middle">{v.label}</span>
+        <span className="ml-2 text-sm text-text-secondary">ID: {v.id}</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="h-2 w-24 overflow-hidden rounded-full bg-border" role="progressbar" aria-valuenow={v.weight * 100} aria-valuemin={0} aria-valuemax={100} aria-label={`${v.label} ${weightLabel}`}>
+          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${v.weight * 100}%` }} />
+        </div>
+        <span className="w-10 text-right text-sm font-medium">{v.weight.toFixed(2)}</span>
+      </div>
+    </div>
   );
 }
