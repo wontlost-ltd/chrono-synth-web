@@ -1,29 +1,9 @@
-import { useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
-
-const isBrowser = typeof window !== 'undefined' && typeof navigator !== 'undefined';
-
-function subscribe(cb: () => void) {
-  if (!isBrowser) return () => {};
-  window.addEventListener('online', cb);
-  window.addEventListener('offline', cb);
-  return () => {
-    window.removeEventListener('online', cb);
-    window.removeEventListener('offline', cb);
-  };
-}
-
-function getSnapshot() {
-  return isBrowser ? navigator.onLine : true;
-}
-
-function getServerSnapshot() {
-  return true;
-}
+import { useOnlineStatus } from '../../hooks/useOnlineStatus';
 
 export function NetworkStatus() {
   const { t } = useTranslation();
-  const isOnline = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const isOnline = useOnlineStatus();
 
   if (isOnline) return null;
 

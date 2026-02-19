@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
+import { Breadcrumbs } from '../components/ui/Breadcrumbs';
 import { DeltaChart } from '../components/charts/DeltaChart';
 import { MetricCard } from '../components/ui/MetricCard';
 import { Skeleton } from '../components/ui/Skeleton';
@@ -9,11 +10,13 @@ import { useStressComparison } from '../api/queries/visualization';
 import { useCreateStressTest } from '../api/queries/simulations';
 import { useSimulationId } from '../hooks/useSimulationId';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
 
 export function StressTest() {
   const { t } = useTranslation();
   useDocumentTitle(t('stressTest.title'));
   const simId = useSimulationId();
+  const isOnline = useOnlineStatus();
   const { data, isLoading, error } = useStressComparison(simId);
   const createStress = useCreateStressTest(simId);
 
@@ -47,6 +50,11 @@ export function StressTest() {
 
   return (
     <>
+      <Breadcrumbs items={[
+        { label: t('sidebar.dashboard'), to: '/dashboard' },
+        { label: t('sidebar.simulations'), to: '/simulations' },
+        { label: t('stressTest.title') },
+      ]} />
       <PageHeader title={t('stressTest.title')} subtitle={t('stressTest.subtitle')} />
 
       <form className="mb-6 rounded-xl border border-border bg-surface-elevated p-4" onSubmit={e => { e.preventDefault(); handleCreate(); }}>
@@ -99,13 +107,17 @@ export function StressTest() {
             {formError}
           </div>
         )}
-        <button
-          type="submit"
-          disabled={createStress.isPending}
-          className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm text-white disabled:opacity-50"
-        >
-          {createStress.isPending ? t('stressTest.running') : t('stressTest.run')}
-        </button>
+        <div className="mt-3 flex items-center gap-3">
+          <button
+            type="submit"
+            disabled={createStress.isPending || !isOnline}
+            className="rounded-lg bg-primary px-4 py-2 text-sm text-white disabled:opacity-50"
+            aria-describedby={!isOnline ? 'stress-offline-hint' : undefined}
+          >
+            {createStress.isPending ? t('stressTest.running') : t('stressTest.run')}
+          </button>
+          {!isOnline && <span id="stress-offline-hint" className="text-xs text-warning">{t('common.offline')}</span>}
+        </div>
       </form>
 
       {error ? (

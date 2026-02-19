@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
+import { Breadcrumbs } from '../components/ui/Breadcrumbs';
 import { SankeyGraph } from '../components/charts/SankeyGraph';
 import { RadioGroup } from '../components/ui/RadioGroup';
 import { Skeleton } from '../components/ui/Skeleton';
@@ -25,6 +26,11 @@ export function BranchExplorer() {
 
   return (
     <>
+      <Breadcrumbs items={[
+        { label: t('sidebar.dashboard'), to: '/dashboard' },
+        { label: t('sidebar.simulations'), to: '/simulations' },
+        { label: t('branchExplorer.title') },
+      ]} />
       <PageHeader title={t('branchExplorer.title')} subtitle={t('branchExplorer.subtitle')} />
 
       {pathIds.length > 1 && (

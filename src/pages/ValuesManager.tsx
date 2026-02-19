@@ -5,10 +5,12 @@ import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useValues, useCreateValue } from '../api/queries/values';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
 
 export function ValuesManager() {
   const { t } = useTranslation();
   useDocumentTitle(t('values.title'));
+  const isOnline = useOnlineStatus();
   const { data: values, isLoading, error } = useValues();
   const createValue = useCreateValue();
 
@@ -61,13 +63,17 @@ export function ValuesManager() {
             />
             <span className="w-8 text-xs" aria-hidden="true">{newWeight.toFixed(1)}</span>
           </label>
-          <button
-            type="submit"
-            disabled={createValue.isPending}
-            className="rounded-lg bg-primary px-4 py-1.5 text-sm text-white disabled:opacity-50"
-          >
-            {createValue.isPending ? t('values.adding') : t('values.add')}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={createValue.isPending || !isOnline}
+              className="rounded-lg bg-primary px-4 py-1.5 text-sm text-white disabled:opacity-50"
+              aria-describedby={!isOnline ? 'values-offline-hint' : undefined}
+            >
+              {createValue.isPending ? t('values.adding') : t('values.add')}
+            </button>
+            {!isOnline && <span id="values-offline-hint" className="text-xs text-warning">{t('common.offline')}</span>}
+          </div>
         </div>
         {addError && (
           <div id="values-form-error" className="mt-3 rounded-lg border border-warning/30 bg-warning/5 p-2 text-sm text-warning" role="alert">

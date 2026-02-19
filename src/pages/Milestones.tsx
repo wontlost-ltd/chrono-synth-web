@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
+import { Breadcrumbs } from '../components/ui/Breadcrumbs';
 import { MilestoneTimeline } from '../components/charts/MilestoneTimeline';
 import { MetricSelector } from '../components/ui/MetricSelector';
 import { Skeleton } from '../components/ui/Skeleton';
@@ -20,6 +21,11 @@ export function Milestones() {
 
   return (
     <>
+      <Breadcrumbs items={[
+        { label: t('sidebar.dashboard'), to: '/dashboard' },
+        { label: t('sidebar.simulations'), to: '/simulations' },
+        { label: t('milestones.title') },
+      ]} />
       <PageHeader title={t('milestones.title')} subtitle={t('milestones.subtitle')} />
 
       <div className="mb-4">

@@ -5,10 +5,12 @@ import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useProfile, useChangePassword } from '../api/queries/user';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
 
 export function Settings() {
   const { t } = useTranslation();
   useDocumentTitle(t('settings.title'));
+  const isOnline = useOnlineStatus();
   const { data: profile, isLoading, error } = useProfile();
   const changePassword = useChangePassword();
 
@@ -116,13 +118,17 @@ export function Settings() {
                 {t('settings.passwordChanged')}
               </div>
             )}
-            <button
-              type="submit"
-              disabled={changePassword.isPending}
-              className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm text-white disabled:opacity-50"
-            >
-              {changePassword.isPending ? t('common.loading') : t('settings.changePasswordButton')}
-            </button>
+            <div className="mt-3 flex items-center gap-3">
+              <button
+                type="submit"
+                disabled={changePassword.isPending || !isOnline}
+                className="rounded-lg bg-primary px-4 py-2 text-sm text-white disabled:opacity-50"
+                aria-describedby={!isOnline ? 'settings-offline-hint' : undefined}
+              >
+                {changePassword.isPending ? t('common.loading') : t('settings.changePasswordButton')}
+              </button>
+              {!isOnline && <span id="settings-offline-hint" className="text-xs text-warning">{t('common.offline')}</span>}
+            </div>
           </form>
         </div>
       ) : null}

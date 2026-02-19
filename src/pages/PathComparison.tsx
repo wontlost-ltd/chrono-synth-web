@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
+import { Breadcrumbs } from '../components/ui/Breadcrumbs';
 import { TimeSeriesChart } from '../components/charts/TimeSeriesChart';
 import { MetricSelector } from '../components/ui/MetricSelector';
 import { ResolutionToggle } from '../components/ui/ResolutionToggle';
@@ -33,6 +34,11 @@ export function PathComparison() {
 
   return (
     <>
+      <Breadcrumbs items={[
+        { label: t('sidebar.dashboard'), to: '/dashboard' },
+        { label: t('sidebar.simulations'), to: '/simulations' },
+        { label: t('pathComparison.title') },
+      ]} />
       <PageHeader title={t('pathComparison.title')} subtitle={t('pathComparison.subtitle')} />
 
       <div className="mb-4 flex flex-wrap items-center gap-4">

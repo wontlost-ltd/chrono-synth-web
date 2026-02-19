@@ -2,7 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
+import { Breadcrumbs } from '../components/ui/Breadcrumbs';
 import { useCreateSimulation } from '../api/queries/simulations';
+import { useOnlineStatus } from '../hooks/useOnlineStatus';
 import type { CreateSimulationRequest } from '../types';
 import type { TFunction } from 'i18next';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -60,6 +62,7 @@ export function SimulationWizard() {
   const { t } = useTranslation();
   useDocumentTitle(t('wizard.title'));
   const navigate = useNavigate();
+  const isOnline = useOnlineStatus();
   const createSim = useCreateSimulation();
 
   const [step, setStep] = useState(0);
@@ -122,6 +125,11 @@ export function SimulationWizard() {
 
   return (
     <>
+      <Breadcrumbs items={[
+        { label: t('sidebar.dashboard'), to: '/dashboard' },
+        { label: t('sidebar.simulations'), to: '/simulations' },
+        { label: t('wizard.title') },
+      ]} />
       <PageHeader title={t('wizard.title')} subtitle={t('wizard.stepSubtitle', { step: step + 1, total: STEPS.length, name: STEPS[step] })} />
 
       <div className="mb-6 flex gap-1" role="progressbar" aria-valuenow={step + 1} aria-valuemin={1} aria-valuemax={STEPS.length} aria-label={t('wizard.title')}>
@@ -273,14 +281,18 @@ export function SimulationWizard() {
             {t('wizard.next')}
           </button>
         ) : (
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={createSim.isPending}
-            className="rounded-lg bg-primary px-4 py-2 text-sm text-white disabled:opacity-50"
-          >
-            {createSim.isPending ? t('wizard.creating') : t('wizard.create')}
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={createSim.isPending || !isOnline}
+              className="rounded-lg bg-primary px-4 py-2 text-sm text-white disabled:opacity-50"
+              aria-describedby={!isOnline ? 'wizard-offline-hint' : undefined}
+            >
+              {createSim.isPending ? t('wizard.creating') : t('wizard.create')}
+            </button>
+            {!isOnline && <span id="wizard-offline-hint" className="text-xs text-warning">{t('common.offline')}</span>}
+          </div>
         )}
       </div>
     </>
