@@ -5,6 +5,7 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { useCreateSimulation } from '../api/queries/simulations';
 import type { CreateSimulationRequest } from '../types';
 import type { TFunction } from 'i18next';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 interface PathDraft {
   id: string;
@@ -57,6 +58,7 @@ function validateStep2(t: TFunction, age: number, horizonYears: number, paths: P
 
 export function SimulationWizard() {
   const { t } = useTranslation();
+  useDocumentTitle(t('wizard.title'));
   const navigate = useNavigate();
   const createSim = useCreateSimulation();
 

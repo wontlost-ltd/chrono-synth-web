@@ -10,9 +10,11 @@ import { LiveMetricStream } from '../components/charts/LiveMetricStream';
 import { useOverview } from '../api/queries/visualization';
 import { useSimulationList, type SimulationListItem } from '../api/queries/simulations';
 import { useWebSocket } from '../hooks/useWebSocket';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function Dashboard() {
   const { t } = useTranslation();
+  useDocumentTitle(t('dashboard.title'));
   const [simId, setSimId] = useState(() => {
     try { return localStorage.getItem('last-sim-id') ?? ''; } catch { return ''; }
   });
@@ -148,7 +150,7 @@ export function Dashboard() {
       )}
 
       {/* 实时事件流 */}
-      <div className="mt-6 rounded-xl border border-border bg-surface-elevated p-4">
+      <div className="mt-6 rounded-xl border border-border bg-surface-elevated p-4" aria-live="polite">
         <h3 className="mb-3 text-sm font-medium text-text-secondary">{t('dashboard.liveEvents')}</h3>
         <LiveMetricStream subscribe={ws.subscribe} status={ws.status} />
       </div>

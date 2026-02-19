@@ -3,9 +3,11 @@ import { usePlans, useUsage, useCustomerPortal } from '../api/queries/billing';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function Billing() {
   const { t } = useTranslation();
+  useDocumentTitle(t('billing.title'));
   const plans = usePlans();
   const usage = useUsage();
   const portal = useCustomerPortal();

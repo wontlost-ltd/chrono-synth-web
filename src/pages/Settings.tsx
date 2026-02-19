@@ -4,9 +4,11 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useProfile, useChangePassword } from '../api/queries/user';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function Settings() {
   const { t } = useTranslation();
+  useDocumentTitle(t('settings.title'));
   const { data: profile, isLoading, error } = useProfile();
   const changePassword = useChangePassword();
 

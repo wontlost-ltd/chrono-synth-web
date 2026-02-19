@@ -5,6 +5,7 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useSimulationList } from '../api/queries/simulations';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const STATUS_COLORS: Record<string, string> = {
   completed: 'bg-green-100 text-green-800',
@@ -23,6 +24,7 @@ function formatDate(ts: number | null): string {
 
 export function Simulations() {
   const { t } = useTranslation();
+  useDocumentTitle(t('simulations.title'));
   const [page, setPage] = useState(1);
   const { data, isLoading, error } = useSimulationList(page);
 
@@ -67,11 +69,11 @@ export function Simulations() {
             <table className="w-full text-left text-sm">
               <thead className="border-b border-border bg-surface-elevated">
                 <tr>
-                  <th className="px-4 py-3 font-medium text-text-secondary">{t('simulations.colId')}</th>
-                  <th className="px-4 py-3 font-medium text-text-secondary">{t('simulations.colStatus')}</th>
-                  <th className="hidden px-4 py-3 font-medium text-text-secondary sm:table-cell">{t('simulations.colCreated')}</th>
-                  <th className="hidden px-4 py-3 font-medium text-text-secondary md:table-cell">{t('simulations.colCompleted')}</th>
-                  <th className="px-4 py-3 font-medium text-text-secondary">{t('simulations.colActions')}</th>
+                  <th scope="col" className="px-4 py-3 font-medium text-text-secondary">{t('simulations.colId')}</th>
+                  <th scope="col" className="px-4 py-3 font-medium text-text-secondary">{t('simulations.colStatus')}</th>
+                  <th scope="col" className="hidden px-4 py-3 font-medium text-text-secondary sm:table-cell">{t('simulations.colCreated')}</th>
+                  <th scope="col" className="hidden px-4 py-3 font-medium text-text-secondary md:table-cell">{t('simulations.colCompleted')}</th>
+                  <th scope="col" className="px-4 py-3 font-medium text-text-secondary">{t('simulations.colActions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">

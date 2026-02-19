@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useCompleteOnboarding } from '../api/queries/onboarding';
 import { useCreateValue } from '../api/queries/values';
 import { useCreateSimulation } from '../api/queries/simulations';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 type Step = 'welcome' | 'values' | 'simulation' | 'done';
 
@@ -16,6 +17,7 @@ interface ValueDraft {
 
 export function Onboarding() {
   const { t } = useTranslation();
+  useDocumentTitle(t('onboarding.welcomeTitle'));
   const navigate = useNavigate();
   const completeOnboarding = useCompleteOnboarding();
   const createValue = useCreateValue();

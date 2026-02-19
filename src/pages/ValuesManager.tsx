@@ -4,9 +4,11 @@ import { PageHeader } from '../components/layout/PageHeader';
 import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
 import { useValues, useCreateValue } from '../api/queries/values';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function ValuesManager() {
   const { t } = useTranslation();
+  useDocumentTitle(t('values.title'));
   const { data: values, isLoading, error } = useValues();
   const createValue = useCreateValue();
 

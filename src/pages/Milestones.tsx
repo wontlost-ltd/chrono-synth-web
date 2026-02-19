@@ -8,9 +8,11 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { useMilestones } from '../api/queries/visualization';
 import { useSimulationId } from '../hooks/useSimulationId';
 import type { MetricKey } from '../types';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function Milestones() {
   const { t } = useTranslation();
+  useDocumentTitle(t('milestones.title'));
   const simId = useSimulationId();
   const [metrics, setMetrics] = useState<MetricKey[]>(['wealth', 'healthIndex']);
   const metricsParam = metrics.join(',');

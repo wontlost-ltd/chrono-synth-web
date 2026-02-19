@@ -8,9 +8,11 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { useStressComparison } from '../api/queries/visualization';
 import { useCreateStressTest } from '../api/queries/simulations';
 import { useSimulationId } from '../hooks/useSimulationId';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function StressTest() {
   const { t } = useTranslation();
+  useDocumentTitle(t('stressTest.title'));
   const simId = useSimulationId();
   const { data, isLoading, error } = useStressComparison(simId);
   const createStress = useCreateStressTest(simId);

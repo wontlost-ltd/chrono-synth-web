@@ -50,6 +50,9 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="flex min-h-dvh overflow-hidden">
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       {mobileOpen && (
         <div
           className="fixed inset-0 z-30 bg-black/40 lg:hidden"
@@ -83,7 +86,7 @@ export function AppShell({ children }: AppShellProps) {
         <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(v => !v)} onClose={closeMobile} />
       </div>
 
-      <main className="flex-1 overflow-y-auto p-6 pt-14 lg:pt-6" aria-hidden={mobileOpen || undefined} inert={mobileOpen || undefined}>
+      <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto p-6 pt-14 lg:pt-6 outline-none" aria-hidden={mobileOpen || undefined} inert={mobileOpen || undefined}>
         {children}
       </main>
     </div>

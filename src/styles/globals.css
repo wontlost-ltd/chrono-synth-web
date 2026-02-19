@@ -35,6 +35,38 @@ body {
   font-family: var(--font-sans);
 }
 
+/* 全局 focus-visible 样式 */
+:focus-visible {
+  outline: 2px solid var(--color-primary-light);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skip-to-content */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 100;
+}
+.skip-link:focus {
+  position: fixed;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  z-index: 100;
+}
+
 /* 图表容器响应式 */
 .recharts-responsive-container {
   width: 100% !important;

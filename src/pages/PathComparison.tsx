@@ -11,11 +11,13 @@ import { usePaths } from '../api/queries/visualization';
 import { useSimulationId } from '../hooks/useSimulationId';
 import { EmptyState } from '../components/ui/EmptyState';
 import type { MetricKey, Resolution } from '../types';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const DEFAULT_METRICS: MetricKey[] = ['wealth', 'healthIndex', 'overallScore', 'emotionalState.valence'];
 
 export function PathComparison() {
   const { t } = useTranslation();
+  useDocumentTitle(t('pathComparison.title'));
   const simId = useSimulationId();
   const [metrics, setMetrics] = useState<MetricKey[]>(DEFAULT_METRICS);
   const [resolution, setResolution] = useState<Resolution>('year');

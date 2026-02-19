@@ -2,9 +2,11 @@ import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useHealthz, useReadyz, usePosSummary } from '../api/queries/system';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function SystemStatus() {
   const { t } = useTranslation();
+  useDocumentTitle(t('systemStatus.title'));
   const healthz = useHealthz();
   const readyz = useReadyz();
   const posSummary = usePosSummary();
@@ -14,7 +16,7 @@ export function SystemStatus() {
       <PageHeader title={t('systemStatus.title')} subtitle={t('systemStatus.subtitle')} />
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-xl border border-border bg-surface-elevated p-4">
+        <div className="rounded-xl border border-border bg-surface-elevated p-4" role="status" aria-live="polite">
           <h3 className="mb-2 text-sm font-medium text-text-secondary">/healthz</h3>
           {healthz.isLoading ? (
             <Skeleton variant="card" />
@@ -37,7 +39,7 @@ export function SystemStatus() {
           )}
         </div>
 
-        <div className="rounded-xl border border-border bg-surface-elevated p-4">
+        <div className="rounded-xl border border-border bg-surface-elevated p-4" role="status" aria-live="polite">
           <h3 className="mb-2 text-sm font-medium text-text-secondary">/readyz</h3>
           {readyz.isLoading ? (
             <Skeleton variant="card" />

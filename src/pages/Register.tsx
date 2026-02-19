@@ -2,9 +2,11 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useRegister } from '../api/queries/auth';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function Register() {
   const { t } = useTranslation();
+  useDocumentTitle(t('register.title'));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');

@@ -8,9 +8,11 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { useBranches } from '../api/queries/visualization';
 import { useOverview } from '../api/queries/visualization';
 import { useSimulationId } from '../hooks/useSimulationId';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function BranchExplorer() {
   const { t } = useTranslation();
+  useDocumentTitle(t('branchExplorer.title'));
   const simId = useSimulationId();
   const { data: overview } = useOverview(simId);
   const pathIds = useMemo(() => overview?.paths.map(p => p.pathId) ?? [], [overview]);

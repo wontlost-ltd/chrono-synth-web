@@ -3,9 +3,11 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useLogin } from '../api/queries/auth';
 import { SSOButton } from '../components/ui/SSOButton';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function Login() {
   const { t } = useTranslation();
+  useDocumentTitle(t('login.login'));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();

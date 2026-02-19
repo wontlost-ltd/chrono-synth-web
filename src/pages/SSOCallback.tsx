@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { setSession } from '../store/session';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 function decodeJwtPayload(token: string): { sub: string; tenantId?: string; role?: string } | null {
   const rawB64 = token.split('.')[1];
@@ -26,6 +27,7 @@ function clearSensitive(): void {
  */
 export function SSOCallback() {
   const { t } = useTranslation();
+  useDocumentTitle(t('sso.processing'));
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
 
