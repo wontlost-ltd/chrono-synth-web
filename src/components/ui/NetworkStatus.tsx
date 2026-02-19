@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useOnlineStatus } from '../../hooks/useOnlineStatus';
+import { useOfflineQueue } from '../../hooks/useOfflineQueue';
 
 export function NetworkStatus() {
   const { t } = useTranslation();
   const isOnline = useOnlineStatus();
+  const { count: queuedCount } = useOfflineQueue();
   const lastOnlineRef = useRef<Date | null>(isOnline ? new Date() : null);
 
   useEffect(() => {
@@ -24,6 +26,11 @@ export function NetworkStatus() {
       {lastSeen && (
         <span className="text-xs opacity-80">
           · {t('common.lastSynced', { time: lastSeen.toLocaleTimeString() })}
+        </span>
+      )}
+      {queuedCount > 0 && (
+        <span className="text-xs opacity-80">
+          · {t('common.queuedActions', { count: queuedCount })}
         </span>
       )}
     </div>

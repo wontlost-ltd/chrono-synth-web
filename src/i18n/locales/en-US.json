@@ -309,6 +309,7 @@
     "notFound": "Page not found",
     "language": "Language",
     "offline": "You are offline. Changes will sync when connection is restored.",
-    "lastSynced": "Last synced: {{time}}"
+    "lastSynced": "Last synced: {{time}}",
+    "queuedActions": "{{count}} action(s) pending"
   }
 }
