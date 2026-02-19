@@ -21,7 +21,32 @@
     "stressTest": "Stress Test",
     "milestones": "Milestones",
     "liveEvents": "Live Event Stream",
-    "simIdPlaceholder": "lsim_..."
+    "simIdPlaceholder": "lsim_...",
+    "viewAll": "View All Simulations"
+  },
+  "simulations": {
+    "title": "My Simulations",
+    "subtitle": "View and manage your life simulations",
+    "createNew": "New Simulation",
+    "createFirst": "Create Your First Simulation",
+    "emptyState": "No simulations yet. Create one to get started.",
+    "loadError": "Failed to load simulations: {{message}}",
+    "colId": "Simulation ID",
+    "colStatus": "Status",
+    "colCreated": "Created",
+    "colCompleted": "Completed",
+    "colActions": "Actions",
+    "view": "View Results",
+    "inProgress": "In progress",
+    "pageInfo": "Page {{page}} of {{total}}",
+    "prev": "Previous",
+    "next": "Next",
+    "status": {
+      "pending": "Pending",
+      "running": "Running",
+      "completed": "Completed",
+      "failed": "Failed"
+    }
   },
   "statsTable": {
     "caption": "Path statistics summary",
@@ -242,6 +267,7 @@
   },
   "sidebar": {
     "dashboard": "Dashboard",
+    "simulations": "My Simulations",
     "newSimulation": "New Simulation",
     "values": "Values",
     "billing": "Billing",

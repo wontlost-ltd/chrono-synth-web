@@ -21,7 +21,32 @@
     "stressTest": "压力测试",
     "milestones": "里程碑",
     "liveEvents": "实时事件流",
-    "simIdPlaceholder": "lsim_..."
+    "simIdPlaceholder": "lsim_...",
+    "viewAll": "查看所有模拟"
+  },
+  "simulations": {
+    "title": "我的模拟",
+    "subtitle": "查看和管理您的人生模拟",
+    "createNew": "新建模拟",
+    "createFirst": "创建您的第一个模拟",
+    "emptyState": "尚无模拟记录，创建一个开始吧。",
+    "loadError": "加载模拟列表失败: {{message}}",
+    "colId": "模拟 ID",
+    "colStatus": "状态",
+    "colCreated": "创建时间",
+    "colCompleted": "完成时间",
+    "colActions": "操作",
+    "view": "查看结果",
+    "inProgress": "进行中",
+    "pageInfo": "第 {{page}} / {{total}} 页",
+    "prev": "上一页",
+    "next": "下一页",
+    "status": {
+      "pending": "等待中",
+      "running": "运行中",
+      "completed": "已完成",
+      "failed": "失败"
+    }
   },
   "statsTable": {
     "caption": "路径统计汇总",
@@ -242,6 +267,7 @@
   },
   "sidebar": {
     "dashboard": "仪表盘",
+    "simulations": "我的模拟",
     "newSimulation": "新建模拟",
     "values": "价值观",
     "billing": "计费",

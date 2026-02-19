@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
@@ -8,6 +8,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { LiveIndicator } from '../components/ui/LiveIndicator';
 import { LiveMetricStream } from '../components/charts/LiveMetricStream';
 import { useOverview } from '../api/queries/visualization';
+import { useSimulationList, type SimulationListItem } from '../api/queries/simulations';
 import { useWebSocket } from '../hooks/useWebSocket';
 
 export function Dashboard() {
@@ -15,6 +16,25 @@ export function Dashboard() {
   const [simId, setSimId] = useState(() => {
     try { return localStorage.getItem('last-sim-id') ?? ''; } catch { return ''; }
   });
+
+  /* 无已选模拟时，自动选取最近完成的模拟 */
+  const { data: listData } = useSimulationList(1, 20);
+  useEffect(() => {
+    if (!simId && listData?.data?.length) {
+      const completed = listData.data.reduce<SimulationListItem | undefined>((latest, sim) => {
+        if (sim.status !== 'completed') return latest;
+        const simTs = sim.completedAt ?? sim.createdAt ?? 0;
+        if (!latest) return sim;
+        const latestTs = latest.completedAt ?? latest.createdAt ?? 0;
+        return simTs > latestTs ? sim : latest;
+      }, undefined);
+      if (completed) {
+        setSimId(completed.simulationId);
+        try { localStorage.setItem('last-sim-id', completed.simulationId); } catch { /* ignored */ }
+      }
+    }
+  }, [simId, listData]);
+
   const { data, isLoading, error } = useOverview(simId);
   const ws = useWebSocket({ autoConnect: !!simId });
 
@@ -22,28 +42,18 @@ export function Dashboard() {
     return (
       <>
         <PageHeader title={t('dashboard.title')} />
-        <div className="mb-4">
-          <label htmlFor="sim-id-input" className="text-sm text-text-secondary">{t('dashboard.inputLabel')}</label>
-          <form className="mt-1 flex gap-2" onSubmit={e => {
-            e.preventDefault();
-            const form = e.currentTarget;
-            const val = (form.elements.namedItem('sim-id') as HTMLInputElement).value.trim();
-            if (val) { setSimId(val); try { localStorage.setItem('last-sim-id', val); } catch { /* ignored */ }; }
-          }}>
-            <input
-              id="sim-id-input"
-              name="sim-id"
-              className="flex-1 rounded-lg border border-border px-3 py-2 text-sm"
-              placeholder={t('dashboard.simIdPlaceholder')}
-            />
-            <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
-              {t('dashboard.load')}
-            </button>
-          </form>
-        </div>
         <EmptyState
           message={t('dashboard.emptyState')}
-          action={<Link to="/simulations/new" className="rounded-lg bg-primary px-4 py-2 text-sm text-white">{t('dashboard.createNew')}</Link>}
+          action={
+            <div className="flex gap-3">
+              <Link to="/simulations" className="rounded-lg border border-border px-4 py-2 text-sm">
+                {t('dashboard.viewAll')}
+              </Link>
+              <Link to="/simulations/new" className="rounded-lg bg-primary px-4 py-2 text-sm text-white">
+                {t('dashboard.createNew')}
+              </Link>
+            </div>
+          }
         />
       </>
     );
@@ -89,13 +99,12 @@ export function Dashboard() {
         actions={
           <div className="flex items-center gap-3">
             <LiveIndicator status={ws.status} />
-            <button
-              type="button"
-              onClick={() => { setSimId(''); try { localStorage.removeItem('last-sim-id'); } catch { /* ignored */ } }}
+            <Link
+              to="/simulations"
               className="rounded-lg border border-border px-3 py-1.5 text-sm text-text-secondary hover:bg-surface"
             >
               {t('dashboard.switchSimulation')}
-            </button>
+            </Link>
           </div>
         }
       />

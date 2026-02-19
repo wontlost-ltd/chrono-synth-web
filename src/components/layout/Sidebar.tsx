@@ -6,6 +6,7 @@ import { LanguageSwitcher } from '../ui/LanguageSwitcher';
 
 const NAV_ITEMS = [
   { to: '/dashboard', labelKey: 'sidebar.dashboard', icon: '📊' },
+  { to: '/simulations', labelKey: 'sidebar.simulations', icon: '📋' },
   { to: '/simulations/new', labelKey: 'sidebar.newSimulation', icon: '➕' },
   { to: '/values', labelKey: 'sidebar.values', icon: '💎' },
   { to: '/billing', labelKey: 'sidebar.billing', icon: '💳' },

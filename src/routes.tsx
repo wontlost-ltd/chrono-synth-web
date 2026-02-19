@@ -7,6 +7,7 @@ const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login }
 const Register = lazy(() => import('./pages/Register').then(m => ({ default: m.Register })));
 const Onboarding = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
+const Simulations = lazy(() => import('./pages/Simulations').then(m => ({ default: m.Simulations })));
 const SimulationWizard = lazy(() => import('./pages/SimulationWizard').then(m => ({ default: m.SimulationWizard })));
 const PathComparison = lazy(() => import('./pages/PathComparison').then(m => ({ default: m.PathComparison })));
 const BranchExplorer = lazy(() => import('./pages/BranchExplorer').then(m => ({ default: m.BranchExplorer })));
@@ -32,6 +33,7 @@ export const routes: RouteObject[] = [
   { path: '/register', element: <LazyPage><Register /></LazyPage> },
   { path: '/onboarding', element: <Protected><Onboarding /></Protected> },
   { path: '/dashboard', element: <Protected><Dashboard /></Protected> },
+  { path: '/simulations', element: <Protected><Simulations /></Protected> },
   { path: '/simulations/new', element: <Protected><SimulationWizard /></Protected> },
   { path: '/simulations/:id', element: <Navigate to="paths" replace /> },
   { path: '/simulations/:id/paths', element: <Protected><PathComparison /></Protected> },
