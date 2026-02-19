@@ -3,6 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './api/queryClient';
 import { AppShell } from './components/layout/AppShell';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { NetworkStatus } from './components/ui/NetworkStatus';
 import { routes } from './routes';
 
 /** 认证页面不需要 AppShell 布局 */
@@ -25,6 +26,7 @@ export function App() {
       <BrowserRouter>
         <ErrorBoundary>
           <AppRoutes />
+          <NetworkStatus />
         </ErrorBoundary>
       </BrowserRouter>
     </QueryClientProvider>

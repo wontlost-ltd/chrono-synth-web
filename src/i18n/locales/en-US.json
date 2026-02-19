@@ -307,6 +307,7 @@
     "loading": "Loading...",
     "error": "Error",
     "notFound": "Page not found",
-    "language": "Language"
+    "language": "Language",
+    "offline": "You are offline. Changes will sync when connection is restored."
   }
 }
