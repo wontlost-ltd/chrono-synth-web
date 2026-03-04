@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '../client';
 
 interface PlanLimits {
@@ -13,10 +13,22 @@ interface Plan {
   limits: PlanLimits;
 }
 
+export interface AddOn {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  resource: string;
+  quotaAmount: number;
+  isActive: boolean;
+}
+
 interface UsageData {
   planId: string;
   status: string;
   limits: PlanLimits;
+  effectiveLimits?: PlanLimits;
+  addOns?: Array<{ addOnId: string; code: string; name: string; resource: string; quotaAmount: number; purchasedAt: number }>;
   usage: Record<string, number>;
   periodEnd?: number;
 }
@@ -53,5 +65,26 @@ export function useCustomerPortal() {
         method: 'POST',
         body: JSON.stringify(body),
       }),
+  });
+}
+
+export function useAddOns() {
+  return useQuery({
+    queryKey: ['billing', 'addOns'],
+    queryFn: ({ signal }) => apiFetch<AddOn[]>('/api/v1/billing/add-ons', { signal }),
+  });
+}
+
+export function usePurchaseAddOn() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (addOnId: string) =>
+      apiFetch<{ purchased: boolean; addOnId: string }>(`/api/v1/billing/add-ons/${encodeURIComponent(addOnId)}/purchase`, {
+        method: 'POST',
+      }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['billing', 'usage'] });
+      void qc.invalidateQueries({ queryKey: ['billing', 'addOns'] });
+    },
   });
 }

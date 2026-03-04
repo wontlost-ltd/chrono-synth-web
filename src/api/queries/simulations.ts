@@ -53,6 +53,20 @@ export function useCreateSimulation() {
   });
 }
 
+export function useCancelTask() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (taskId: string) =>
+      apiFetch<{ taskId: string; cancelled: boolean }>(`/api/v1/tasks/${encodeURIComponent(taskId)}/cancel`, {
+        method: 'POST',
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['simulations'] });
+      qc.invalidateQueries({ queryKey: ['simulation'] });
+    },
+  });
+}
+
 export function useCreateStressTest(simId: string) {
   const qc = useQueryClient();
   return useMutation({
