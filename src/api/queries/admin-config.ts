@@ -28,18 +28,35 @@ interface ApplyPatchResult {
   requiresRestart: string[];
 }
 
+interface AdminConfigResponse {
+  items: ConfigItem[];
+  effective: Record<string, unknown>;
+}
+
+/** 将 effective 对象中未出现在 items 里的键补为默认 ConfigItem */
+function mergeEffective(resp: AdminConfigResponse): ConfigItem[] {
+  const itemKeys = new Set(resp.items.map(i => i.key));
+  const fromEffective: ConfigItem[] = Object.entries(resp.effective)
+    .filter(([k]) => !itemKeys.has(k))
+    .map(([k, v]) => ({
+      key: k,
+      value: v,
+      category: 'default',
+      requiresRestart: false,
+      groupKey: k.split('.')[0] ?? k,
+      updatedAt: 0,
+      updatedBy: 'system',
+    }));
+  return [...resp.items, ...fromEffective];
+}
+
 export function useAdminConfig(enabled = true) {
   return useQuery({
     queryKey: ['admin', 'config'],
-    queryFn: ({ signal }) => apiFetch<ConfigItem[]>('/api/v1/admin/config', { signal }),
-    enabled,
-  });
-}
-
-export function useAdminConfigEffective(enabled = true) {
-  return useQuery({
-    queryKey: ['admin', 'config', 'effective'],
-    queryFn: ({ signal }) => apiFetch<Record<string, unknown>>('/api/v1/admin/config?view=effective', { signal }),
+    queryFn: async ({ signal }) => {
+      const resp = await apiFetch<AdminConfigResponse>('/api/v1/admin/config', { signal });
+      return mergeEffective(resp);
+    },
     enabled,
   });
 }
