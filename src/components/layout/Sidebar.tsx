@@ -131,7 +131,7 @@ export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
               {group.labelKey && !collapsed && (
                 <button
                   onClick={() => toggleGroup(group.id)}
-                  className="flex w-full items-center justify-between px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-neutral-3 hover:text-text-secondary"
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-text-secondary hover:text-text-primary"
                 >
                   <span>{t(group.labelKey)}</span>
                   <span aria-hidden="true" className="text-[10px]">{isCollapsedGroup ? '▸' : '▾'}</span>
