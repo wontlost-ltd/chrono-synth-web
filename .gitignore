@@ -6,3 +6,6 @@ dist
 .idea
 *.iml
 .ace-tool/
+tsconfig.tsbuildinfo
+test-results/
+playwright-report/
