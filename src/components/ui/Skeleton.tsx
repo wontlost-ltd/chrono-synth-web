@@ -1,9 +1,12 @@
+import { useTranslation } from 'react-i18next';
+
 interface SkeletonProps {
   variant?: 'card' | 'chart' | 'table';
   className?: string;
 }
 
 export function Skeleton({ variant = 'card', className = '' }: SkeletonProps) {
+  const { t } = useTranslation();
   const heights: Record<string, string> = {
     card: 'h-24',
     chart: 'h-64',
@@ -14,9 +17,9 @@ export function Skeleton({ variant = 'card', className = '' }: SkeletonProps) {
     <div
       className={`animate-pulse rounded-xl bg-border/50 ${heights[variant]} ${className}`}
       role="status"
-      aria-label="加载中"
+      aria-label={t('common.loading')}
     >
-      <span className="sr-only">加载中...</span>
+      <span className="sr-only">{t('common.loading')}</span>
     </div>
   );
 }

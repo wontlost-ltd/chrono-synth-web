@@ -114,12 +114,12 @@ export function Dashboard() {
       {/* 推荐路径 */}
       {recommended && (
         <div className="mb-6 rounded-xl border border-primary/20 bg-primary/5 p-4">
-          <div className="flex items-baseline justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
             <div>
               <span className="text-xs font-medium text-primary">{t('dashboard.recommendedPath')}</span>
               <h2 className="text-lg font-bold">{recommended.pathId}</h2>
             </div>
-            <div className="text-right">
+            <div className="sm:text-right">
               <div className="text-sm text-text-secondary">{t('dashboard.compositeScore')}</div>
               <div className="text-xl font-bold">{recommended.compositeScore.toFixed(3)}</div>
             </div>

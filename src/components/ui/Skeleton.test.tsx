@@ -1,6 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Skeleton } from './Skeleton';
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
 
 describe('Skeleton', () => {
   it('renders with status role', () => {
@@ -10,12 +14,12 @@ describe('Skeleton', () => {
 
   it('has accessible loading label', () => {
     render(<Skeleton />);
-    expect(screen.getByLabelText('加载中')).toBeInTheDocument();
+    expect(screen.getByLabelText('common.loading')).toBeInTheDocument();
   });
 
   it('includes sr-only text for screen readers', () => {
     render(<Skeleton />);
-    expect(screen.getByText('加载中...')).toBeInTheDocument();
+    expect(screen.getByText('common.loading')).toBeInTheDocument();
   });
 
   it('applies card height by default', () => {

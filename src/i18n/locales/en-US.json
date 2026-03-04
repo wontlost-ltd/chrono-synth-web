@@ -211,7 +211,18 @@
     "unlimited": "Unlimited",
     "currentPlanBadge": "Current Plan",
     "loadError": "Failed to load billing data: {{message}}",
-    "portalError": "Failed to open billing portal: {{message}}"
+    "portalError": "Failed to open billing portal: {{message}}",
+    "addOnsTitle": "Add-ons",
+    "addOnOwned": "Owned",
+    "purchaseAddOn": "Purchase",
+    "activeAddOnsLabel": "Active add-ons:",
+    "addOnsError": "Failed to load add-ons: {{message}}",
+    "addOnsEmpty": "No add-ons available right now.",
+    "addOnResource": {
+      "simulation": "Simulations",
+      "paths": "Paths",
+      "llm_tokens": "LLM Tokens"
+    }
   },
   "onboarding": {
     "welcomeTitle": "Welcome to ChronoSynth",
@@ -234,7 +245,18 @@
     "doneTitle": "Setup Complete!",
     "doneDescription": "Your values and first simulation have been created. You can now go to the dashboard to view results.",
     "goToDashboard": "Go to Dashboard",
-    "progressLabel": "Onboarding progress: step {{step}} of {{total}}"
+    "progressLabel": "Onboarding progress: step {{step}} of {{total}}",
+    "back": "Back",
+    "templateTitle": "Choose Your Lifestyle",
+    "templateDescription": "Pick a template that fits you best. We'll preset value parameters for you.",
+    "templateCareer": "Career-Focused",
+    "templateCareerDesc": "Pursue professional achievement and financial growth",
+    "templateFamily": "Family-Oriented",
+    "templateFamilyDesc": "Focus on family relationships and personal growth",
+    "templateExplorer": "Explorer",
+    "templateExplorerDesc": "Seek freedom and rich life experiences",
+    "templateCustom": "Custom",
+    "templateCustomDesc": "Define your values from scratch"
   },
   "settings": {
     "title": "Settings",
@@ -270,14 +292,21 @@
     "simulations": "My Simulations",
     "newSimulation": "New Simulation",
     "values": "Values",
+    "avatars": "Avatars",
+    "knowledgeSources": "Knowledge Sources",
     "billing": "Billing",
     "settings": "Settings",
     "systemStatus": "System Status",
+    "adminConfig": "System Config",
     "closeNav": "Close navigation",
     "expand": "Expand sidebar",
     "collapse": "Collapse sidebar",
     "mainNav": "Main navigation",
-    "logout": "Logout"
+    "logout": "Logout",
+    "groups": {
+      "agents": "Agents & Knowledge",
+      "ops": "Operations"
+    }
   },
   "appShell": {
     "openNav": "Open navigation",
@@ -303,6 +332,70 @@
     "orDivider": "or",
     "stateMismatch": "SSO authentication failed: invalid state"
   },
+  "sharing": {
+    "title": "Share Simulation",
+    "userIdLabel": "User ID",
+    "userIdPlaceholder": "Enter user ID or email",
+    "permissionLabel": "Permission",
+    "invite": "Invite",
+    "currentShares": "Currently Shared With",
+    "revoke": "Revoke",
+    "permission": {
+      "view": "View",
+      "edit": "Edit",
+      "admin": "Admin"
+    }
+  },
+  "adminConfig": {
+    "title": "System Configuration",
+    "subtitle": "Manage system runtime parameters",
+    "noPermission": "Admin access required",
+    "loadError": "Failed to load config: {{message}}",
+    "requiresRestart": "Requires restart",
+    "maskedValue": "Hidden",
+    "secretPlaceholder": "Enter a new value to update",
+    "auditError": "Failed to load audit log: {{message}}",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "saved": "Configuration saved",
+    "savedNeedsRestart": "Saved. These settings require a restart: {{keys}}",
+    "editValueAria": "Edit value for {{key}}",
+    "auditTitle": "Change History",
+    "auditKey": "Config Key",
+    "auditOldValue": "Old Value",
+    "auditNewValue": "New Value",
+    "auditChangedBy": "Changed By",
+    "auditChangedAt": "Changed At",
+    "noAudit": "No changes recorded yet"
+  },
+  "trustBadge": {
+    "ai": "AI",
+    "user": "User",
+    "system": "System"
+  },
+  "safetyError": {
+    "quotaTitle": "Quota Exceeded",
+    "rate_limitTitle": "Rate Limited",
+    "policyTitle": "Safety Policy Violation",
+    "genericTitle": "Error",
+    "retryAfter": "Please retry after {{seconds}} seconds",
+    "upgradePlan": "Upgrade Plan"
+  },
+  "statusBadge": {
+    "active": "Active",
+    "completed": "Completed",
+    "paused": "Paused",
+    "error": "Error",
+    "syncing": "Syncing",
+    "offline": "Offline"
+  },
+  "stepper": {
+    "ariaLabel": "Step progress"
+  },
+  "logTimeline": {
+    "empty": "No logs yet"
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",
@@ -310,6 +403,138 @@
     "language": "Language",
     "offline": "You are offline. Changes will sync when connection is restored.",
     "lastSynced": "Last synced: {{time}}",
-    "queuedActions": "{{count}} action(s) pending"
+    "queuedActions": "{{count}} action(s) pending",
+    "dismiss": "Dismiss"
+  },
+  "avatars": {
+    "title": "Avatar Management",
+    "subtitle": "Manage and configure your digital avatars",
+    "detail": "Avatar Detail",
+    "create": "New Avatar",
+    "createTitle": "Create Avatar",
+    "save": "Save",
+    "view": "View",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this avatar?",
+    "labelField": "Name",
+    "labelRequired": "Name cannot be empty",
+    "kindField": "Type",
+    "loadError": "Failed to load avatars: {{message}}",
+    "emptyState": "No avatars yet. Create one to get started.",
+    "notFound": "Avatar not found",
+    "project": "Project",
+    "colLabel": "Name",
+    "colKind": "Type",
+    "colStatus": "Status",
+    "colCreated": "Created",
+    "metricKind": "Type",
+    "metricAutorun": "Autorun",
+    "metricCreated": "Created",
+    "autorunOn": "Enabled",
+    "autorunOff": "Disabled",
+    "autorunStatus": "Runs every {{interval}} minutes",
+    "autorunDisabled": "Autorun is not enabled",
+    "configAutorun": "Configure Autorun",
+    "behaviorTitle": "Behavior Overrides",
+    "noOverrides": "No custom overrides",
+    "noActivity": "No activity recorded",
+    "tabs": {
+      "overview": "Overview",
+      "autorun": "Autorun",
+      "activity": "Activity Log"
+    },
+    "kind": {
+      "general": "General",
+      "work": "Work",
+      "social": "Social",
+      "family": "Family",
+      "creative": "Creative"
+    }
+  },
+  "knowledgeSources": {
+    "title": "Knowledge Sources",
+    "subtitle": "Manage knowledge sources and sync configuration",
+    "detail": "Knowledge Source Detail",
+    "create": "New Source",
+    "createTitle": "Create Knowledge Source",
+    "createAndSync": "Create & Sync",
+    "sync": "Sync",
+    "syncing": "Syncing...",
+    "view": "View",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this knowledge source?",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "loadError": "Failed to load knowledge sources: {{message}}",
+    "emptyState": "No knowledge sources yet. Create one to get started.",
+    "notFound": "Knowledge source not found",
+    "colName": "Name",
+    "colType": "Type",
+    "colStatus": "Status",
+    "colLastSync": "Last Sync",
+    "colItems": "Items",
+    "colCreated": "Created",
+    "configSection": "Configuration",
+    "nameLabel": "Name",
+    "nameRequired": "Name cannot be empty",
+    "urlRequired": "URL cannot be empty",
+    "promptRequired": "System prompt cannot be empty",
+    "pollingLabel": "Polling Interval (minutes)",
+    "pollingDesc": "15-10080 minutes",
+    "manualTextLabel": "Text Content",
+    "fileRefLabel": "File Reference",
+    "systemPromptLabel": "System Prompt",
+    "systemPromptDesc": "Define the LLM role and output format",
+    "topicsLabel": "Topics",
+    "topicsDesc": "One topic per line",
+    "topicsPlaceholder": "Accounting standards\nTax calculation\nFinancial reporting",
+    "itemsPerRunLabel": "Items Per Run",
+    "itemsPerRunDesc": "1-20 items",
+    "confirmSummary": "Configuration Summary",
+    "urlLabel": "URL",
+    "steps": {
+      "type": "Select Type",
+      "config": "Configuration",
+      "confirm": "Confirm"
+    }
+  },
+  "autorun": {
+    "title": "Autorun Configuration",
+    "runsTitle": "Run History",
+    "triggerNow": "Run Now",
+    "viewRuns": "View Run History",
+    "enabledLabel": "Enable Autorun",
+    "on": "Enabled",
+    "off": "Disabled",
+    "intervalLabel": "Run Interval (minutes)",
+    "intervalDesc": "15-10080 minutes",
+    "driftLabel": "Drift Threshold",
+    "driftDesc": "0-1, lower is stricter",
+    "reviewLabel": "Review Required",
+    "reviewDesc": "Changes require manual review",
+    "sourcesLabel": "Linked Knowledge Sources",
+    "sourcesDesc": "Select knowledge sources for this avatar",
+    "save": "Save Configuration",
+    "saved": "Configuration saved",
+    "saveError": "Failed to save configuration",
+    "noRuns": "No runs recorded",
+    "colRunId": "Run ID",
+    "colStatus": "Status",
+    "colStarted": "Started",
+    "colItems": "Items Processed"
+  },
+  "personas": {
+    "title": "Persona Management",
+    "subtitle": "Manage persona branches and simulations",
+    "fork": "Fork Persona",
+    "forkTitle": "Create Persona Fork",
+    "labelField": "Name",
+    "emptyState": "No persona branches yet",
+    "pause": "Pause",
+    "resume": "Resume",
+    "colLabel": "Name",
+    "colStatus": "Status",
+    "colQuota": "Resource Quota",
+    "colCreated": "Created"
   }
 }

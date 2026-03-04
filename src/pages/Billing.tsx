@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { usePlans, useUsage, useCustomerPortal } from '../api/queries/billing';
+import { usePlans, useUsage, useCustomerPortal, useAddOns, usePurchaseAddOn } from '../api/queries/billing';
+import type { AddOn } from '../api/queries/billing';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -11,6 +12,8 @@ export function Billing() {
   const plans = usePlans();
   const usage = useUsage();
   const portal = useCustomerPortal();
+  const addOns = useAddOns();
+  const purchase = usePurchaseAddOn();
 
   function handleManage() {
     portal.mutate({ returnUrl: window.location.href }, {
@@ -26,6 +29,8 @@ export function Billing() {
   }
 
   const currentPlan = plans.data?.find(p => p.id === usage.data?.planId);
+  const effectiveLimits = usage.data?.effectiveLimits ?? usage.data?.limits;
+  const activeAddOnIds = new Set((usage.data?.addOns ?? []).map(a => a.addOnId));
 
   return (
     <div className="space-y-6">
@@ -65,19 +70,55 @@ export function Billing() {
           <UsageMeter
             label={t('billing.simulationsLabel')}
             used={usage.data?.usage?.['simulation'] ?? 0}
-            limit={usage.data?.limits?.maxSimulations ?? 0}
+            limit={effectiveLimits?.maxSimulations ?? 0}
           />
           <UsageMeter
             label={t('billing.pathsLabel')}
             used={usage.data?.usage?.['paths'] ?? 0}
-            limit={usage.data?.limits?.maxPaths ?? 0}
+            limit={effectiveLimits?.maxPaths ?? 0}
           />
           <UsageMeter
             label={t('billing.llmTokensLabel')}
             used={usage.data?.usage?.['llm_tokens'] ?? 0}
-            limit={usage.data?.limits?.llmTokensPerMonth ?? 0}
+            limit={effectiveLimits?.llmTokensPerMonth ?? 0}
           />
         </div>
+        {(usage.data?.addOns?.length ?? 0) > 0 && (
+          <div className="mt-4 border-t border-border pt-3">
+            <p className="text-xs text-text-secondary">{t('billing.activeAddOnsLabel')}</p>
+            <div className="mt-1 flex flex-wrap gap-2">
+              {usage.data?.addOns?.map(a => (
+                <span key={a.addOnId} className="rounded bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+                  {a.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-xl border border-border bg-surface-elevated p-6">
+        <h2 className="mb-4 text-lg font-semibold text-text-primary">{t('billing.addOnsTitle')}</h2>
+        {addOns.error ? (
+          <p className="text-sm text-warning" role="alert">{t('billing.addOnsError', { message: addOns.error.message ?? t('common.error') })}</p>
+        ) : addOns.data && addOns.data.filter(a => a.isActive).length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {addOns.data.filter(a => a.isActive).map(addon => (
+              <AddOnCard
+                key={addon.id}
+                addon={addon}
+                owned={activeAddOnIds.has(addon.id)}
+                onPurchase={() => purchase.mutate(addon.id)}
+                isPurchasing={purchase.isPending}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-text-secondary">{t('billing.addOnsEmpty')}</p>
+        )}
+        {purchase.error && (
+          <p className="mt-2 text-sm text-warning" role="alert">{purchase.error.message}</p>
+        )}
       </div>
 
       <div className="rounded-xl border border-border bg-surface-elevated p-6">
@@ -88,6 +129,31 @@ export function Billing() {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+function AddOnCard({ addon, owned, onPurchase, isPurchasing }: { addon: AddOn; owned: boolean; onPurchase: () => void; isPurchasing: boolean }) {
+  const { t } = useTranslation();
+  const resourceLabel = t(`billing.addOnResource.${addon.resource}`, { defaultValue: addon.resource });
+  return (
+    <div className={`rounded-lg border p-4 ${owned ? 'border-success bg-success/5' : 'border-border'}`}>
+      <h3 className="font-semibold text-text-primary">{addon.name}</h3>
+      {addon.description && <p className="mt-1 text-xs text-text-secondary">{addon.description}</p>}
+      <p className="mt-2 text-sm text-text-primary">+{addon.quotaAmount.toLocaleString()} {resourceLabel}</p>
+      {owned ? (
+        <span className="mt-2 inline-block rounded bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+          {t('billing.addOnOwned')}
+        </span>
+      ) : (
+        <button
+          onClick={onPurchase}
+          disabled={isPurchasing}
+          className="mt-2 rounded bg-primary px-3 py-1 text-xs font-medium text-white hover:bg-primary-light disabled:opacity-50"
+        >
+          {isPurchasing ? t('common.loading') : t('billing.purchaseAddOn')}
+        </button>
+      )}
     </div>
   );
 }

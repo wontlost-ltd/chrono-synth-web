@@ -267,7 +267,7 @@ export function SimulationWizard() {
       )}
       </div>
 
-      <div className="mt-6 flex justify-between">
+      <div className="mt-6 flex justify-between sm:static fixed bottom-0 left-0 right-0 z-10 border-t border-border bg-surface-elevated p-4 sm:border-0 sm:bg-transparent sm:p-0">
         <button
           type="button"
           onClick={() => { setStep(s => s - 1); setValidationError(null); }}
@@ -295,6 +295,7 @@ export function SimulationWizard() {
           </div>
         )}
       </div>
+      <div className="h-16 sm:hidden" />
     </>
   );
 }

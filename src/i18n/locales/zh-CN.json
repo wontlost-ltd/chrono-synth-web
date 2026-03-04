@@ -211,7 +211,18 @@
     "unlimited": "无限",
     "currentPlanBadge": "当前计划",
     "loadError": "加载计费数据失败：{{message}}",
-    "portalError": "打开计费入口失败：{{message}}"
+    "portalError": "打开计费入口失败：{{message}}",
+    "addOnsTitle": "附加服务",
+    "addOnOwned": "已购买",
+    "purchaseAddOn": "购买",
+    "activeAddOnsLabel": "已激活的附加服务：",
+    "addOnsError": "加载附加服务失败：{{message}}",
+    "addOnsEmpty": "当前暂无附加服务。",
+    "addOnResource": {
+      "simulation": "模拟次数",
+      "paths": "路径数",
+      "llm_tokens": "LLM Token"
+    }
   },
   "onboarding": {
     "welcomeTitle": "欢迎使用 ChronoSynth",
@@ -234,7 +245,18 @@
     "doneTitle": "设置完成！",
     "doneDescription": "您的价值观和首次模拟已创建。现在可以前往仪表盘查看结果。",
     "goToDashboard": "进入仪表盘",
-    "progressLabel": "引导进度：第 {{step}} / {{total}} 步"
+    "progressLabel": "引导进度：第 {{step}} / {{total}} 步",
+    "back": "上一步",
+    "templateTitle": "选择您的生活方式",
+    "templateDescription": "选择最接近您的模板，我们会为您预设价值观参数。",
+    "templateCareer": "事业型",
+    "templateCareerDesc": "追求职业成就和财务增长",
+    "templateFamily": "家庭型",
+    "templateFamilyDesc": "注重家庭关系和个人成长",
+    "templateExplorer": "探索型",
+    "templateExplorerDesc": "追求自由和丰富的人生体验",
+    "templateCustom": "自定义",
+    "templateCustomDesc": "从零开始定义您的价值观"
   },
   "settings": {
     "title": "设置",
@@ -270,14 +292,21 @@
     "simulations": "我的模拟",
     "newSimulation": "新建模拟",
     "values": "价值观",
+    "avatars": "分身管理",
+    "knowledgeSources": "知识源",
     "billing": "计费",
     "settings": "设置",
     "systemStatus": "系统状态",
+    "adminConfig": "系统配置",
     "closeNav": "关闭导航",
     "expand": "展开侧边栏",
     "collapse": "折叠侧边栏",
     "mainNav": "主导航",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "groups": {
+      "agents": "智能体与知识",
+      "ops": "运行与治理"
+    }
   },
   "appShell": {
     "openNav": "打开导航",
@@ -303,6 +332,70 @@
     "orDivider": "或",
     "stateMismatch": "SSO 认证失败：状态校验失败"
   },
+  "sharing": {
+    "title": "分享模拟",
+    "userIdLabel": "用户 ID",
+    "userIdPlaceholder": "输入用户 ID 或邮箱",
+    "permissionLabel": "权限",
+    "invite": "邀请",
+    "currentShares": "当前已分享",
+    "revoke": "撤销",
+    "permission": {
+      "view": "查看",
+      "edit": "编辑",
+      "admin": "管理"
+    }
+  },
+  "adminConfig": {
+    "title": "系统配置",
+    "subtitle": "管理系统运行参数",
+    "noPermission": "需要管理员权限",
+    "loadError": "加载配置失败：{{message}}",
+    "requiresRestart": "需重启",
+    "maskedValue": "已隐藏",
+    "secretPlaceholder": "输入新值以更新",
+    "auditError": "加载变更记录失败：{{message}}",
+    "edit": "编辑",
+    "save": "保存",
+    "cancel": "取消",
+    "saved": "配置已保存",
+    "savedNeedsRestart": "已保存，以下配置需要重启生效：{{keys}}",
+    "editValueAria": "编辑 {{key}} 的值",
+    "auditTitle": "变更记录",
+    "auditKey": "配置项",
+    "auditOldValue": "旧值",
+    "auditNewValue": "新值",
+    "auditChangedBy": "修改人",
+    "auditChangedAt": "修改时间",
+    "noAudit": "暂无变更记录"
+  },
+  "trustBadge": {
+    "ai": "AI 发起",
+    "user": "用户发起",
+    "system": "系统"
+  },
+  "safetyError": {
+    "quotaTitle": "配额已用尽",
+    "rate_limitTitle": "请求过于频繁",
+    "policyTitle": "安全策略违规",
+    "genericTitle": "错误",
+    "retryAfter": "请在 {{seconds}} 秒后重试",
+    "upgradePlan": "升级计划"
+  },
+  "statusBadge": {
+    "active": "活跃",
+    "completed": "已完成",
+    "paused": "暂停",
+    "error": "错误",
+    "syncing": "同步中",
+    "offline": "离线"
+  },
+  "stepper": {
+    "ariaLabel": "步骤进度"
+  },
+  "logTimeline": {
+    "empty": "暂无日志"
+  },
   "common": {
     "loading": "加载中...",
     "error": "错误",
@@ -310,6 +403,138 @@
     "language": "语言",
     "offline": "您当前处于离线状态。连接恢复后将自动同步。",
     "lastSynced": "上次同步: {{time}}",
-    "queuedActions": "{{count}} 个操作待同步"
+    "queuedActions": "{{count}} 个操作待同步",
+    "dismiss": "关闭"
+  },
+  "avatars": {
+    "title": "分身管理",
+    "subtitle": "管理和配置您的数字分身",
+    "detail": "分身详情",
+    "create": "新建分身",
+    "createTitle": "创建分身",
+    "save": "保存",
+    "view": "查看",
+    "delete": "删除",
+    "confirmDelete": "确定要删除此分身吗？",
+    "labelField": "名称",
+    "labelRequired": "名称不能为空",
+    "kindField": "类型",
+    "loadError": "加载分身列表失败: {{message}}",
+    "emptyState": "尚无分身，创建一个开始吧。",
+    "notFound": "分身不存在",
+    "project": "投影",
+    "colLabel": "名称",
+    "colKind": "类型",
+    "colStatus": "状态",
+    "colCreated": "创建时间",
+    "metricKind": "类型",
+    "metricAutorun": "自动运行",
+    "metricCreated": "创建时间",
+    "autorunOn": "已启用",
+    "autorunOff": "未启用",
+    "autorunStatus": "每 {{interval}} 分钟运行一次",
+    "autorunDisabled": "自动运行未启用",
+    "configAutorun": "配置自动运行",
+    "behaviorTitle": "行为覆盖",
+    "noOverrides": "无自定义覆盖",
+    "noActivity": "暂无活动记录",
+    "tabs": {
+      "overview": "概览",
+      "autorun": "自动运行",
+      "activity": "活动日志"
+    },
+    "kind": {
+      "general": "通用",
+      "work": "工作",
+      "social": "社交",
+      "family": "家庭",
+      "creative": "创造"
+    }
+  },
+  "knowledgeSources": {
+    "title": "知识源管理",
+    "subtitle": "管理知识来源和同步配置",
+    "detail": "知识源详情",
+    "create": "新建知识源",
+    "createTitle": "创建知识源",
+    "createAndSync": "创建并同步",
+    "sync": "同步",
+    "syncing": "同步中...",
+    "view": "查看",
+    "delete": "删除",
+    "confirmDelete": "确定要删除此知识源吗？",
+    "enabled": "已启用",
+    "disabled": "已停用",
+    "loadError": "加载知识源列表失败: {{message}}",
+    "emptyState": "尚无知识源，创建一个开始吧。",
+    "notFound": "知识源不存在",
+    "colName": "名称",
+    "colType": "类型",
+    "colStatus": "状态",
+    "colLastSync": "最近同步",
+    "colItems": "条目数",
+    "colCreated": "创建时间",
+    "configSection": "配置详情",
+    "nameLabel": "名称",
+    "nameRequired": "名称不能为空",
+    "urlRequired": "URL 不能为空",
+    "promptRequired": "系统提示词不能为空",
+    "pollingLabel": "轮询间隔（分钟）",
+    "pollingDesc": "15-10080 分钟",
+    "manualTextLabel": "文本内容",
+    "fileRefLabel": "文件引用",
+    "systemPromptLabel": "系统提示词",
+    "systemPromptDesc": "定义 LLM 的角色和输出格式",
+    "topicsLabel": "主题列表",
+    "topicsDesc": "每行一个主题",
+    "topicsPlaceholder": "企业会计准则\n增值税计算\n财务报表编制",
+    "itemsPerRunLabel": "每次生成条目数",
+    "itemsPerRunDesc": "1-20 条",
+    "confirmSummary": "配置摘要",
+    "urlLabel": "URL",
+    "steps": {
+      "type": "类型选择",
+      "config": "配置",
+      "confirm": "确认创建"
+    }
+  },
+  "autorun": {
+    "title": "自动运行配置",
+    "runsTitle": "运行历史",
+    "triggerNow": "立即运行",
+    "viewRuns": "查看运行历史",
+    "enabledLabel": "启用自动运行",
+    "on": "已启用",
+    "off": "未启用",
+    "intervalLabel": "运行间隔（分钟）",
+    "intervalDesc": "15-10080 分钟",
+    "driftLabel": "漂移阈值",
+    "driftDesc": "0-1 之间，越低越严格",
+    "reviewLabel": "需要审核",
+    "reviewDesc": "变更需要人工审核后生效",
+    "sourcesLabel": "关联知识源",
+    "sourcesDesc": "选择此分身使用的知识源",
+    "save": "保存配置",
+    "saved": "配置已保存",
+    "saveError": "保存配置失败",
+    "noRuns": "暂无运行记录",
+    "colRunId": "运行 ID",
+    "colStatus": "状态",
+    "colStarted": "开始时间",
+    "colItems": "处理条目"
+  },
+  "personas": {
+    "title": "人格管理",
+    "subtitle": "管理人格分支和模拟",
+    "fork": "分叉人格",
+    "forkTitle": "创建人格分叉",
+    "labelField": "名称",
+    "emptyState": "尚无人格分支",
+    "pause": "暂停",
+    "resume": "恢复",
+    "colLabel": "名称",
+    "colStatus": "状态",
+    "colQuota": "资源配额",
+    "colCreated": "创建时间"
   }
 }

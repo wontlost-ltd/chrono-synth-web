@@ -1,15 +1,23 @@
 import { useTranslation } from 'react-i18next';
+import { useQueryClient } from '@tanstack/react-query';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Skeleton } from '../components/ui/Skeleton';
 import { useHealthz, useReadyz, usePosSummary } from '../api/queries/system';
+import { useSse } from '../api/queries/sse';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 export function SystemStatus() {
   const { t } = useTranslation();
   useDocumentTitle(t('systemStatus.title'));
+  const qc = useQueryClient();
   const healthz = useHealthz();
   const readyz = useReadyz();
   const posSummary = usePosSummary();
+
+  useSse('system', () => {
+    void qc.invalidateQueries({ queryKey: ['healthz'] });
+    void qc.invalidateQueries({ queryKey: ['readyz'] });
+  });
 
   return (
     <>

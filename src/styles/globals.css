@@ -24,6 +24,18 @@
   --color-chart-grid: #E2E8F0;
   --color-chart-positive: #15803D;
   --color-chart-negative: #B91C1C;
+  /* 语义状态色 */
+  --color-info: #2563EB;
+  --color-active: #15803D;
+  --color-paused: #B45309;
+  --color-syncing: #2563EB;
+  --color-error: #B91C1C;
+  --color-offline: #6B7280;
+  --color-completed: #15803D;
+  /* 中性色阶 */
+  --color-neutral-1: #F1F5F9;
+  --color-neutral-2: #CBD5E1;
+  --color-neutral-3: #94A3B8;
   --font-size-chart-label: 12px;
   --font-size-chart-annotation: 11px;
 }
