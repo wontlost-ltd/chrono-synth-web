@@ -7,9 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --configLoader runner",
+    "test:watch": "vitest --configLoader runner",
+    "test:ops": "sh -n scripts/render-runtime-config.sh && sh -n docker-entrypoint.sh && TMP_FILE=$(mktemp) && RUNTIME_CONFIG_OUTPUT=\"$TMP_FILE\" CHRONO_WEB_API_BASE_URL=https://api.example.test CHRONO_WEB_SENTRY_DSN=https://dsn.example.test/1 CHRONO_WEB_ENVIRONMENT=staging sh scripts/render-runtime-config.sh && grep -q 'https://api.example.test' \"$TMP_FILE\" && grep -q 'staging' \"$TMP_FILE\" && rm -f \"$TMP_FILE\""
   },
   "dependencies": {
     "@sentry/react": "^10.39.0",
@@ -38,6 +39,7 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
+    "fake-indexeddb": "^6.2.5",
     "jsdom": "^28.1.0",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.8.3",

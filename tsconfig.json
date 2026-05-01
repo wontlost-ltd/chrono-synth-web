@@ -18,7 +18,8 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@chrono/contracts": ["../chrono-synth-os/packages/contracts/dist/index.d.ts"]
     }
   },
   "include": ["src"]
