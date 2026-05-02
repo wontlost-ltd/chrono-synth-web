@@ -1,4 +1,5 @@
 FROM node:24-alpine AS builder
+RUN apk upgrade --no-cache
 WORKDIR /app
 
 # Copy @chrono/* local packages so file: deps resolve inside Docker
@@ -12,6 +13,7 @@ RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:1.27-alpine
 USER root
+RUN apk upgrade --no-cache
 RUN mkdir -p /app/scripts /usr/share/nginx/html \
   && chown -R 101:0 /app /usr/share/nginx/html /etc/nginx/conf.d \
   && chmod -R g=u /app /usr/share/nginx/html /etc/nginx/conf.d
