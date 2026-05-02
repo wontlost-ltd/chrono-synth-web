@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { MetricKey, MetricMeta } from '../../types';
 
 const DEFAULT_OPTIONS: Array<{ key: MetricKey; label: string }> = [
@@ -20,6 +21,7 @@ interface MetricSelectorProps {
 }
 
 export function MetricSelector({ selected, onChange, metricMeta }: MetricSelectorProps) {
+  const { t } = useTranslation();
   const options = metricMeta?.map(m => ({ key: m.key, label: m.label })) ?? DEFAULT_OPTIONS;
 
   function toggle(key: MetricKey) {
@@ -31,7 +33,7 @@ export function MetricSelector({ selected, onChange, metricMeta }: MetricSelecto
   }
 
   return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="指标选择">
+    <div className="flex flex-wrap gap-2" role="group" aria-label={t('aria.metricSelection')}>
       {options.map(opt => (
         <button
           key={opt.key}

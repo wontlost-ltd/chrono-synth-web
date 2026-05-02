@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
+import { useTranslation } from 'react-i18next';
 import type { PathSeries, MetricKey, MetricMeta } from '../../types';
 
 const CHART_COLORS = [
@@ -20,7 +21,8 @@ interface TimeSeriesChartProps {
   height?: number;
 }
 
-export function TimeSeriesChart({ series, metric, metricMeta, height = 360 }: TimeSeriesChartProps) {
+export const TimeSeriesChart = React.memo(function TimeSeriesChart({ series, metric, metricMeta, height = 360 }: TimeSeriesChartProps) {
+  const { t } = useTranslation();
   const data = useMemo(() => {
     if (series.length === 0) return [];
     const yearMap = new Map<number, Record<string, number | string>>();
@@ -40,7 +42,7 @@ export function TimeSeriesChart({ series, metric, metricMeta, height = 360 }: Ti
   return (
     <figure>
       <ResponsiveContainer width="100%" height={height}>
-        <LineChart data={data} margin={{ top: 8, right: 16, bottom: 8, left: 16 }} role="img" aria-label={`${metricLabel} 时间序列图`}>
+        <LineChart data={data} margin={{ top: 8, right: 16, bottom: 8, left: 16 }} role="img" aria-label={t('aria.timeSeriesChart', { metric: metricLabel })}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-grid)" />
           <XAxis dataKey="year" label={{ value: '年', position: 'insideBottomRight', offset: -4 }} />
           <YAxis label={{ value: metricLabel, angle: -90, position: 'insideLeft' }} />
@@ -62,8 +64,8 @@ export function TimeSeriesChart({ series, metric, metricMeta, height = 360 }: Ti
       </ResponsiveContainer>
       {data.length > 0 && (
         <table className="sr-only">
-          <caption>{metricLabel} 数据</caption>
-          <thead><tr><th>年</th>{series.map(s => <th key={s.pathId}>{s.label}</th>)}</tr></thead>
+          <caption>{t('aria.timeSeriesData', { metric: metricLabel })}</caption>
+          <thead><tr><th>{t('aria.yearLabel')}</th>{series.map(s => <th key={s.pathId}>{s.label}</th>)}</tr></thead>
           <tbody>
             {data.map(row => (
               <tr key={String(row['year'])}>
@@ -76,4 +78,4 @@ export function TimeSeriesChart({ series, metric, metricMeta, height = 360 }: Ti
       )}
     </figure>
   );
-}
+});

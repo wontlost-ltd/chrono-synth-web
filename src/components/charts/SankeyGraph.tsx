@@ -1,5 +1,6 @@
-import { useRef, useEffect, useMemo, useState } from 'react';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { sankey, sankeyLinkHorizontal, type SankeyNode, type SankeyLink } from 'd3-sankey';
+import { useTranslation } from 'react-i18next';
 
 interface Node {
   id: string;
@@ -43,7 +44,8 @@ interface SLink {
   probability?: number;
 }
 
-export function SankeyGraph({ nodes, edges, height = 300, onSelectNode }: SankeyGraphProps) {
+export const SankeyGraph = React.memo(function SankeyGraph({ nodes, edges, height = 300, onSelectNode }: SankeyGraphProps) {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [width, setWidth] = useState(600);
@@ -160,10 +162,10 @@ export function SankeyGraph({ nodes, edges, height = 300, onSelectNode }: Sankey
 
   return (
     <figure ref={containerRef} className="w-full overflow-hidden">
-      <svg ref={svgRef} width={width} height={height} aria-label="分支概率桑基图" />
+      <svg ref={svgRef} width={width} height={height} aria-label={t('aria.sankeyChart')} />
       <table className="sr-only">
-        <caption>分支概率数据</caption>
-        <thead><tr><th>来源</th><th>目标</th><th>权重</th><th>概率</th></tr></thead>
+        <caption>{t('aria.sankeyData')}</caption>
+        <thead><tr><th>{t('aria.sourceColumn')}</th><th>{t('aria.targetColumn')}</th><th>{t('aria.weightColumn')}</th><th>{t('aria.probabilityColumn')}</th></tr></thead>
         <tbody>
           {(() => {
             const nodeLabels = new Map(nodes.map(n => [n.id, n.label]));
@@ -180,4 +182,4 @@ export function SankeyGraph({ nodes, edges, height = 300, onSelectNode }: Sankey
       </table>
     </figure>
   );
-}
+});

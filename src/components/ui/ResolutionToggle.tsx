@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Resolution } from '../../types';
 
 const OPTIONS: Array<{ value: Resolution; label: string }> = [
@@ -13,6 +14,7 @@ interface ResolutionToggleProps {
 }
 
 export function ResolutionToggle({ value, onChange }: ResolutionToggleProps) {
+  const { t } = useTranslation();
   const groupRef = useRef<HTMLDivElement>(null);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
@@ -28,7 +30,7 @@ export function ResolutionToggle({ value, onChange }: ResolutionToggleProps) {
   }, [value, onChange]);
 
   return (
-    <div ref={groupRef} className="inline-flex rounded-lg border border-border bg-surface p-0.5" role="radiogroup" aria-label="时间分辨率" onKeyDown={handleKeyDown}>
+    <div ref={groupRef} className="inline-flex rounded-lg border border-border bg-surface p-0.5" role="radiogroup" aria-label={t('aria.timeResolution')} onKeyDown={handleKeyDown}>
       {OPTIONS.map(opt => (
         <button
           key={opt.value}

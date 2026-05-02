@@ -51,11 +51,12 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <div className="flex min-h-dvh overflow-hidden">
       <a href="#main-content" className="skip-link">
-        Skip to main content
+        {t('appShell.skipToMain')}
       </a>
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          className="fixed inset-0 z-30 lg:hidden"
+          style={{ backgroundColor: 'var(--color-overlay, rgba(0,0,0,0.4))' }}
           onClick={closeMobile}
           aria-hidden="true"
         />

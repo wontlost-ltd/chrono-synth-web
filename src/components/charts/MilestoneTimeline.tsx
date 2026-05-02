@@ -1,5 +1,6 @@
-import { useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { useTranslation } from 'react-i18next';
 import type { MilestoneEvent } from '../../types';
 import { formatMetricValue } from '../../utils/format';
 
@@ -25,7 +26,7 @@ const KIND_LABELS: Record<string, string> = {
 const VIRTUAL_THRESHOLD = 50;
 const ITEM_HEIGHT = 72;
 
-export function MilestoneTimeline({ events, onSelect }: MilestoneTimelineProps) {
+export const MilestoneTimeline = React.memo(function MilestoneTimeline({ events, onSelect }: MilestoneTimelineProps) {
   const sorted = useMemo(() => [...events].sort((a, b) => a.year - b.year), [events]);
   const interactive = !!onSelect;
   const useVirtual = sorted.length >= VIRTUAL_THRESHOLD;
@@ -44,7 +45,7 @@ export function MilestoneTimeline({ events, onSelect }: MilestoneTimelineProps) 
       </ol>
     </div>
   );
-}
+});
 
 function VirtualTimeline({ sorted, interactive, onSelect }: { sorted: MilestoneEvent[]; interactive: boolean; onSelect?: (e: MilestoneEvent) => void }) {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -79,6 +80,7 @@ function VirtualTimeline({ sorted, interactive, onSelect }: { sorted: MilestoneE
 }
 
 function TimelineItem({ event, interactive, onSelect }: { event: MilestoneEvent; interactive: boolean; onSelect?: (e: MilestoneEvent) => void }) {
+  const { t } = useTranslation();
   const style = KIND_STYLES[event.kind] ?? KIND_STYLES['peak']!;
   const kindLabel = KIND_LABELS[event.kind] ?? event.kind;
   const label = `Y${event.year} ${kindLabel} ${event.metric} ${formatMetricValue(event.value, '')}`;
@@ -95,7 +97,7 @@ function TimelineItem({ event, interactive, onSelect }: { event: MilestoneEvent;
       </div>
       {event.threshold != null && (
         <p className="mt-0.5 text-xs text-text-secondary">
-          阈值: {event.threshold}
+          {t('aria.milestoneThreshold', { value: event.threshold })}
         </p>
       )}
     </>

@@ -32,8 +32,10 @@ const NAV_GROUPS: NavGroup[] = [
     labelKey: 'sidebar.groups.agents',
     items: [
       { to: '/avatars', labelKey: 'sidebar.avatars', icon: '👤' },
+      { to: '/persona-core', labelKey: 'sidebar.personaCore', icon: '🧠' },
       { to: '/values', labelKey: 'sidebar.values', icon: '💎' },
       { to: '/knowledge-sources', labelKey: 'sidebar.knowledgeSources', icon: '📚' },
+      { to: '/marketplace', labelKey: 'sidebar.marketplace', icon: '🧾' },
     ],
   },
   {
@@ -42,6 +44,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { to: '/system', labelKey: 'sidebar.systemStatus', icon: '⚙️' },
       { to: '/billing', labelKey: 'sidebar.billing', icon: '💳' },
+      { to: '/enterprise', labelKey: 'sidebar.enterprise', icon: '🏢', adminOnly: true },
       { to: '/settings', labelKey: 'sidebar.settings', icon: '🔧' },
       { to: '/admin/config', labelKey: 'sidebar.adminConfig', icon: '🛠️', adminOnly: true },
     ],

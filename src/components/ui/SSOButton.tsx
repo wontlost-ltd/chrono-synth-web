@@ -2,32 +2,35 @@ import { useTranslation } from 'react-i18next';
 import { API_BASE_URL } from '../../config';
 
 /**
- * SSO 登录按钮
- * 生成 CSRF state 参数存入 sessionStorage，重定向到后端 SSO 授权端点
+ * OIDC 登录按钮
+ * 通过 tenant-aware OIDC login 入口跳转到后端授权端点
  */
-export function SSOButton() {
+export function buildOidcLoginUrl(tenantId: string, redirectPath = '/sso/callback'): string {
+  const params = new URLSearchParams({
+    redirect_uri: redirectPath,
+    tenant_id: tenantId.trim(),
+  });
+  return `${API_BASE_URL}/api/v1/auth/oidc/login?${params.toString()}`;
+}
+
+export function SSOButton({ tenantId }: { tenantId: string }) {
   const { t } = useTranslation();
+  const normalizedTenantId = tenantId.trim();
 
   function handleClick() {
-    const bytes = new Uint8Array(16);
-    crypto.getRandomValues(bytes);
-    const state = btoa(String.fromCharCode(...bytes))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-
-    try { sessionStorage.setItem('sso_state', state); } catch { /* ignore */ }
-
-    const redirectUri = encodeURIComponent(`${window.location.origin}/sso/callback`);
-    const stateParam = encodeURIComponent(state);
-    window.location.href = `${API_BASE_URL}/api/v1/auth/sso/authorize?redirect_uri=${redirectUri}&state=${stateParam}`;
+    if (!normalizedTenantId) return;
+    try { localStorage.setItem('chrono-sso-tenant-id', normalizedTenantId); } catch { /* ignore */ }
+    window.location.href = buildOidcLoginUrl(normalizedTenantId);
   }
 
   return (
     <button
       type="button"
       onClick={handleClick}
+      disabled={!normalizedTenantId}
       className="w-full rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary hover:bg-surface-elevated"
     >
-      {t('sso.signInWithSSO')}
+      {normalizedTenantId ? t('sso.signInWithSSO') : t('sso.enterTenantFirst')}
     </button>
   );
 }
