@@ -8,7 +8,8 @@
  */
 
 import { useCallback, useEffect, useReducer, useRef } from 'react';
-import type { SyncStatusSnapshotV1, RuntimeSyncEvent } from '@chrono/contracts';
+import type { RuntimeSyncEvent, SyncStatusSnapshotV1 } from '@chrono/contracts';
+import { deriveRuntimeSyncState } from '@chrono/sync-engine';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { getSession } from '@/store/session';
 import { pullIncremental, flushOutbox, countOutbox } from './sync-client';
@@ -17,24 +18,11 @@ import { pullIncremental, flushOutbox, countOutbox } from './sync-client';
 
 type SyncState = SyncStatusSnapshotV1;
 
-function capabilities(state: SyncStatusSnapshotV1['state'], syncEnabled: boolean): SyncStatusSnapshotV1['capabilities'] {
-  return {
-    canConfigure: true,
-    canStartSync: syncEnabled && (state === 'idle' || state === 'error' || state === 'paused'),
-    canPause: state === 'idle' || state === 'pulling' || state === 'merging' || state === 'pushing',
-    canResume: state === 'paused',
-    canResolveConflict: state === 'conflicted',
-    canRetry: state === 'error',
-    canDisable: syncEnabled,
-  };
-}
-
 function initialState(syncEnabled: boolean, networkOnline: boolean): SyncState {
-  const state = !syncEnabled ? 'disabled' : !networkOnline ? 'offline' : 'idle';
-  return {
+  const base: SyncState = {
     schemaVersion: 1,
-    state,
-    syncEnabled,
+    state: 'unconfigured',
+    syncEnabled: false,
     networkOnline,
     pendingPullCount: 0,
     pendingPushCount: 0,
@@ -44,88 +32,26 @@ function initialState(syncEnabled: boolean, networkOnline: boolean): SyncState {
     lastErrorCode: null,
     lastErrorMessage: null,
     activeRunId: null,
-    capabilities: capabilities(state, syncEnabled),
+    capabilities: {
+      canConfigure: true,
+      canStartSync: false,
+      canPause: false,
+      canResume: false,
+      canResolveConflict: false,
+      canRetry: false,
+      canDisable: false,
+    },
   };
+
+  return deriveRuntimeSyncState(base, {
+    type: 'sync.configured',
+    enabled: syncEnabled,
+    occurredAt: Date.now(),
+  });
 }
 
-function applyEvent(prev: SyncState, event: RuntimeSyncEvent): SyncState {
-  let next = { ...prev };
-
-  switch (event.type) {
-    case 'sync.configured':
-      next.syncEnabled = event.enabled;
-      next.state = !event.enabled ? 'disabled' : prev.networkOnline ? 'idle' : 'offline';
-      break;
-    case 'sync.disabled':
-      next.syncEnabled = false;
-      next.state = 'disabled';
-      break;
-    case 'sync.started':
-      if (prev.state === 'idle' || prev.state === 'error' || prev.state === 'paused') {
-        next.state = 'pulling';
-        next.activeRunId = event.runId;
-        next.lastSyncStartedAt = event.occurredAt;
-        next.lastErrorCode = null;
-        next.lastErrorMessage = null;
-      }
-      break;
-    case 'sync.pull.completed':
-      if (prev.state === 'pulling') {
-        next.state = 'merging';
-        next.pendingPullCount = event.pendingPullCount;
-      }
-      break;
-    case 'sync.merge.completed':
-      if (prev.state === 'merging') {
-        next.state = 'pushing';
-        next.pendingPushCount = event.pendingPushCount;
-      }
-      break;
-    case 'sync.push.completed':
-      if (prev.state === 'pushing') {
-        next.state = 'idle';
-        next.pendingPushCount = 0;
-        next.activeRunId = null;
-        next.lastSyncCompletedAt = event.occurredAt;
-      }
-      break;
-    case 'sync.conflict.detected':
-      next.state = 'conflicted';
-      next.conflictCount = event.conflictCount;
-      break;
-    case 'sync.conflict.resolved':
-      if (prev.state === 'conflicted') {
-        next.state = 'idle';
-        next.conflictCount = 0;
-      }
-      break;
-    case 'sync.paused':
-      if (prev.state !== 'disabled' && prev.state !== 'offline') next.state = 'paused';
-      break;
-    case 'sync.resumed':
-      if (prev.state === 'paused') next.state = prev.networkOnline ? 'idle' : 'offline';
-      break;
-    case 'sync.network.offline':
-      next.networkOnline = false;
-      if (prev.state !== 'disabled' && prev.state !== 'paused') next.state = 'offline';
-      break;
-    case 'sync.network.online':
-      next.networkOnline = true;
-      if (prev.state === 'offline') next.state = 'idle';
-      break;
-    case 'sync.failed':
-      next.state = 'error';
-      next.activeRunId = null;
-      next.lastErrorCode = event.errorCode;
-      next.lastErrorMessage = event.errorMessage ?? null;
-      break;
-    case 'sync.reset':
-      return initialState(next.syncEnabled, next.networkOnline);
-  }
-
-  next.capabilities = capabilities(next.state, next.syncEnabled);
-  return next;
-}
+const applyEvent = (prev: SyncState, event: RuntimeSyncEvent): SyncState =>
+  deriveRuntimeSyncState(prev, event);
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 

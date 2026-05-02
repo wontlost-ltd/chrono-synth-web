@@ -1,4 +1,5 @@
-import { useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useSyncExternalStore } from 'react';
+import { useOnlineStatus } from './useOnlineStatus';
 
 export interface QueuedAction {
   id: string;
@@ -75,4 +76,28 @@ export function useOfflineQueue() {
   const clear = useCallback(() => clearOfflineQueue(), []);
 
   return { actions, enqueue, dequeue, clear, count: actions.length };
+}
+
+/**
+ * 网络恢复时自动执行离线队列中的操作
+ * @param flushFn 每条队列项的执行函数，返回 Promise<void>
+ */
+export function useReconnectFlush(
+  flushFn: (action: QueuedAction) => Promise<void>,
+): void {
+  const isOnline = useOnlineStatus();
+
+  useEffect(() => {
+    if (!isOnline) return;
+
+    const snapshot = [...queue];
+
+    for (const action of snapshot) {
+      void flushFn(action).then(() => {
+        dequeueOfflineAction(action.id);
+      }).catch(() => {
+        // Leave failed actions in the queue for the next reconnect.
+      });
+    }
+  }, [isOnline]);
 }

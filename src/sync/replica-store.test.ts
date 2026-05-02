@@ -4,6 +4,7 @@ import {
   putEntity,
   getEntity,
   getEntitiesByTenant,
+  listProjection,
   deleteEntity,
   enqueueOutbox,
   dequeueOutbox,
@@ -29,6 +30,7 @@ describe('replica-store: entities', () => {
     const entity = {
       entityRef: 'persona/abc',
       tenantId: 'tenant-1',
+      projection: 'persona',
       data: { name: 'Alice' },
       serverVersion: 1,
       syncedAt: 1000,
@@ -49,6 +51,35 @@ describe('replica-store: entities', () => {
     const results = await getEntitiesByTenant('tenant-1');
     expect(results).toHaveLength(1);
     expect(results[0]?.entityRef).toBe('persona/a');
+  });
+
+  it('listProjection filters by tenant and projection', async () => {
+    await putEntity({
+      entityRef: 'tenant-1:people:person-1',
+      tenantId: 'tenant-1',
+      data: { name: 'Ada' },
+      serverVersion: 1,
+      syncedAt: 1,
+    });
+    await putEntity({
+      entityRef: 'tenant-1:projects:project-1',
+      tenantId: 'tenant-1',
+      data: { name: 'Compiler' },
+      serverVersion: 1,
+      syncedAt: 1,
+    });
+    await putEntity({
+      entityRef: 'tenant-2:people:person-1',
+      tenantId: 'tenant-2',
+      data: { name: 'Grace' },
+      serverVersion: 1,
+      syncedAt: 1,
+    });
+
+    const results = await listProjection<{ name: string }>('tenant-1', 'people');
+    expect(results).toHaveLength(1);
+    expect(results[0]?.entityRef).toBe('tenant-1:people:person-1');
+    expect(results[0]?.data.name).toBe('Ada');
   });
 
   it('deleteEntity removes the entry', async () => {

@@ -7,10 +7,11 @@
  * - sync_meta  : 同步元数据（游标、上次同步时间等）
  */
 
-export interface ReplicaEntity {
+export interface ReplicaEntity<T = unknown> {
   entityRef: string;      // "<type>/<id>" e.g. "persona/abc"
   tenantId: string;
-  data: unknown;
+  projection?: string;
+  data: T;
   serverVersion: number;
   syncedAt: number;
 }
@@ -30,7 +31,7 @@ export interface SyncMeta {
 }
 
 const DB_NAME = 'chrono-replica';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -42,9 +43,16 @@ function openDb(): Promise<IDBDatabase> {
     req.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
 
+      let entities: IDBObjectStore | null = null;
       if (!db.objectStoreNames.contains('entities')) {
-        const entities = db.createObjectStore('entities', { keyPath: 'entityRef' });
+        entities = db.createObjectStore('entities', { keyPath: 'entityRef' });
         entities.createIndex('by_tenant', 'tenantId', { unique: false });
+      } else {
+        entities = req.transaction?.objectStore('entities') ?? null;
+      }
+
+      if (entities && !entities.indexNames.contains('by_projection')) {
+        entities.createIndex('by_projection', ['tenantId', 'projection'], { unique: false });
       }
 
       if (!db.objectStoreNames.contains('outbox')) {
@@ -83,7 +91,8 @@ function idb<T>(
 // ── entities ──────────────────────────────────────────────────────────────────
 
 export function putEntity(entity: ReplicaEntity): Promise<void> {
-  return idb('entities', 'readwrite', (s) => s.put(entity)).then(() => undefined);
+  const projection = entity.projection ?? inferProjection(entity.tenantId, entity.entityRef);
+  return idb('entities', 'readwrite', (s) => s.put({ ...entity, projection })).then(() => undefined);
 }
 
 export function getEntity(entityRef: string): Promise<ReplicaEntity | undefined> {
@@ -103,8 +112,34 @@ export function getEntitiesByTenant(tenantId: string): Promise<ReplicaEntity[]> 
   );
 }
 
+export function listProjection<T>(
+  tenantId: string,
+  projection: string,
+): Promise<ReplicaEntity<T>[]> {
+  return openDb().then(
+    (db) =>
+      new Promise<ReplicaEntity<T>[]>((resolve, reject) => {
+        const tx = db.transaction('entities', 'readonly');
+        const idx = tx.objectStore('entities').index('by_projection');
+        const req = idx.getAll(IDBKeyRange.only([tenantId, projection]));
+        req.onsuccess = () => resolve(req.result as ReplicaEntity<T>[]);
+        req.onerror = () => reject(req.error);
+      }),
+  );
+}
+
 export function deleteEntity(entityRef: string): Promise<void> {
   return idb('entities', 'readwrite', (s) => s.delete(entityRef)).then(() => undefined);
+}
+
+function inferProjection(tenantId: string, entityRef: string): string {
+  const tenantPrefix = `${tenantId}:`;
+  if (entityRef.startsWith(tenantPrefix)) {
+    const [, projection] = entityRef.split(':');
+    if (projection) return projection;
+  }
+
+  return entityRef.split('/')[0] ?? entityRef;
 }
 
 // ── outbox ────────────────────────────────────────────────────────────────────

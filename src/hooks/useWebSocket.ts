@@ -11,7 +11,10 @@ interface WsEvent {
 interface UseWebSocketOptions {
   url?: string;
   autoConnect?: boolean;
+  /** 初始重连间隔（毫秒），默认 1000 */
   reconnectInterval?: number;
+  /** 最大重连间隔（毫秒），默认 30000 */
+  maxReconnectInterval?: number;
   maxReconnectAttempts?: number;
 }
 
@@ -19,7 +22,8 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const {
     url = `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws`,
     autoConnect = true,
-    reconnectInterval = 3000,
+    reconnectInterval = 1000,
+    maxReconnectInterval = 30000,
     maxReconnectAttempts = 10,
   } = options;
 
@@ -29,16 +33,19 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
   const listenersRef = useRef(new Map<string, Set<(payload: unknown) => void>>());
   const [status, setStatus] = useState<WsStatus>('disconnected');
   const [lastEvent, setLastEvent] = useState<WsEvent | null>(null);
+  const [wsError, setWsError] = useState<string | null>(null);
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
     setStatus('connecting');
+    setWsError(null);
     const ws = new WebSocket(url);
     wsRef.current = ws;
 
     ws.onopen = () => {
       setStatus('connected');
+      setWsError(null);
       attemptsRef.current = 0;
       // 重连后重新订阅所有事件
       for (const eventType of listenersRef.current.keys()) {
@@ -61,15 +68,22 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
       setStatus('disconnected');
       wsRef.current = null;
       if (attemptsRef.current < maxReconnectAttempts) {
+        /* 指数退避 + 随机抖动：避免多客户端同时重连造成惊群效应 */
+        const base = Math.min(reconnectInterval * Math.pow(2, attemptsRef.current), maxReconnectInterval);
+        const jitter = base * 0.3 * Math.random();
+        const delay = base + jitter;
         attemptsRef.current++;
-        reconnectTimerRef.current = setTimeout(connect, reconnectInterval);
+        reconnectTimerRef.current = setTimeout(connect, delay);
+      } else {
+        setWsError(`WebSocket 重连失败，已达最大尝试次数 (${maxReconnectAttempts})`);
       }
     };
 
     ws.onerror = () => {
+      setWsError('WebSocket 连接错误');
       ws.close();
     };
-  }, [url, reconnectInterval, maxReconnectAttempts]);
+  }, [url, reconnectInterval, maxReconnectInterval, maxReconnectAttempts]);
 
   const disconnect = useCallback(() => {
     clearTimeout(reconnectTimerRef.current);
@@ -111,5 +125,5 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     };
   }, [autoConnect, connect, maxReconnectAttempts]);
 
-  return { status, lastEvent, connect, disconnect, subscribe, send };
+  return { status, lastEvent, connect, disconnect, subscribe, send, wsError };
 }
