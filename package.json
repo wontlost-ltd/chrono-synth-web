@@ -10,7 +10,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run --configLoader runner",
     "test:watch": "vitest --configLoader runner",
-    "test:ops": "sh -n scripts/render-runtime-config.sh && sh -n docker-entrypoint.sh && TMP_FILE=$(mktemp) && RUNTIME_CONFIG_OUTPUT=\"$TMP_FILE\" CHRONO_WEB_API_BASE_URL=https://api.example.test CHRONO_WEB_SENTRY_DSN=https://dsn.example.test/1 CHRONO_WEB_ENVIRONMENT=staging sh scripts/render-runtime-config.sh && grep -q 'https://api.example.test' \"$TMP_FILE\" && grep -q 'staging' \"$TMP_FILE\" && rm -f \"$TMP_FILE\""
+    "test:ops": "sh -n scripts/render-runtime-config.sh && sh -n docker-entrypoint.sh && TMP_FILE=$(mktemp) && RUNTIME_CONFIG_OUTPUT=\"$TMP_FILE\" CHRONO_WEB_API_BASE_URL=https://api.example.test CHRONO_WEB_SENTRY_DSN=https://dsn.example.test/1 CHRONO_WEB_ENVIRONMENT=staging sh scripts/render-runtime-config.sh && grep -q 'https://api.example.test' \"$TMP_FILE\" && grep -q 'staging' \"$TMP_FILE\" && rm -f \"$TMP_FILE\"",
+    "lhci": "npx @lhci/cli@latest autorun"
   },
   "dependencies": {
     "@sentry/react": "^10.39.0",
@@ -30,6 +31,10 @@
     "serialize-javascript": "^7.0.4"
   },
   "devDependencies": {
+    "@chrono/contracts": "file:../chrono-synth-os/packages/contracts",
+    "@chrono/design-tokens": "file:../chrono-synth-os/packages/design-tokens",
+    "@chrono/kernel-testkit": "file:../chrono-synth-os/packages/kernel-testkit",
+    "@chrono/sync-engine": "file:../chrono-synth-os/packages/sync-engine",
     "@axe-core/playwright": "^4.11.1",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.1.4",
