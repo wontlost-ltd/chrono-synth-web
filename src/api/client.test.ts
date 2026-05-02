@@ -156,6 +156,23 @@ describe('apiFetch', () => {
     }
   });
 
+  it('extracts message from JSON error responses', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 409,
+      text: () => Promise.resolve(JSON.stringify({
+        error: 'StateError',
+        code: 'STATE_INVALID_TRANSITION',
+        message: 'Stripe 计费未启用，本地开发环境无需配置',
+      })),
+    });
+    try {
+      await apiFetch('/billing/checkout');
+    } catch (e) {
+      expect((e as ApiError).message).toBe('API 409: Stripe 计费未启用，本地开发环境无需配置');
+    }
+  });
+
   it('prepends API_BASE_URL to path', async () => {
     mockFetch.mockResolvedValue(jsonResponse({ ok: true }));
     await apiFetch('/api/v1/test');

@@ -7,9 +7,10 @@ interface PlanLimits {
   llmTokensPerMonth: number;
 }
 
-interface Plan {
+export interface Plan {
   id: string;
   name: string;
+  stripePriceId: string;
   limits: PlanLimits;
 }
 

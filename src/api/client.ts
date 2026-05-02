@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '../config';
 import { getSession, setSession, clearSession } from '../store/session';
 import { addApiBreadcrumb } from '../lib/sentry';
+import { getCsrfToken } from '../lib/csrf';
 
 export class ApiError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -10,9 +11,19 @@ export class ApiError extends Error {
 }
 
 function sanitizeErrorMessage(status: number, raw: string): string {
-  if (!raw || raw.length > 200) return `API request failed (${status})`;
-  if (/[<>]|stack|trace|sql|select|insert|update|delete/i.test(raw)) return `API request failed (${status})`;
-  return `API ${status}: ${raw}`;
+  let message = raw;
+  try {
+    const parsed = JSON.parse(raw) as { message?: unknown };
+    if (typeof parsed.message === 'string' && parsed.message.trim()) {
+      message = parsed.message.trim();
+    }
+  } catch {
+    /* 非 JSON 错误体按原样处理 */
+  }
+
+  if (!message || message.length > 200) return `API request failed (${status})`;
+  if (/[<>]|stack|trace|sql|select|insert|update|delete/i.test(message)) return `API request failed (${status})`;
+  return `API ${status}: ${message}`;
 }
 
 let refreshPromise: Promise<boolean> | null = null;
@@ -72,6 +83,10 @@ async function doFetch<T>(path: string, init?: RequestInit, isRetry = false): Pr
   const method = init?.method?.toUpperCase() ?? 'GET';
   if (method !== 'GET' && method !== 'HEAD') {
     headers['Content-Type'] = 'application/json';
+    headers['X-CSRF-Protection'] = '1';
+    /* 如果服务器下发了 CSRF 令牌（meta 标签或 cookie），一并携带 */
+    const csrf = getCsrfToken();
+    if (csrf) headers['X-CSRF-Token'] = csrf;
   }
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
