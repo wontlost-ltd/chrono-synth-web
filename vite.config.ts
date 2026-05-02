@@ -36,6 +36,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.test.{ts,tsx}'],
+    onConsoleLog: (log) => {
+      // Suppress sourcemap warnings from vendored @chrono/* dist files (sources not committed)
+      if (log.includes('Sourcemap for') && log.includes('points to missing source files')) return false;
+    },
   },
   build: {
     rollupOptions: {
