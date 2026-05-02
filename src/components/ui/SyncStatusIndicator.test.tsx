@@ -22,7 +22,7 @@ describe('SyncStatusIndicator', () => {
     expect(screen.getByRole('status')).toHaveAccessibleName(/.+/);
   });
 
-  it.each(RuntimeSyncStateV1Values)('renders %s', (state) => {
+  it.each(RuntimeSyncStateV1Values.map(s => ({ state: s })))('renders $state', ({ state }) => {
     render(<SyncStatusIndicator state={state} />);
 
     expect(screen.getByRole('status')).toBeInTheDocument();

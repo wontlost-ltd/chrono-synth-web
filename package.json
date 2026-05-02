@@ -4,6 +4,7 @@
   "version": "2.0.0",
   "type": "module",
   "scripts": {
+    "setup": "sh scripts/setup-packages.sh",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
@@ -31,10 +32,10 @@
     "serialize-javascript": "^7.0.4"
   },
   "devDependencies": {
-    "@chrono/contracts": "file:../chrono-synth-os/packages/contracts",
-    "@chrono/design-tokens": "file:../chrono-synth-os/packages/design-tokens",
-    "@chrono/kernel-testkit": "file:../chrono-synth-os/packages/kernel-testkit",
-    "@chrono/sync-engine": "file:../chrono-synth-os/packages/sync-engine",
+    "@chrono/contracts": "file:packages/contracts",
+    "@chrono/design-tokens": "file:packages/design-tokens",
+    "@chrono/kernel-testkit": "file:packages/kernel-testkit",
+    "@chrono/sync-engine": "file:packages/sync-engine",
     "@axe-core/playwright": "^4.11.1",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.1.4",

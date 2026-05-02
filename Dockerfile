@@ -1,7 +1,12 @@
 FROM node:24-alpine AS builder
 WORKDIR /app
+
+# Copy @chrono/* local packages so file: deps resolve inside Docker
+COPY packages/ packages/
+
 COPY package.json package-lock.json ./
 RUN npm ci
+
 COPY . .
 RUN npm run build
 

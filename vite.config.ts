@@ -26,9 +26,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(configDir, 'src'),
-      '@chrono/contracts': resolve(configDir, '../chrono-synth-os/packages/contracts/src/index.ts'),
-      '@chrono/design-tokens': resolve(configDir, '../chrono-synth-os/packages/design-tokens/src/index.ts'),
-      '@chrono/sync-engine': resolve(configDir, '../chrono-synth-os/packages/sync-engine/src/index.ts'),
+      '@chrono/contracts': resolve(configDir, 'packages/contracts/dist/index.js'),
+      '@chrono/design-tokens': resolve(configDir, 'packages/design-tokens/dist/index.js'),
+      '@chrono/sync-engine': resolve(configDir, 'packages/sync-engine/dist/index.js'),
     },
   },
   test: {
