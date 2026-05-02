@@ -217,6 +217,8 @@
     "purchaseAddOn": "Purchase",
     "activeAddOnsLabel": "Active add-ons:",
     "addOnsError": "Failed to load add-ons: {{message}}",
+    "upgradePlan": "Upgrade",
+    "upgradeError": "Upgrade failed: {{message}}",
     "addOnsEmpty": "No add-ons available right now.",
     "addOnResource": {
       "simulation": "Simulations",
@@ -285,7 +287,10 @@
   "liveMetricStream": {
     "waitingForConnection": "Waiting for WebSocket connection...",
     "waitingForData": "Waiting for data stream...",
-    "chartLabel": "Live metric stream chart"
+    "chartLabel": "Live metric stream chart",
+    "dataTableCaption": "Live metric data",
+    "timeColumn": "Time",
+    "valueColumn": "Value"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -293,8 +298,11 @@
     "newSimulation": "New Simulation",
     "values": "Values",
     "avatars": "Avatars",
+    "personaCore": "Persona Core",
     "knowledgeSources": "Knowledge Sources",
+    "marketplace": "Marketplace",
     "billing": "Billing",
+    "enterprise": "Enterprise",
     "settings": "Settings",
     "systemStatus": "System Status",
     "adminConfig": "System Config",
@@ -309,6 +317,7 @@
     }
   },
   "appShell": {
+    "skipToMain": "Skip to main content",
     "openNav": "Open navigation",
     "navMenu": "Navigation menu"
   },
@@ -325,12 +334,16 @@
   },
   "sso": {
     "signInWithSSO": "Sign in with SSO",
+    "enterTenantFirst": "Enter Tenant ID First",
     "processing": "Processing SSO authentication...",
     "missingTokens": "SSO authentication failed: missing token information",
     "parseError": "SSO authentication failed: token parse error",
     "backToLogin": "Back to Login",
     "orDivider": "or",
-    "stateMismatch": "SSO authentication failed: invalid state"
+    "stateMismatch": "SSO authentication failed: invalid state",
+    "tenantIdLabel": "Tenant ID for SSO",
+    "tenantIdPlaceholder": "tenant_123 or enterprise tenant slug",
+    "tenantIdHint": "OIDC login is tenant-scoped. Enter the target tenant before redirecting to your identity provider."
   },
   "sharing": {
     "title": "Share Simulation",
@@ -405,6 +418,32 @@
     "lastSynced": "Last synced: {{time}}",
     "queuedActions": "{{count}} action(s) pending",
     "dismiss": "Dismiss"
+  },
+  "aria": {
+    "breadcrumb": "Breadcrumb",
+    "timeResolution": "Time resolution",
+    "metricSelection": "Metric selection",
+    "timeSeriesChart": "{{metric}} time series chart",
+    "timeSeriesData": "{{metric}} data",
+    "yearLabel": "Year",
+    "stressDeltaChart": "Stress test delta comparison chart",
+    "stressDeltaData": "Stress test delta data",
+    "pathColumn": "Path",
+    "scoreColumn": "Composite Score Δ (%)",
+    "regretColumn": "Regret Probability Δ (%)",
+    "changePercent": "Change (%)",
+    "scoreDelta": "Composite Score Δ",
+    "regretDelta": "Regret Probability Δ",
+    "sankeyChart": "Branch probability Sankey chart",
+    "sankeyData": "Branch probability data",
+    "sourceColumn": "Source",
+    "targetColumn": "Target",
+    "weightColumn": "Weight",
+    "probabilityColumn": "Probability",
+    "milestoneThreshold": "Threshold: {{value}}",
+    "trendUp": "Trending up",
+    "trendDown": "Trending down",
+    "trendFlat": "Flat"
   },
   "avatars": {
     "title": "Avatar Management",
@@ -536,5 +575,141 @@
     "colStatus": "Status",
     "colQuota": "Resource Quota",
     "colCreated": "Created"
+  },
+  "personaCore": {
+    "title": "Persona Core",
+    "subtitle": "Manage canonical personas, forks, knowledge, and lifecycle",
+    "create": "Create Persona",
+    "createTitle": "Create Persona Core",
+    "fork": "Create Fork",
+    "forkTitle": "Create Persona Fork",
+    "knowledgeTitle": "Add Knowledge",
+    "addKnowledge": "Add Knowledge",
+    "view": "View",
+    "selected": "Selected",
+    "decease": "Mark Deceased",
+    "deceasePrompt": "Enter a shutdown reason",
+    "detailTitle": "Persona Detail",
+    "profileTitle": "Core Profile",
+    "noSelection": "Select a persona to inspect its wallet, forks, and memory stream.",
+    "noMission": "No mission profile recorded yet.",
+    "walletAddress": "Wallet",
+    "emptyState": "No core personas yet. Create one to bootstrap the OS 2.0 model.",
+    "emptyForks": "No forks created yet.",
+    "emptyKnowledge": "No synced knowledge yet.",
+    "emptyMemories": "No recent memories yet.",
+    "emptyGovernance": "No governance events yet.",
+    "activitySummary": "{{activeForks}} forks · {{knowledgeCount}} knowledge · {{activeTaskCount}} active tasks",
+    "metrics": {
+      "personas": "Core Personas",
+      "walletBalance": "Wallet Balance",
+      "tokenBalance": "Token Balance",
+      "avgGrowth": "Average Growth",
+      "reputation": "Reputation",
+      "trainingInvestment": "Training Investment"
+    },
+    "columns": {
+      "name": "Name",
+      "status": "Status",
+      "visibility": "Visibility",
+      "growth": "Growth",
+      "reputation": "Reputation",
+      "wallet": "Wallet",
+      "activity": "Activity"
+    },
+    "sections": {
+      "forks": "Forks",
+      "knowledge": "Knowledge",
+      "memories": "Recent Memories",
+      "governance": "Governance"
+    },
+    "form": {
+      "name": "Persona Name",
+      "visibility": "Visibility",
+      "mission": "Mission",
+      "traits": "Traits (one per line)",
+      "seedKnowledgeTitle": "Seed Knowledge Title",
+      "seedKnowledgeContent": "Seed Knowledge Content",
+      "forkName": "Fork Name",
+      "forkType": "Fork Type",
+      "knowledgeTitle": "Knowledge Title",
+      "knowledgeSource": "Knowledge Source",
+      "knowledgeTags": "Tags (comma separated)",
+      "knowledgeContent": "Knowledge Content"
+    },
+    "status": {
+      "active": "Active",
+      "restricted": "Restricted",
+      "deceased": "Deceased",
+      "transferred": "Transferred"
+    },
+    "visibility": {
+      "private": "Private",
+      "shared": "Shared",
+      "marketplace": "Marketplace"
+    },
+    "forkType": {
+      "experimental": "Experimental",
+      "task": "Task",
+      "social": "Social",
+      "research": "Research",
+      "operations": "Operations"
+    },
+    "governance": {
+      "warning": "Warning",
+      "reward": "Reward",
+      "restriction": "Restriction",
+      "review": "Review",
+      "transfer": "Transfer",
+      "death": "Death"
+    }
+  },
+  "marketplace": {
+    "title": "Marketplace",
+    "subtitle": "Publish tasks, bind them to a core persona, and settle rewards into its wallet",
+    "publish": "Publish Task",
+    "publishTitle": "Publish Marketplace Task",
+    "accept": "Accept",
+    "complete": "Complete",
+    "completeTitle": "Complete Task",
+    "assignPersona": "Execution Persona",
+    "emptyState": "No marketplace tasks for this status yet.",
+    "unassigned": "Unassigned",
+    "noPersona": "No Persona",
+    "metrics": {
+      "visibleTasks": "Visible Tasks",
+      "totalReward": "Total Reward",
+      "activePersona": "Active Persona"
+    },
+    "columns": {
+      "title": "Task",
+      "category": "Category",
+      "status": "Status",
+      "reward": "Reward",
+      "assignee": "Assignee",
+      "updatedAt": "Updated"
+    },
+    "form": {
+      "title": "Task Title",
+      "description": "Description",
+      "category": "Category",
+      "reward": "Reward",
+      "currency": "Currency",
+      "qualityScore": "Quality Score",
+      "trainingHours": "Owner Training Hours"
+    },
+    "status": {
+      "open": "Open",
+      "accepted": "Accepted",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "category": {
+      "writing": "Writing",
+      "coding": "Coding",
+      "research": "Research",
+      "operations": "Operations",
+      "general": "General"
+    }
   }
 }

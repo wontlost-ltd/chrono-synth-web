@@ -217,6 +217,8 @@
     "purchaseAddOn": "购买",
     "activeAddOnsLabel": "已激活的附加服务：",
     "addOnsError": "加载附加服务失败：{{message}}",
+    "upgradePlan": "升级",
+    "upgradeError": "升级失败：{{message}}",
     "addOnsEmpty": "当前暂无附加服务。",
     "addOnResource": {
       "simulation": "模拟次数",
@@ -285,7 +287,10 @@
   "liveMetricStream": {
     "waitingForConnection": "等待 WebSocket 连接...",
     "waitingForData": "等待数据流...",
-    "chartLabel": "实时指标流图表"
+    "chartLabel": "实时指标流图表",
+    "dataTableCaption": "实时指标数据",
+    "timeColumn": "时间",
+    "valueColumn": "数值"
   },
   "sidebar": {
     "dashboard": "仪表盘",
@@ -293,8 +298,11 @@
     "newSimulation": "新建模拟",
     "values": "价值观",
     "avatars": "分身管理",
+    "personaCore": "核心人格",
     "knowledgeSources": "知识源",
+    "marketplace": "任务市场",
     "billing": "计费",
+    "enterprise": "企业控制台",
     "settings": "设置",
     "systemStatus": "系统状态",
     "adminConfig": "系统配置",
@@ -309,6 +317,7 @@
     }
   },
   "appShell": {
+    "skipToMain": "跳转到主要内容",
     "openNav": "打开导航",
     "navMenu": "导航菜单"
   },
@@ -325,12 +334,16 @@
   },
   "sso": {
     "signInWithSSO": "使用 SSO 登录",
+    "enterTenantFirst": "请先输入租户 ID",
     "processing": "正在处理 SSO 认证...",
     "missingTokens": "SSO 认证失败：缺少令牌信息",
     "parseError": "SSO 认证失败：令牌解析错误",
     "backToLogin": "返回登录",
     "orDivider": "或",
-    "stateMismatch": "SSO 认证失败：状态校验失败"
+    "stateMismatch": "SSO 认证失败：状态校验失败",
+    "tenantIdLabel": "SSO 租户 ID",
+    "tenantIdPlaceholder": "tenant_123 或企业租户标识",
+    "tenantIdHint": "OIDC 登录是租户级别配置。跳转到身份提供商前，请先输入目标租户。"
   },
   "sharing": {
     "title": "分享模拟",
@@ -405,6 +418,32 @@
     "lastSynced": "上次同步: {{time}}",
     "queuedActions": "{{count}} 个操作待同步",
     "dismiss": "关闭"
+  },
+  "aria": {
+    "breadcrumb": "面包屑导航",
+    "timeResolution": "时间分辨率",
+    "metricSelection": "指标选择",
+    "timeSeriesChart": "{{metric}} 时间序列图",
+    "timeSeriesData": "{{metric}} 数据",
+    "yearLabel": "年",
+    "stressDeltaChart": "压力测试变化对比图",
+    "stressDeltaData": "压力测试变化数据",
+    "pathColumn": "路径",
+    "scoreColumn": "综合评分 Δ (%)",
+    "regretColumn": "后悔概率 Δ (%)",
+    "changePercent": "变化 (%)",
+    "scoreDelta": "综合评分 Δ",
+    "regretDelta": "后悔概率 Δ",
+    "sankeyChart": "分支概率桑基图",
+    "sankeyData": "分支概率数据",
+    "sourceColumn": "来源",
+    "targetColumn": "目标",
+    "weightColumn": "权重",
+    "probabilityColumn": "概率",
+    "milestoneThreshold": "阈值: {{value}}",
+    "trendUp": "上升趋势",
+    "trendDown": "下降趋势",
+    "trendFlat": "持平"
   },
   "avatars": {
     "title": "分身管理",
@@ -536,5 +575,141 @@
     "colStatus": "状态",
     "colQuota": "资源配额",
     "colCreated": "创建时间"
+  },
+  "personaCore": {
+    "title": "核心人格",
+    "subtitle": "管理唯一 Persona、本地分叉、知识同步与生命周期",
+    "create": "创建人格",
+    "createTitle": "创建 Persona Core",
+    "fork": "创建分叉",
+    "forkTitle": "创建 Persona 分叉",
+    "knowledgeTitle": "补充知识",
+    "addKnowledge": "新增知识",
+    "view": "查看",
+    "selected": "已选中",
+    "decease": "标记死亡",
+    "deceasePrompt": "请输入终止原因",
+    "detailTitle": "人格详情",
+    "profileTitle": "核心画像",
+    "noSelection": "选择一个人格以查看其钱包、分叉和记忆流。",
+    "noMission": "尚未记录使命描述。",
+    "walletAddress": "钱包地址",
+    "emptyState": "还没有核心人格，先创建一个以启动 OS 2.0 模型。",
+    "emptyForks": "尚未创建分叉。",
+    "emptyKnowledge": "尚未同步知识。",
+    "emptyMemories": "暂无近期记忆。",
+    "emptyGovernance": "暂无治理事件。",
+    "activitySummary": "{{activeForks}} 个分叉 · {{knowledgeCount}} 条知识 · {{activeTaskCount}} 个活跃任务",
+    "metrics": {
+      "personas": "核心人格数",
+      "walletBalance": "钱包余额",
+      "tokenBalance": "Token 余额",
+      "avgGrowth": "平均成长值",
+      "reputation": "声誉值",
+      "trainingInvestment": "训练投入"
+    },
+    "columns": {
+      "name": "名称",
+      "status": "状态",
+      "visibility": "可见性",
+      "growth": "成长值",
+      "reputation": "声誉",
+      "wallet": "钱包",
+      "activity": "活跃度"
+    },
+    "sections": {
+      "forks": "分叉",
+      "knowledge": "知识",
+      "memories": "近期记忆",
+      "governance": "治理"
+    },
+    "form": {
+      "name": "人格名称",
+      "visibility": "可见性",
+      "mission": "使命描述",
+      "traits": "特征（每行一条）",
+      "seedKnowledgeTitle": "初始知识标题",
+      "seedKnowledgeContent": "初始知识内容",
+      "forkName": "分叉名称",
+      "forkType": "分叉类型",
+      "knowledgeTitle": "知识标题",
+      "knowledgeSource": "知识来源",
+      "knowledgeTags": "标签（逗号分隔）",
+      "knowledgeContent": "知识正文"
+    },
+    "status": {
+      "active": "活跃",
+      "restricted": "受限",
+      "deceased": "已死亡",
+      "transferred": "已转移"
+    },
+    "visibility": {
+      "private": "私有",
+      "shared": "共享",
+      "marketplace": "市场公开"
+    },
+    "forkType": {
+      "experimental": "实验分叉",
+      "task": "任务分叉",
+      "social": "社交分叉",
+      "research": "研究分叉",
+      "operations": "运营分叉"
+    },
+    "governance": {
+      "warning": "警告",
+      "reward": "奖励",
+      "restriction": "限制",
+      "review": "复核",
+      "transfer": "转移",
+      "death": "死亡"
+    }
+  },
+  "marketplace": {
+    "title": "任务市场",
+    "subtitle": "发布任务、绑定核心人格执行，并把收益结算到人格钱包",
+    "publish": "发布任务",
+    "publishTitle": "发布 Marketplace 任务",
+    "accept": "接单",
+    "complete": "完成",
+    "completeTitle": "完成任务",
+    "assignPersona": "执行人格",
+    "emptyState": "当前状态下暂无任务。",
+    "unassigned": "未分配",
+    "noPersona": "暂无人格",
+    "metrics": {
+      "visibleTasks": "当前任务数",
+      "totalReward": "总奖励",
+      "activePersona": "当前执行人格"
+    },
+    "columns": {
+      "title": "任务",
+      "category": "分类",
+      "status": "状态",
+      "reward": "奖励",
+      "assignee": "执行者",
+      "updatedAt": "更新时间"
+    },
+    "form": {
+      "title": "任务标题",
+      "description": "任务描述",
+      "category": "任务分类",
+      "reward": "奖励金额",
+      "currency": "货币",
+      "qualityScore": "质量评分",
+      "trainingHours": "Owner 训练时长"
+    },
+    "status": {
+      "open": "待领取",
+      "accepted": "执行中",
+      "completed": "已完成",
+      "cancelled": "已取消"
+    },
+    "category": {
+      "writing": "写作",
+      "coding": "编程",
+      "research": "研究",
+      "operations": "运营",
+      "general": "通用"
+    }
   }
 }
