@@ -1,5 +1,6 @@
 node_modules
 dist
+!packages/*/dist
 *.local
 .env.local
 .env.*.local
@@ -11,4 +12,4 @@ test-results/
 playwright-report/
 .DS_Store
 **/.DS_Store
-packages
+packages/*/node_modules

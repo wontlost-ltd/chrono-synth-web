@@ -11,50 +11,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: chrono-synth-web
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository_owner }}/chrono-synth-os
-          path: chrono-synth-os
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: 'npm'
-          cache-dependency-path: chrono-synth-web/package-lock.json
-      # Copy @chrono packages so file:packages/* deps resolve
-      - run: cp -r chrono-synth-os/packages chrono-synth-web/packages
       - run: npm ci
-        working-directory: chrono-synth-web
       - run: npm run typecheck
-        working-directory: chrono-synth-web
       - run: npm run build
-        working-directory: chrono-synth-web
       - run: npm run test
-        working-directory: chrono-synth-web
       - run: npm run test:ops
-        working-directory: chrono-synth-web
       - name: Security audit
         run: npm audit --audit-level=high
-        working-directory: chrono-synth-web
 
   docker-build:
     runs-on: ubuntu-latest
     needs: build-and-test
     steps:
       - uses: actions/checkout@v4
-        with:
-          path: chrono-synth-web
-      - uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository_owner }}/chrono-synth-os
-          path: chrono-synth-os
-      # Copy @chrono packages into the web repo so Dockerfile COPY packages/ resolves
-      - run: cp -r chrono-synth-os/packages chrono-synth-web/packages
       - uses: docker/setup-buildx-action@v3
       - uses: docker/build-push-action@v6
         with:
-          context: chrono-synth-web
+          context: .
           load: true
           push: false
           tags: chrono-synth-web:${{ github.sha }}
