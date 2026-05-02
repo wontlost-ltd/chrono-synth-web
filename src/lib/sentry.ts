@@ -4,7 +4,7 @@
  */
 
 import * as Sentry from '@sentry/react';
-import { SENTRY_DSN } from '../config';
+import { APP_ENVIRONMENT, SENTRY_DSN } from '../config';
 
 export function initSentry(): void {
   if (!SENTRY_DSN) return;
@@ -18,7 +18,7 @@ export function initSentry(): void {
     tracesSampleRate: 0.2,
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
-    environment: import.meta.env.MODE,
+    environment: APP_ENVIRONMENT,
     beforeSend(event) {
       if (event.request?.headers) {
         const h = { ...event.request.headers };

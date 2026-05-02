@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Navigate, type RouteObject } from 'react-router-dom';
 import { Skeleton } from './components/ui/Skeleton';
 import { AuthGuard } from './components/layout/AuthGuard';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth } from './hooks/useAuth';
 
 const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
@@ -20,6 +21,7 @@ const Billing = lazy(() => import('./pages/Billing').then(m => ({ default: m.Bil
 const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })));
 const SSOCallback = lazy(() => import('./pages/SSOCallback').then(m => ({ default: m.SSOCallback })));
 const AdminConfig = lazy(() => import('./pages/AdminConfig').then(m => ({ default: m.AdminConfig })));
+const EnterpriseConsole = lazy(() => import('./pages/EnterpriseConsole').then(m => ({ default: m.EnterpriseConsole })));
 
 /* 新功能页面 */
 const AvatarListPage = lazy(() => import('./features/avatars/pages/AvatarListPage'));
@@ -30,9 +32,15 @@ const KnowledgeSourceDetailPage = lazy(() => import('./features/knowledge/pages/
 const AutorunConfigPage = lazy(() => import('./features/autorun/pages/AutorunConfigPage'));
 const AutorunRunsPage = lazy(() => import('./features/autorun/pages/AutorunRunsPage'));
 const PersonaListPage = lazy(() => import('./features/personas/pages/PersonaListPage'));
+const PersonaCorePage = lazy(() => import('./features/persona-core/pages/PersonaCorePage'));
+const MarketplacePage = lazy(() => import('./features/marketplace/pages/MarketplacePage'));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
-  return <Suspense fallback={<Skeleton variant="chart" />}>{children}</Suspense>;
+  return (
+    <ErrorBoundary>
+      <Suspense fallback={<Skeleton variant="chart" />}>{children}</Suspense>
+    </ErrorBoundary>
+  );
 }
 
 function Protected({ children }: { children: React.ReactNode }) {
@@ -62,6 +70,7 @@ export const routes: RouteObject[] = [
   { path: '/system', element: <Protected><SystemStatus /></Protected> },
   { path: '/billing', element: <Protected><Billing /></Protected> },
   { path: '/settings', element: <Protected><Settings /></Protected> },
+  { path: '/enterprise', element: <Protected><AdminOnly><EnterpriseConsole /></AdminOnly></Protected> },
   { path: '/admin/config', element: <Protected><AdminOnly><AdminConfig /></AdminOnly></Protected> },
   { path: '/sso/callback', element: <LazyPage><SSOCallback /></LazyPage> },
   /* 分身管理 */
@@ -75,5 +84,7 @@ export const routes: RouteObject[] = [
   { path: '/knowledge-sources/:id', element: <Protected><KnowledgeSourceDetailPage /></Protected> },
   /* 人格管理 */
   { path: '/personas', element: <Protected><PersonaListPage /></Protected> },
+  { path: '/persona-core', element: <Protected><PersonaCorePage /></Protected> },
+  { path: '/marketplace', element: <Protected><MarketplacePage /></Protected> },
   { path: '*', element: <Navigate to="/dashboard" replace /> },
 ];
