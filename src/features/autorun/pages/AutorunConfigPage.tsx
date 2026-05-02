@@ -26,7 +26,15 @@ export default function AutorunConfigPage() {
     enabled: false, intervalMinutes: 360, driftThreshold: 0.3, reviewRequired: false, knowledgeSourceIds: [],
   });
 
-  useEffect(() => { if (config) setForm(config); }, [config]);
+  useEffect(() => {
+    if (config) setForm({
+      enabled: config.enabled ?? false,
+      intervalMinutes: config.intervalMinutes ?? 360,
+      driftThreshold: config.driftThreshold ?? 0.3,
+      reviewRequired: config.reviewRequired ?? false,
+      knowledgeSourceIds: config.knowledgeSourceIds ?? [],
+    });
+  }, [config]);
 
   const update = (key: keyof AutorunConfig, value: unknown) => setForm(prev => ({ ...prev, [key]: value }));
 
@@ -102,12 +110,13 @@ export default function AutorunConfigPage() {
                   <label key={src.id} className="flex items-center gap-2">
                     <input
                       type="checkbox"
-                      checked={form.knowledgeSourceIds.includes(src.id)}
+                      checked={(form.knowledgeSourceIds ?? []).includes(src.id)}
                       onChange={e => {
+                        const ids = form.knowledgeSourceIds ?? [];
                         update('knowledgeSourceIds',
                           e.target.checked
-                            ? [...form.knowledgeSourceIds, src.id]
-                            : form.knowledgeSourceIds.filter(x => x !== src.id)
+                            ? [...ids, src.id]
+                            : ids.filter(x => x !== src.id)
                         );
                       }}
                       className="h-4 w-4 rounded border-border"

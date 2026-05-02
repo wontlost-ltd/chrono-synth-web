@@ -10,6 +10,13 @@ export function Login() {
   useDocumentTitle(t('login.login'));
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [tenantId, setTenantId] = useState(() => {
+    try {
+      return localStorage.getItem('chrono-sso-tenant-id') ?? '';
+    } catch {
+      return '';
+    }
+  });
   const navigate = useNavigate();
   const location = useLocation();
   const login = useLogin();
@@ -73,7 +80,21 @@ export function Login() {
           <hr className="flex-1 border-border" />
         </div>
         <div className="mt-4">
-          <SSOButton />
+          <label htmlFor="tenantId" className="mb-2 block text-sm font-medium text-text-secondary">
+            {t('sso.tenantIdLabel')}
+          </label>
+          <input
+            id="tenantId"
+            type="text"
+            value={tenantId}
+            onChange={(event) => setTenantId(event.target.value)}
+            placeholder={t('sso.tenantIdPlaceholder')}
+            className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          <p className="mt-2 text-xs text-text-secondary">{t('sso.tenantIdHint')}</p>
+          <div className="mt-3">
+            <SSOButton tenantId={tenantId} />
+          </div>
         </div>
         <p className="mt-4 text-center text-sm text-text-secondary">
           {t('login.noAccount')}

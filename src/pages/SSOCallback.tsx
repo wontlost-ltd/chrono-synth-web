@@ -18,7 +18,6 @@ function decodeJwtPayload(token: string): { sub: string; tenantId?: string; role
 
 function clearSensitive(): void {
   window.history.replaceState(null, '', window.location.pathname);
-  try { sessionStorage.removeItem('sso_state'); } catch { /* ignore */ }
 }
 
 /**
@@ -35,21 +34,11 @@ export function SSOCallback() {
     const hash = window.location.hash.slice(1);
     const params = new URLSearchParams(hash);
     const accessToken = params.get('access_token');
-    const returnedState = params.get('state');
-
-    let expectedState: string | null = null;
-    try { expectedState = sessionStorage.getItem('sso_state'); } catch { /* ignore */ }
 
     /* refreshToken 由后端通过 HttpOnly cookie 设置，不再从 URL 提取 */
     if (!accessToken) {
       clearSensitive();
       setError(t('sso.missingTokens'));
-      return;
-    }
-
-    if (!expectedState || returnedState !== expectedState) {
-      clearSensitive();
-      setError(t('sso.stateMismatch'));
       return;
     }
 

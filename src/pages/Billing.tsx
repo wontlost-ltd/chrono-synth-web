@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { usePlans, useUsage, useCustomerPortal, useAddOns, usePurchaseAddOn } from '../api/queries/billing';
-import type { AddOn } from '../api/queries/billing';
+import { usePlans, useUsage, useCreateCheckout, useCustomerPortal, useAddOns, usePurchaseAddOn } from '../api/queries/billing';
+import type { AddOn, Plan } from '../api/queries/billing';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -14,6 +14,14 @@ export function Billing() {
   const portal = useCustomerPortal();
   const addOns = useAddOns();
   const purchase = usePurchaseAddOn();
+  const checkout = useCreateCheckout();
+
+  function handleUpgrade(priceId: string) {
+    checkout.mutate(
+      { priceId, successUrl: window.location.href, cancelUrl: window.location.href },
+      { onSuccess: (data) => { window.location.href = data.url; } },
+    );
+  }
 
   function handleManage() {
     portal.mutate({ returnUrl: window.location.href }, {
@@ -123,9 +131,20 @@ export function Billing() {
 
       <div className="rounded-xl border border-border bg-surface-elevated p-6">
         <h2 className="mb-4 text-lg font-semibold text-text-primary">{t('billing.availablePlansTitle')}</h2>
+        {checkout.error && (
+          <p className="mb-3 text-sm text-warning" role="alert">
+            {t('billing.upgradeError', { message: checkout.error.message ?? t('common.error') })}
+          </p>
+        )}
         <div className="grid gap-4 sm:grid-cols-3">
           {plans.data?.map(plan => (
-            <PlanCard key={plan.id} plan={plan} isCurrent={plan.id === usage.data?.planId} />
+            <PlanCard
+              key={plan.id}
+              plan={plan}
+              isCurrent={plan.id === usage.data?.planId}
+              onUpgrade={handleUpgrade}
+              isUpgrading={checkout.isPending}
+            />
           ))}
         </div>
       </div>
@@ -158,9 +177,10 @@ function AddOnCard({ addon, owned, onPurchase, isPurchasing }: { addon: AddOn; o
   );
 }
 
-function PlanCard({ plan, isCurrent }: { plan: { id: string; name: string; limits: { maxSimulations: number; maxPaths: number; llmTokensPerMonth: number } }; isCurrent: boolean }) {
+function PlanCard({ plan, isCurrent, onUpgrade, isUpgrading }: { plan: Plan; isCurrent: boolean; onUpgrade: (priceId: string) => void; isUpgrading: boolean }) {
   const { t } = useTranslation();
   const fmt = (v: number) => v === -1 ? t('billing.unlimited') : String(v);
+  const canUpgrade = !isCurrent && !!plan.stripePriceId;
   return (
     <div className={`rounded-lg border p-4 ${isCurrent ? 'border-primary bg-primary/5' : 'border-border'}`}>
       <h3 className="font-semibold text-text-primary">{plan.name}</h3>
@@ -169,11 +189,19 @@ function PlanCard({ plan, isCurrent }: { plan: { id: string; name: string; limit
         <li>{t('billing.pathsLabel')}: {fmt(plan.limits.maxPaths)}</li>
         <li>{t('billing.llmTokensLabel')}: {plan.limits.llmTokensPerMonth === -1 ? t('billing.unlimited') : plan.limits.llmTokensPerMonth.toLocaleString()}</li>
       </ul>
-      {isCurrent && (
+      {isCurrent ? (
         <span className="mt-2 inline-block rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
           {t('billing.currentPlanBadge')}
         </span>
-      )}
+      ) : canUpgrade ? (
+        <button
+          onClick={() => onUpgrade(plan.stripePriceId)}
+          disabled={isUpgrading}
+          className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-light disabled:opacity-50"
+        >
+          {isUpgrading ? t('billing.redirecting') : t('billing.upgradePlan')}
+        </button>
+      ) : null}
     </div>
   );
 }
