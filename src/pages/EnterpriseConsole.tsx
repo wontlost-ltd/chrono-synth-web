@@ -17,8 +17,12 @@ import {
   useGenerateScimToken,
   useOrganizationMembers,
   useOrganizations,
+  useRotateVaultKey,
+  useRevokeVaultKey,
   useUpdateAdminDeploymentProfile,
   useUpsertOrganizationMember,
+  useVaultAudit,
+  useVaultKeys,
   type AdminGovernanceResponse,
   type AdminPersonasResponse,
   type AdminTasksResponse,
@@ -30,6 +34,8 @@ import {
   type OrganizationRole,
   type OrganizationSummary,
   type UpdateDeploymentProfileInput,
+  type VaultAuditEntry,
+  type VaultKeyVersion,
 } from '../api/queries/enterprise';
 
 const ORG_ROLE_OPTIONS: OrganizationRole[] = [
@@ -180,6 +186,11 @@ export function EnterpriseConsole() {
   const adminGovernance = useAdminGovernance(governancePage, undefined, isAdmin);
   const auditLogs = useAuditLogs(auditPage, isAdmin);
 
+  const vaultKeys = useVaultKeys(isAdmin);
+  const vaultAudit = useVaultAudit(isAdmin);
+  const rotateVaultKey = useRotateVaultKey();
+  const revokeVaultKey = useRevokeVaultKey();
+
   useEffect(() => {
     if (deploymentProfile.data) {
       setDeploymentForm(applyProfileToForm(deploymentProfile.data));
@@ -262,6 +273,7 @@ export function EnterpriseConsole() {
           { id: 'deployment', label: 'Deployment Profile' },
           { id: 'organizations', label: 'Organizations & RBAC' },
           { id: 'control', label: 'Control Plane' },
+          { id: 'vault', label: 'Key Vault' },
           { id: 'audit', label: 'Audit Trail' },
         ]}
         renderPanel={(tabId) => {
@@ -390,6 +402,21 @@ export function EnterpriseConsole() {
                   onTaskPageChange={setTaskPage}
                   onWalletPageChange={setWalletPage}
                   onGovernancePageChange={setGovernancePage}
+                />
+              );
+            case 'vault':
+              return (
+                <VaultPanel
+                  keys={vaultKeys.data ?? []}
+                  auditEntries={vaultAudit.data ?? []}
+                  loading={vaultKeys.isLoading}
+                  error={vaultKeys.error?.message ?? null}
+                  rotating={rotateVaultKey.isPending}
+                  revoking={revokeVaultKey.isPending}
+                  rotateError={rotateVaultKey.error?.message ?? null}
+                  revokeError={revokeVaultKey.error?.message ?? null}
+                  onRotate={(keyRef) => rotateVaultKey.mutate(keyRef)}
+                  onRevoke={(keyRef) => revokeVaultKey.mutate(keyRef)}
                 />
               );
             case 'audit':
@@ -998,6 +1025,145 @@ function ControlPlanePanel({
           />
         </SectionCard>
       </div>
+    </div>
+  );
+}
+
+function VaultPanel({
+  keys,
+  auditEntries,
+  loading,
+  error,
+  rotating,
+  revoking,
+  rotateError,
+  revokeError,
+  onRotate,
+  onRevoke,
+}: {
+  keys: VaultKeyVersion[];
+  auditEntries: VaultAuditEntry[];
+  loading: boolean;
+  error: string | null;
+  rotating: boolean;
+  revoking: boolean;
+  rotateError: string | null;
+  revokeError: string | null;
+  onRotate: (keyRef: string) => void;
+  onRevoke: (keyRef: string) => void;
+}) {
+  if (loading) return <Skeleton variant="table" />;
+  if (error) return <EmptyState variant="error" message={`Failed to load vault keys: ${error}`} />;
+
+  const keyRefs = [...new Set(keys.map((k) => k.keyRef))];
+
+  return (
+    <div className="space-y-6">
+      {(rotateError ?? revokeError) && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {rotateError ?? revokeError}
+        </div>
+      )}
+
+      <SectionCard
+        title="Tenant Key Versions"
+        subtitle="Platform-managed encryption keys for this tenant. Rotate to issue a new version; revoke to retire a compromised key."
+      >
+        {keys.length === 0 ? (
+          <EmptyState message="No key versions found. Keys are provisioned on first vault operation." />
+        ) : (
+          <DataTable<VaultKeyVersion>
+            rows={keys}
+            columns={[
+              { id: 'keyRef', header: 'Key Ref', cell: (row) => row.keyRef },
+              { id: 'provider', header: 'Provider', cell: (row) => row.provider },
+              { id: 'version', header: 'Version', cell: (row) => `v${row.version}` },
+              {
+                id: 'status',
+                header: 'Status',
+                cell: (row) => (
+                  <span className={row.status === 'active' ? 'text-green-600 font-medium' : 'text-red-500'}>
+                    {row.status}
+                  </span>
+                ),
+              },
+              { id: 'createdAt', header: 'Created', cell: (row) => formatDateTime(row.createdAt) },
+              { id: 'revokedAt', header: 'Revoked', cell: (row) => formatDateTime(row.revokedAt) },
+            ]}
+            getRowId={(row) => `${row.keyRef}-${row.version}`}
+            rowActions={(row) =>
+              row.status === 'active' ? (
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={rotating}
+                    onClick={() => onRotate(row.keyRef)}
+                    className="rounded px-3 py-1 text-xs font-medium bg-surface border border-border hover:bg-surface-elevated disabled:opacity-50"
+                  >
+                    {rotating ? 'Rotating…' : 'Rotate'}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={revoking}
+                    onClick={() => onRevoke(row.keyRef)}
+                    className="rounded px-3 py-1 text-xs font-medium text-red-600 border border-red-200 hover:bg-red-50 disabled:opacity-50"
+                  >
+                    {revoking ? 'Revoking…' : 'Revoke'}
+                  </button>
+                </div>
+              ) : null
+            }
+            emptyState={<EmptyState message="No key versions." />}
+          />
+        )}
+
+        {keyRefs.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-2">
+            {keyRefs.map((ref) => (
+              <button
+                key={ref}
+                type="button"
+                disabled={rotating}
+                onClick={() => onRotate(ref)}
+                className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium hover:bg-surface-elevated disabled:opacity-50"
+              >
+                {rotating ? 'Rotating…' : `Rotate "${ref}"`}
+              </button>
+            ))}
+          </div>
+        )}
+      </SectionCard>
+
+      <SectionCard
+        title="Vault Operation Audit"
+        subtitle="Last 50 cryptographic operations performed against this tenant's vault."
+      >
+        <DataTable<VaultAuditEntry>
+          rows={auditEntries}
+          columns={[
+            { id: 'operation', header: 'Operation', cell: (row) => row.operation },
+            { id: 'keyRef', header: 'Key Ref', cell: (row) => row.keyRef },
+            { id: 'keyVersion', header: 'Version', cell: (row) => row.keyVersion !== null ? `v${row.keyVersion}` : '—' },
+            {
+              id: 'outcome',
+              header: 'Outcome',
+              cell: (row) => (
+                <span className={row.outcome === 'ok' ? 'text-green-600' : 'text-red-500 font-medium'}>
+                  {row.outcome}
+                </span>
+              ),
+            },
+            { id: 'performedAt', header: 'Time', cell: (row) => formatDateTime(row.performedAt) },
+          ]}
+          getRowId={(row) => row.id}
+          emptyState={<EmptyState message="No vault operations recorded yet." />}
+          rowActions={(row) =>
+            row.errorMessage ? (
+              <span className="text-xs text-red-500">{row.errorMessage}</span>
+            ) : null
+          }
+        />
+      </SectionCard>
     </div>
   );
 }

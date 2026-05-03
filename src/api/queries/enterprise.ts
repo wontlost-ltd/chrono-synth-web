@@ -371,3 +371,73 @@ export function useAuditLogs(page = 1, enabled = true) {
     enabled,
   });
 }
+
+// ─── Vault Key Management ─────────────────────────────────────────────────────
+
+export interface VaultKeyVersion {
+  keyRef: string;
+  provider: string;
+  version: number;
+  status: 'active' | 'revoked';
+  createdAt: string | null;
+  revokedAt: string | null;
+}
+
+export interface VaultAuditEntry {
+  id: string;
+  operation: 'wrap' | 'unwrap' | 'sign' | 'verify';
+  keyRef: string;
+  keyVersion: number | null;
+  outcome: 'ok' | 'error';
+  errorMessage: string | null;
+  performedAt: string | null;
+}
+
+const VAULT_KEYS = {
+  keys: ['enterprise', 'vault', 'keys'] as const,
+  audit: ['enterprise', 'vault', 'audit'] as const,
+};
+
+export function useVaultKeys(enabled = true) {
+  return useQuery({
+    queryKey: VAULT_KEYS.keys,
+    queryFn: ({ signal }) => apiFetch<VaultKeyVersion[]>('/api/v1/admin/vault/keys', { signal }),
+    enabled,
+  });
+}
+
+export function useVaultAudit(enabled = true) {
+  return useQuery({
+    queryKey: VAULT_KEYS.audit,
+    queryFn: ({ signal }) => apiFetch<VaultAuditEntry[]>('/api/v1/admin/vault/audit', { signal }),
+    enabled,
+  });
+}
+
+export function useRotateVaultKey() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (keyRef: string) => apiFetch<{ keyRef: string; version: number; status: string; createdAt: string | null }>(
+      `/api/v1/admin/vault/keys/${encodeURIComponent(keyRef)}/rotate`,
+      { method: 'POST', body: JSON.stringify({}) },
+    ),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: VAULT_KEYS.keys });
+      void qc.invalidateQueries({ queryKey: VAULT_KEYS.audit });
+    },
+  });
+}
+
+export function useRevokeVaultKey() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (keyRef: string) => apiFetch<{ keyRef: string; revokedCount: number }>(
+      `/api/v1/admin/vault/keys/${encodeURIComponent(keyRef)}/revoke`,
+      { method: 'POST', body: JSON.stringify({}) },
+    ),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: VAULT_KEYS.keys });
+      void qc.invalidateQueries({ queryKey: VAULT_KEYS.audit });
+    },
+  });
+}
