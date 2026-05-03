@@ -18,9 +18,30 @@ vi.mock('@/hooks/useWebSocket', () => ({
   }),
 }));
 
+// BroadcastChannel mock — lets tests simulate service worker network messages.
+let lastBcInstance: { onmessage: ((e: MessageEvent<{ type: string }>) => void) | null; close: () => void } | null = null;
+const bcClose = vi.fn();
+
+vi.stubGlobal('BroadcastChannel', class {
+  onmessage: ((e: MessageEvent<{ type: string }>) => void) | null = null;
+  constructor(_name: string) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    lastBcInstance = this;
+  }
+  close() { bcClose(); }
+});
+
+function dispatchSwMessage(data: { type: string }) {
+  if (lastBcInstance?.onmessage) {
+    lastBcInstance.onmessage(new MessageEvent('message', { data }));
+  }
+}
+
 describe('useSyncEngine', () => {
   beforeEach(() => {
     send.mockClear();
+    bcClose.mockClear();
+    lastBcInstance = null;
     subscribe.mockReset();
     capturedStateChanged = undefined;
     subscribe.mockImplementation((event, cb) => {
@@ -69,6 +90,41 @@ describe('useSyncEngine', () => {
       capturedStateChanged?.({ state: 'online_dirty', pendingPushCount: 2 });
     });
     expect(result.current.state).toBe('online_dirty');
+  });
+
+  it('NETWORK_LOST from SW sets networkOnline=false and state=offline_queueing', () => {
+    const { result } = renderHook(() => useSyncEngine());
+    act(() => { dispatchSwMessage({ type: 'NETWORK_LOST' }); });
+    expect(result.current.networkOnline).toBe(false);
+    expect(result.current.state).toBe('offline_queueing');
+  });
+
+  it('NETWORK_LOST preserves offline_readonly state', () => {
+    const { result } = renderHook(() => useSyncEngine());
+    act(() => { capturedStateChanged?.({ state: 'offline_readonly' }); });
+    act(() => { dispatchSwMessage({ type: 'NETWORK_LOST' }); });
+    expect(result.current.state).toBe('offline_readonly');
+  });
+
+  it('NETWORK_RESTORED sets networkOnline=true and transitions to syncing from offline', () => {
+    const { result } = renderHook(() => useSyncEngine());
+    act(() => { dispatchSwMessage({ type: 'NETWORK_LOST' }); });
+    act(() => { dispatchSwMessage({ type: 'NETWORK_RESTORED' }); });
+    expect(result.current.networkOnline).toBe(true);
+    expect(result.current.state).toBe('syncing');
+  });
+
+  it('NETWORK_RESTORED does not change state when not in offline states', () => {
+    const { result } = renderHook(() => useSyncEngine());
+    act(() => { capturedStateChanged?.({ state: 'online_synced' }); });
+    act(() => { dispatchSwMessage({ type: 'NETWORK_RESTORED' }); });
+    expect(result.current.state).toBe('online_synced');
+  });
+
+  it('closes BroadcastChannel on unmount', () => {
+    const { unmount } = renderHook(() => useSyncEngine());
+    unmount();
+    expect(bcClose).toHaveBeenCalledOnce();
   });
 });
 
