@@ -1,5 +1,18 @@
+/**
+ * 离线队列 Hook — IndexedDB 持久化（替换原 localStorage 实现）
+ *
+ * 使用 replica-store 的 outbox 对象仓库，确保队列在 Service Worker 重启后仍存在。
+ * 每个 QueuedAction 以 OutboxEntry 格式存储，entityRef 为 "offline-action/<id>"。
+ */
+
 import { useCallback, useEffect, useSyncExternalStore } from 'react';
 import { useOnlineStatus } from './useOnlineStatus';
+import {
+  enqueueOutbox,
+  dequeueOutbox,
+  getOutboxByTenant,
+  type OutboxEntry,
+} from '../sync/replica-store';
 
 export interface QueuedAction {
   id: string;
@@ -7,65 +20,101 @@ export interface QueuedAction {
   timestamp: number;
 }
 
-const STORAGE_KEY = 'chronosynth_offline_queue';
+const TENANT_ID = 'local';
 const MAX_QUEUE_SIZE = 100;
-const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
 
-function loadQueue(): QueuedAction[] {
-  if (!isBrowser) return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as QueuedAction[]) : [];
-  } catch {
-    return [];
-  }
+function actionToOutboxEntry(action: QueuedAction): OutboxEntry {
+  return {
+    commandId: action.id,
+    tenantId: TENANT_ID,
+    entityRef: `offline-action/${action.id}`,
+    envelope: { label: action.label, timestamp: action.timestamp },
+    enqueuedAt: action.timestamp,
+    attempts: 0,
+  };
 }
 
-function saveQueue(q: QueuedAction[]): void {
-  if (!isBrowser) return;
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(q));
-  } catch { /* quota exceeded — silently ignore */ }
+function outboxEntryToAction(entry: OutboxEntry): QueuedAction {
+  const env = entry.envelope as { label?: string; timestamp?: number };
+  return {
+    id: entry.commandId,
+    label: env.label ?? entry.commandId,
+    timestamp: env.timestamp ?? entry.enqueuedAt,
+  };
 }
 
-let queue: QueuedAction[] = loadQueue();
+let cachedQueue: QueuedAction[] = [];
 const listeners = new Set<() => void>();
+let loaded = false;
 
-function notify() {
+function notify(): void {
   for (const cb of listeners) cb();
 }
 
-function subscribe(cb: () => void) {
+async function loadFromIdb(): Promise<void> {
+  try {
+    const entries = await getOutboxByTenant(TENANT_ID);
+    cachedQueue = entries
+      .filter((e) => e.entityRef.startsWith('offline-action/'))
+      .sort((a, b) => a.enqueuedAt - b.enqueuedAt)
+      .map(outboxEntryToAction);
+  } catch {
+    cachedQueue = [];
+  }
+  loaded = true;
+  notify();
+}
+
+function subscribe(cb: () => void): () => void {
   listeners.add(cb);
+  if (!loaded) {
+    void loadFromIdb();
+  }
   return () => { listeners.delete(cb); };
 }
 
 function getSnapshot(): QueuedAction[] {
-  return queue;
+  return cachedQueue;
 }
 
 function getServerSnapshot(): QueuedAction[] {
   return [];
 }
 
-export function enqueueOfflineAction(label: string): string {
+export async function enqueueOfflineAction(label: string): Promise<string> {
   const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  queue = [...queue, { id, label, timestamp: Date.now() }].slice(-MAX_QUEUE_SIZE);
-  saveQueue(queue);
+  const action: QueuedAction = { id, label, timestamp: Date.now() };
+
+  if (cachedQueue.length >= MAX_QUEUE_SIZE) return id;
+
+  cachedQueue = [...cachedQueue, action];
   notify();
+
+  try {
+    await enqueueOutbox(actionToOutboxEntry(action));
+  } catch {
+    cachedQueue = cachedQueue.filter((a) => a.id !== id);
+    notify();
+  }
   return id;
 }
 
-export function dequeueOfflineAction(id: string): void {
-  queue = queue.filter(a => a.id !== id);
-  saveQueue(queue);
+export async function dequeueOfflineAction(id: string): Promise<void> {
+  cachedQueue = cachedQueue.filter((a) => a.id !== id);
   notify();
+  try {
+    await dequeueOutbox(id);
+  } catch { /* best-effort */ }
 }
 
-export function clearOfflineQueue(): void {
-  queue = [];
-  saveQueue(queue);
+export async function clearOfflineQueue(): Promise<void> {
+  cachedQueue = [];
   notify();
+  try {
+    const all = await getOutboxByTenant(TENANT_ID);
+    const offlineEntries = all.filter((e) => e.entityRef.startsWith('offline-action/'));
+    await Promise.all(offlineEntries.map((e) => dequeueOutbox(e.commandId)));
+  } catch { /* best-effort */ }
 }
 
 export function useOfflineQueue() {
@@ -78,10 +127,6 @@ export function useOfflineQueue() {
   return { actions, enqueue, dequeue, clear, count: actions.length };
 }
 
-/**
- * 网络恢复时自动执行离线队列中的操作
- * @param flushFn 每条队列项的执行函数，返回 Promise<void>
- */
 export function useReconnectFlush(
   flushFn: (action: QueuedAction) => Promise<void>,
 ): void {
@@ -90,14 +135,9 @@ export function useReconnectFlush(
   useEffect(() => {
     if (!isOnline) return;
 
-    const snapshot = [...queue];
-
+    const snapshot = [...cachedQueue];
     for (const action of snapshot) {
-      void flushFn(action).then(() => {
-        dequeueOfflineAction(action.id);
-      }).catch(() => {
-        // Leave failed actions in the queue for the next reconnect.
-      });
+      void flushFn(action).then(() => dequeueOfflineAction(action.id)).catch(() => {});
     }
-  }, [isOnline]);
+  }, [isOnline, flushFn]);
 }

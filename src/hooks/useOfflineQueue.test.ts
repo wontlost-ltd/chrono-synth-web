@@ -1,68 +1,78 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
+import type { OutboxEntry } from '../sync/replica-store';
 import {
   useOfflineQueue,
+  useReconnectFlush,
   enqueueOfflineAction,
   dequeueOfflineAction,
   clearOfflineQueue,
 } from './useOfflineQueue';
 
-const STORAGE_KEY = 'chronosynth_offline_queue';
+const mockOutbox = new Map<string, OutboxEntry>();
 
-beforeEach(() => {
-  localStorage.clear();
-  clearOfflineQueue();
+vi.mock('../sync/replica-store', () => ({
+  enqueueOutbox: vi.fn(async (entry: OutboxEntry) => { mockOutbox.set(entry.commandId, entry); }),
+  dequeueOutbox: vi.fn(async (id: string) => { mockOutbox.delete(id); }),
+  getOutboxByTenant: vi.fn(async () => [...mockOutbox.values()]),
+}));
+
+vi.mock('./useOnlineStatus', () => ({
+  useOnlineStatus: vi.fn(() => true),
+}));
+
+beforeEach(async () => {
+  mockOutbox.clear();
+  vi.clearAllMocks();
+  await clearOfflineQueue();
 });
 
 describe('enqueueOfflineAction', () => {
-  it('returns a unique id', () => {
-    const a = enqueueOfflineAction('action-1');
-    const b = enqueueOfflineAction('action-2');
+  it('returns a unique id', async () => {
+    const a = await enqueueOfflineAction('action-1');
+    const b = await enqueueOfflineAction('action-2');
     expect(a).not.toBe(b);
   });
 
-  it('persists to localStorage', () => {
-    enqueueOfflineAction('save-persona');
-    const raw = localStorage.getItem(STORAGE_KEY);
-    expect(raw).toBeTruthy();
-    const parsed = JSON.parse(raw!) as unknown[];
-    expect(parsed).toHaveLength(1);
+  it('persists to IndexedDB outbox', async () => {
+    await enqueueOfflineAction('save-persona');
+    expect(mockOutbox.size).toBe(1);
+    const [entry] = [...mockOutbox.values()];
+    expect((entry?.envelope as { label?: string })?.label).toBe('save-persona');
   });
 
-  it('records label and timestamp', () => {
+  it('records label and timestamp', async () => {
     const before = Date.now();
-    enqueueOfflineAction('my-action');
+    await enqueueOfflineAction('my-action');
     const after = Date.now();
-    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)!) as Array<{ label: string; timestamp: number }>;
-    expect(raw[0]?.label).toBe('my-action');
-    expect(raw[0]?.timestamp).toBeGreaterThanOrEqual(before);
-    expect(raw[0]?.timestamp).toBeLessThanOrEqual(after);
+    const [entry] = [...mockOutbox.values()];
+    const env = entry?.envelope as { label?: string; timestamp?: number };
+    expect(env?.label).toBe('my-action');
+    expect(env?.timestamp).toBeGreaterThanOrEqual(before);
+    expect(env?.timestamp).toBeLessThanOrEqual(after);
   });
 });
 
 describe('dequeueOfflineAction', () => {
-  it('removes the action by id', () => {
-    const id = enqueueOfflineAction('remove-me');
-    dequeueOfflineAction(id);
-    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') as unknown[];
-    expect(raw).toHaveLength(0);
+  it('removes the action by id', async () => {
+    const id = await enqueueOfflineAction('remove-me');
+    await dequeueOfflineAction(id);
+    expect(mockOutbox.has(id)).toBe(false);
   });
 
-  it('is a no-op for unknown ids', () => {
-    enqueueOfflineAction('keep-me');
-    dequeueOfflineAction('nonexistent-id');
-    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY)!) as unknown[];
-    expect(raw).toHaveLength(1);
+  it('is a no-op for unknown ids', async () => {
+    await enqueueOfflineAction('keep-me');
+    await dequeueOfflineAction('nonexistent-id');
+    expect(mockOutbox.size).toBe(1);
   });
 });
 
 describe('clearOfflineQueue', () => {
-  it('empties the queue', () => {
-    enqueueOfflineAction('a');
-    enqueueOfflineAction('b');
-    clearOfflineQueue();
-    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') as unknown[];
-    expect(raw).toHaveLength(0);
+  it('empties the queue', async () => {
+    await enqueueOfflineAction('a');
+    await enqueueOfflineAction('b');
+    await clearOfflineQueue();
+    expect(mockOutbox.size).toBe(0);
   });
 });
 
@@ -73,35 +83,35 @@ describe('useOfflineQueue hook', () => {
     expect(result.current.count).toBe(0);
   });
 
-  it('enqueue via hook reflects in actions', () => {
+  it('enqueue via hook reflects in actions', async () => {
     const { result } = renderHook(() => useOfflineQueue());
-    act(() => { result.current.enqueue('hook-action'); });
+    await act(async () => { await result.current.enqueue('hook-action'); });
     expect(result.current.count).toBe(1);
     expect(result.current.actions[0]?.label).toBe('hook-action');
   });
 
-  it('dequeue via hook removes action', () => {
+  it('dequeue via hook removes action', async () => {
     const { result } = renderHook(() => useOfflineQueue());
     let id!: string;
-    act(() => { id = result.current.enqueue('to-remove'); });
-    act(() => { result.current.dequeue(id); });
+    await act(async () => { id = await result.current.enqueue('to-remove'); });
+    await act(async () => { await result.current.dequeue(id); });
     expect(result.current.count).toBe(0);
   });
 
-  it('clear via hook empties queue', () => {
+  it('clear via hook empties queue', async () => {
     const { result } = renderHook(() => useOfflineQueue());
-    act(() => {
-      result.current.enqueue('x');
-      result.current.enqueue('y');
+    await act(async () => {
+      await result.current.enqueue('x');
+      await result.current.enqueue('y');
     });
-    act(() => { result.current.clear(); });
+    await act(async () => { await result.current.clear(); });
     expect(result.current.count).toBe(0);
   });
 
-  it('caps queue at 100 items', () => {
+  it('caps queue at 100 items', async () => {
     const { result } = renderHook(() => useOfflineQueue());
-    act(() => {
-      for (let i = 0; i < 110; i++) result.current.enqueue(`action-${i}`);
+    await act(async () => {
+      for (let i = 0; i < 110; i++) await result.current.enqueue(`action-${i}`);
     });
     expect(result.current.count).toBe(100);
   });
@@ -109,25 +119,22 @@ describe('useOfflineQueue hook', () => {
 
 describe('useReconnectFlush', () => {
   it('calls flushFn for each queued action when online and dequeues on success', async () => {
-    const { useReconnectFlush } = await import('./useOfflineQueue');
-    enqueueOfflineAction('flush-me');
+    await enqueueOfflineAction('flush-me');
 
     const flushFn = vi.fn().mockResolvedValue(undefined);
     renderHook(() => useReconnectFlush(flushFn));
 
-    await vi.waitFor(() => expect(flushFn).toHaveBeenCalledOnce());
+    await waitFor(() => expect(flushFn).toHaveBeenCalledOnce());
   });
 
   it('leaves action in queue when flushFn rejects', async () => {
-    const { useReconnectFlush } = await import('./useOfflineQueue');
-    enqueueOfflineAction('fails');
+    const { result } = renderHook(() => useOfflineQueue());
+    await act(async () => { await result.current.enqueue('fails'); });
 
     const flushFn = vi.fn().mockRejectedValue(new Error('network error'));
     renderHook(() => useReconnectFlush(flushFn));
 
-    await vi.waitFor(() => expect(flushFn).toHaveBeenCalled());
-    // Action remains because flush failed
-    const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]') as unknown[];
-    expect(raw).toHaveLength(1);
+    await waitFor(() => expect(flushFn).toHaveBeenCalled());
+    expect(result.current.count).toBe(1);
   });
 });
