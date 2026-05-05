@@ -1016,5 +1016,22 @@
       "simulations": "Simulations",
       "settings": "Settings"
     }
+  },
+  "personaHealth": {
+    "title": "Persona health dashboard",
+    "subtitle": "Core values and activity for persona {{personaId}}",
+    "disabled": {
+      "title": "This feature is in beta",
+      "message": "The health dashboard is still under construction. Set chrono.flag.experimental.values_health_dashboard=true in localStorage to preview."
+    },
+    "radar": {
+      "heading": "Core values radar",
+      "empty": "This persona has no value data to visualize yet. Record a few decisions and come back.",
+      "legend": {
+        "current": "Today",
+        "d7": "7 days ago",
+        "d30": "30 days ago"
+      }
+    }
   }
 }

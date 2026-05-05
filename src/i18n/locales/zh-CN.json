@@ -1016,5 +1016,22 @@
       "simulations": "模拟",
       "settings": "设置"
     }
+  },
+  "personaHealth": {
+    "title": "Persona 健康仪表盘",
+    "subtitle": "查看 persona {{personaId}} 的核心价值与活跃度",
+    "disabled": {
+      "title": "此功能正在内测",
+      "message": "健康仪表盘还在开发中。在 localStorage 设置 chrono.flag.experimental.values_health_dashboard=true 即可开启预览。"
+    },
+    "radar": {
+      "heading": "核心价值雷达",
+      "empty": "此 persona 还没有可视化的价值数据。先记录几次决策再回来。",
+      "legend": {
+        "current": "今天",
+        "d7": "7 天前",
+        "d30": "30 天前"
+      }
+    }
   }
 }
