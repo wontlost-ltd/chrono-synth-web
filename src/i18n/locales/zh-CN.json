@@ -969,5 +969,32 @@
         "body": "· 6 个 admin/agent 页面 zh-CN + en-US 全量翻译\n· 严格 CSP + COOP/COEP/CORP + Trusted Types report-only\n· HSTS 升级到 2 年 + preload"
       }
     }
+  },
+  "cmdk": {
+    "placeholder": "搜索命令或路径…",
+    "searchLabel": "命令面板搜索",
+    "resultsLabel": "搜索结果",
+    "empty": "没有匹配的命令。",
+    "help": {
+      "move": "上下移动",
+      "select": "执行",
+      "close": "关闭"
+    },
+    "commands": {
+      "dashboard": "前往：仪表盘",
+      "personas": "前往：Personas",
+      "simulations": "前往：模拟",
+      "values": "前往：核心价值",
+      "knowledge": "前往：知识源",
+      "billing": "前往：账单",
+      "settings": "前往：设置",
+      "toolPermissions": "管理：工具权限",
+      "agencyAuthorizations": "管理：代理授权书",
+      "toolInvocations": "查看：工具调用历史",
+      "safetyDrift": "AI 安全：漂移报告",
+      "adminConfig": "管理：租户配置",
+      "agentOauthGoogle": "Google 账户授权",
+      "agentConfirmations": "待我审批"
+    }
   }
 }

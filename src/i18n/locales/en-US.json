@@ -969,5 +969,32 @@
         "body": "· 6 admin/agent pages fully translated for zh-CN + en-US\n· Strict CSP + COOP/COEP/CORP + Trusted Types report-only\n· HSTS upgraded to 2-year + preload"
       }
     }
+  },
+  "cmdk": {
+    "placeholder": "Search commands or routes…",
+    "searchLabel": "Command palette search",
+    "resultsLabel": "Search results",
+    "empty": "No matching commands.",
+    "help": {
+      "move": "Move",
+      "select": "Select",
+      "close": "Close"
+    },
+    "commands": {
+      "dashboard": "Go to: Dashboard",
+      "personas": "Go to: Personas",
+      "simulations": "Go to: Simulations",
+      "values": "Go to: Core values",
+      "knowledge": "Go to: Knowledge sources",
+      "billing": "Go to: Billing",
+      "settings": "Go to: Settings",
+      "toolPermissions": "Manage: Tool permissions",
+      "agencyAuthorizations": "Manage: Agency authorizations",
+      "toolInvocations": "View: Tool invocation history",
+      "safetyDrift": "AI safety: Drift report",
+      "adminConfig": "Manage: Tenant config",
+      "agentOauthGoogle": "Google account authorization",
+      "agentConfirmations": "Pending approvals"
+    }
   }
 }

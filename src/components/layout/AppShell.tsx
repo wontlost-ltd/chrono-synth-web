@@ -1,9 +1,12 @@
 import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sidebar } from './Sidebar';
 import { SetupChecklistContainer } from '../onboarding/SetupChecklistContainer';
 import { ChangelogDrawer } from '../changelog/ChangelogDrawer';
+import { CommandPalette } from '../cmdk/CommandPalette';
+import { DEFAULT_COMMANDS } from '../cmdk/defaultCommands';
+import { useHotkey } from '../../lib/hotkeys';
 
 interface AppShellProps {
   children: ReactNode;
@@ -14,10 +17,21 @@ export function AppShell({ children }: AppShellProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const drawerRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
+
+  /* Vim-style g+key navigation. Each command in DEFAULT_COMMANDS already
+   * declares its own hotkey; we register them once at the shell level so
+   * they work from anywhere inside the authenticated surface. */
+  useHotkey('g d', () => navigate('/dashboard'));
+  useHotkey('g p', () => navigate('/personas'));
+  useHotkey('g s', () => navigate('/simulations'));
+  useHotkey('g v', () => navigate('/values'));
+  useHotkey('g k', () => navigate('/knowledge-sources'));
+  useHotkey('g a', () => navigate('/admin/config'));
 
   const closeMobile = useCallback(() => {
     setMobileOpen(false);
@@ -99,6 +113,9 @@ export function AppShell({ children }: AppShellProps) {
       {/* P1.7.2 changelog drawer (bottom-left); auto-opens once after each
         * release, then user controls via the trigger button. */}
       <ChangelogDrawer />
+      {/* P2.6 global command palette (Cmd/Ctrl+K). Self-renders only when
+        * open; safe to mount unconditionally. */}
+      <CommandPalette commands={DEFAULT_COMMANDS} />
     </div>
   );
 }
