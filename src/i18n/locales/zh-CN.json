@@ -1033,5 +1033,47 @@
         "d30": "30 天前"
       }
     }
+  },
+  "growth": {
+    "levels": {
+      "L1": {
+        "label": "新手",
+        "description": "创建 persona、开始第一次对话"
+      },
+      "L2": {
+        "label": "探索者",
+        "description": "解锁模拟实验和记忆图谱"
+      },
+      "L3": {
+        "label": "熟练者",
+        "description": "解锁工具调用和外部授权"
+      },
+      "L4": {
+        "label": "资深用户",
+        "description": "解锁多人格、治理和管理控制台"
+      }
+    },
+    "locked": {
+      "title": "需要 {{level}} 等级才能使用",
+      "body": "继续日常使用即可解锁该功能。",
+      "daysRemaining_one": "还剩 {{count}} 天即可解锁",
+      "daysRemaining_other": "还剩 {{count}} 天即可解锁"
+    }
+  },
+  "suggestions": {
+    "firstPersona": {
+      "title": "创建你的第一个 persona",
+      "body": "Persona 是你数字身份的容器，先建一个再开始体验。"
+    },
+    "firstKnowledge": {
+      "title": "添加知识源",
+      "body": "让 persona 知道你的资料，对话才会有深度。"
+    },
+    "viewDrift": {
+      "title": "查看人格漂移报告"
+    },
+    "firstTool": {
+      "title": "授权第一个工具"
+    }
   }
 }

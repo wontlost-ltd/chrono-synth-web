@@ -1033,5 +1033,47 @@
         "d30": "30 days ago"
       }
     }
+  },
+  "growth": {
+    "levels": {
+      "L1": {
+        "label": "Newcomer",
+        "description": "Create a persona, start your first conversation"
+      },
+      "L2": {
+        "label": "Explorer",
+        "description": "Unlock simulations and the memory graph"
+      },
+      "L3": {
+        "label": "Practitioner",
+        "description": "Unlock tool invocations and external authorizations"
+      },
+      "L4": {
+        "label": "Power user",
+        "description": "Unlock multi-persona, governance, and the admin console"
+      }
+    },
+    "locked": {
+      "title": "Requires level {{level}}",
+      "body": "Keep using the app to unlock this feature.",
+      "daysRemaining_one": "{{count}} day until unlock",
+      "daysRemaining_other": "{{count}} days until unlock"
+    }
+  },
+  "suggestions": {
+    "firstPersona": {
+      "title": "Create your first persona",
+      "body": "A persona is the container for your digital identity. Start with one to begin."
+    },
+    "firstKnowledge": {
+      "title": "Add a knowledge source",
+      "body": "Give the persona context. Conversations get sharper once knowledge is connected."
+    },
+    "viewDrift": {
+      "title": "Review the drift report"
+    },
+    "firstTool": {
+      "title": "Grant your first tool permission"
+    }
   }
 }
