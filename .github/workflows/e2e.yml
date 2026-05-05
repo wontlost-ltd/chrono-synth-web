@@ -42,8 +42,13 @@ jobs:
       - run: npm ci
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
-      - name: Run axe accessibility audit
-        run: npx playwright test --project=chromium e2e/axe-a11y.spec.ts
+      - name: Run axe + keyboard-nav accessibility audit
+        # 包含 legacy 两个 spec + P1.3 扩展 suite（e2e/accessibility/）
+        run: |
+          npx playwright test --project=chromium \
+            e2e/axe-a11y.spec.ts \
+            e2e/a11y.spec.ts \
+            e2e/accessibility/
       - name: Upload a11y report
         uses: actions/upload-artifact@v6
         if: always()
