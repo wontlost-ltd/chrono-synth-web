@@ -68,7 +68,7 @@ export function SafetyDriftReport() {
         actions={
           <button
             type="button"
-            className="btn-primary"
+            className="rounded bg-primary px-3 py-1.5 text-sm text-white hover:bg-primary-light disabled:opacity-50"
             disabled={generate.isPending}
             onClick={() => generate.mutate()}
           >

@@ -23,6 +23,11 @@ const SSOCallback = lazy(() => import('./pages/SSOCallback').then(m => ({ defaul
 const AdminConfig = lazy(() => import('./pages/AdminConfig').then(m => ({ default: m.AdminConfig })));
 const EnterpriseConsole = lazy(() => import('./pages/EnterpriseConsole').then(m => ({ default: m.EnterpriseConsole })));
 const SafetyDriftReport = lazy(() => import('./pages/SafetyDriftReport').then(m => ({ default: m.SafetyDriftReport })));
+const AdminToolPermissions = lazy(() => import('./pages/AdminToolPermissions').then(m => ({ default: m.AdminToolPermissions })));
+const AdminAgencyAuthorizations = lazy(() => import('./pages/AdminAgencyAuthorizations').then(m => ({ default: m.AdminAgencyAuthorizations })));
+const AdminToolInvocations = lazy(() => import('./pages/AdminToolInvocations').then(m => ({ default: m.AdminToolInvocations })));
+const AgentOauthGoogle = lazy(() => import('./pages/AgentOauthGoogle').then(m => ({ default: m.AgentOauthGoogle })));
+const AgentPendingConfirmations = lazy(() => import('./pages/AgentPendingConfirmations').then(m => ({ default: m.AgentPendingConfirmations })));
 
 /* 新功能页面 */
 const AvatarListPage = lazy(() => import('./features/avatars/pages/AvatarListPage'));
@@ -74,6 +79,11 @@ export const routes: RouteObject[] = [
   { path: '/enterprise', element: <Protected><AdminOnly><EnterpriseConsole /></AdminOnly></Protected> },
   { path: '/admin/config', element: <Protected><AdminOnly><AdminConfig /></AdminOnly></Protected> },
   { path: '/admin/safety/drift', element: <Protected><AdminOnly><SafetyDriftReport /></AdminOnly></Protected> },
+  { path: '/admin/tool-permissions', element: <Protected><AdminOnly><AdminToolPermissions /></AdminOnly></Protected> },
+  { path: '/admin/agency-authorizations', element: <Protected><AdminOnly><AdminAgencyAuthorizations /></AdminOnly></Protected> },
+  { path: '/admin/tool-invocations', element: <Protected><AdminOnly><AdminToolInvocations /></AdminOnly></Protected> },
+  { path: '/agent/oauth/google', element: <Protected><AgentOauthGoogle /></Protected> },
+  { path: '/agent/confirmations', element: <Protected><AgentPendingConfirmations /></Protected> },
   { path: '/sso/callback', element: <LazyPage><SSOCallback /></LazyPage> },
   /* 分身管理 */
   { path: '/avatars', element: <Protected><AvatarListPage /></Protected> },
