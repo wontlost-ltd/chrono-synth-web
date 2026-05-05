@@ -42,7 +42,7 @@ function formatDelta(d: number): string {
 
 export function SafetyDriftReport() {
   const { t } = useTranslation();
-  useDocumentTitle('AI 安全 — 漂移监测');
+  useDocumentTitle(t('safetyDrift.documentTitle'));
   const { role } = useAuth();
   const isAdmin = role === 'admin';
 
@@ -63,8 +63,8 @@ export function SafetyDriftReport() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="AI 安全 / 人格漂移监测"
-        subtitle="对比最近两次快照的价值权重变化；超过阈值时写审计 + 触发 webhook"
+        title={t('safetyDrift.title')}
+        subtitle={t('safetyDrift.subtitle')}
         actions={
           <button
             type="button"
@@ -72,7 +72,7 @@ export function SafetyDriftReport() {
             disabled={generate.isPending}
             onClick={() => generate.mutate()}
           >
-            {generate.isPending ? '分析中…' : '立即生成报告'}
+            {generate.isPending ? t('safetyDrift.actions.generating') : t('safetyDrift.actions.generate')}
           </button>
         }
       />
@@ -80,40 +80,43 @@ export function SafetyDriftReport() {
       {summary && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="rounded-xl border border-border p-4">
-            <div className="text-xs uppercase text-text-secondary">安全评分</div>
-            <div className="mt-1 text-3xl font-bold">{summary.safetyScore}/100</div>
+            <div className="text-xs uppercase text-text-secondary">{t('safetyDrift.cards.safetyScore')}</div>
+            <div className="mt-1 text-3xl font-bold">
+              {t('safetyDrift.cards.safetyScoreValue', { score: summary.safetyScore })}
+            </div>
           </div>
           <div className="rounded-xl border border-border p-4">
-            <div className="text-xs uppercase text-text-secondary">未验证记忆</div>
+            <div className="text-xs uppercase text-text-secondary">{t('safetyDrift.cards.unverifiedMemory')}</div>
             <div className="mt-1 text-3xl font-bold">
               {summary.memoryConfidence.unverifiedCount}
               <span className="text-base font-normal text-text-secondary">
                 /{summary.memoryConfidence.total}
               </span>
             </div>
-            <p className="mt-1 text-xs text-text-secondary">低置信度或来源未知</p>
+            <p className="mt-1 text-xs text-text-secondary">{t('safetyDrift.cards.unverifiedMemorySubtitle')}</p>
           </div>
           <div className="rounded-xl border border-border p-4">
-            <div className="text-xs uppercase text-text-secondary">近期告警 (≠ ok)</div>
+            <div className="text-xs uppercase text-text-secondary">{t('safetyDrift.cards.recentAlerts')}</div>
             <div className="mt-1 text-3xl font-bold">{summary.drift.recentAlerts.length}</div>
-            <p className="mt-1 text-xs text-text-secondary">最近 10 条非正常状态</p>
+            <p className="mt-1 text-xs text-text-secondary">{t('safetyDrift.cards.recentAlertsSubtitle')}</p>
           </div>
         </div>
       )}
 
       {!report && (
-        <EmptyState
-          message="尚未生成漂移报告。点击右上角「立即生成报告」开始第一次分析。"
-        />
+        <EmptyState message={t('safetyDrift.empty.noReport')} />
       )}
 
       {report && (
         <section className="border rounded-lg p-4 space-y-3">
           <header className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold">最近报告</h2>
+              <h2 className="text-lg font-semibold">{t('safetyDrift.report.heading')}</h2>
               <p className="text-sm text-text-secondary">
-                生成于 {formatTimestamp(report.analyzedAt)} · 基线 {report.baselineSnapshotId ?? '—'}
+                {t('safetyDrift.report.generatedAt', {
+                  ts: formatTimestamp(report.analyzedAt),
+                  baseline: report.baselineSnapshotId ?? '—',
+                })}
               </p>
             </div>
             <StatusBadge
@@ -123,25 +126,25 @@ export function SafetyDriftReport() {
           </header>
 
           <div className="text-sm">
-            综合漂移分：<strong>{report.overallDriftScore.toFixed(3)}</strong>
+            {t('safetyDrift.report.overallScore')}<strong>{report.overallDriftScore.toFixed(3)}</strong>
             {report.alertEmitted ? (
-              <span className="ml-2 text-warning">告警已写入审计 (auditId={report.auditId})</span>
+              <span className="ml-2 text-warning">
+                {t('safetyDrift.report.auditWritten', { id: report.auditId })}
+              </span>
             ) : null}
           </div>
 
           {report.valueDrifts.length === 0 ? (
-            <p className="text-sm text-text-secondary">
-              本次分析没有可对比的价值变化（可能只有一份快照）。
-            </p>
+            <p className="text-sm text-text-secondary">{t('safetyDrift.empty.noValueDrifts')}</p>
           ) : (
             <table className="w-full text-sm">
               <thead className="text-left border-b">
                 <tr>
-                  <th className="py-2">价值</th>
-                  <th className="py-2">基线</th>
-                  <th className="py-2">当前</th>
-                  <th className="py-2">变化</th>
-                  <th className="py-2">告警</th>
+                  <th className="py-2">{t('safetyDrift.table.value')}</th>
+                  <th className="py-2">{t('safetyDrift.table.baseline')}</th>
+                  <th className="py-2">{t('safetyDrift.table.current')}</th>
+                  <th className="py-2">{t('safetyDrift.table.delta')}</th>
+                  <th className="py-2">{t('safetyDrift.table.alert')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -167,7 +170,7 @@ export function SafetyDriftReport() {
 
       {summary && summary.drift.recentAlerts.length > 0 && (
         <section className="border rounded-lg p-4 space-y-2">
-          <h2 className="text-lg font-semibold">最近告警</h2>
+          <h2 className="text-lg font-semibold">{t('safetyDrift.recentAlerts.heading')}</h2>
           <ul className="text-sm space-y-1">
             {summary.drift.recentAlerts.map((a) => (
               <li key={a.reportId} className="flex items-center gap-3">

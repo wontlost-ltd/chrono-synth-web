@@ -7,6 +7,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -24,16 +25,16 @@ function formatTs(ms: number | null): string {
   return ms ? new Date(ms).toLocaleString() : '—';
 }
 
-function tokenStatus(t: UserOauthTokenMeta): 'active' | 'paused' | 'error' {
-  if (t.revokedAt !== null) return 'error';
-  if (t.accessExpiresAt < Date.now()) return 'paused';
+function tokenStatus(token: UserOauthTokenMeta): 'active' | 'paused' | 'error' {
+  if (token.revokedAt !== null) return 'error';
+  if (token.accessExpiresAt < Date.now()) return 'paused';
   return 'active';
 }
 
-function tokenStatusLabel(t: UserOauthTokenMeta): string {
-  if (t.revokedAt !== null) return 'Revoked';
-  if (t.accessExpiresAt < Date.now()) return 'Expired (refresh on next call)';
-  return 'Active';
+function tokenStatusLabel(token: UserOauthTokenMeta, t: TFunction): string {
+  if (token.revokedAt !== null) return t('agentOauthGoogle.statusLabels.revoked');
+  if (token.accessExpiresAt < Date.now()) return t('agentOauthGoogle.statusLabels.expired');
+  return t('agentOauthGoogle.statusLabels.active');
 }
 
 function shortenScope(scope: string): string {
@@ -41,24 +42,24 @@ function shortenScope(scope: string): string {
 }
 
 export function AgentOauthGoogle() {
-  const { t: _t } = useTranslation();
-  useDocumentTitle('Google 授权');
+  const { t } = useTranslation();
+  useDocumentTitle(t('agentOauthGoogle.documentTitle'));
 
   const tokens = useUserOauthTokens();
   const start = useStartGoogleAuthorize();
   const revoke = useRevokeGoogleToken();
 
-  const grantedScopes = new Set((tokens.data ?? []).filter((t) => !t.revokedAt).map((t) => t.scope));
+  const grantedScopes = new Set((tokens.data ?? []).filter((tok) => !tok.revokedAt).map((tok) => tok.scope));
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Google 账户授权"
-        subtitle="授予 Chrono Synth 代表你访问 Calendar / Gmail 的权限；可随时撤销，撤销后任何 agent 调用立即失败"
+        title={t('agentOauthGoogle.title')}
+        subtitle={t('agentOauthGoogle.subtitle')}
       />
 
       <section className="rounded-xl border border-border bg-surface-elevated p-4 space-y-3">
-        <h2 className="text-base font-semibold">添加新授权</h2>
+        <h2 className="text-base font-semibold">{t('agentOauthGoogle.addSection.heading')}</h2>
         <ul className="space-y-2">
           {GOOGLE_SCOPES.map((s) => {
             const granted = grantedScopes.has(s.value);
@@ -82,7 +83,11 @@ export function AgentOauthGoogle() {
                     }
                   }}
                 >
-                  {granted ? '已授权' : start.isPending ? '准备中…' : '授权'}
+                  {granted
+                    ? t('agentOauthGoogle.addSection.authorized')
+                    : start.isPending
+                    ? t('agentOauthGoogle.addSection.authorizing')
+                    : t('agentOauthGoogle.addSection.authorize')}
                 </button>
               </li>
             );
@@ -90,28 +95,31 @@ export function AgentOauthGoogle() {
         </ul>
         {start.error && (
           <p className="text-xs text-warning">
-            授权启动失败：{(start.error as Error).message}
+            {t('agentOauthGoogle.addSection.startError', { message: (start.error as Error).message })}
           </p>
         )}
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-base font-semibold">已授权 scope</h2>
+        <h2 className="text-base font-semibold">{t('agentOauthGoogle.list.heading')}</h2>
         {tokens.isLoading ? (
           <Skeleton variant="card" />
         ) : tokens.error ? (
-          <EmptyState variant="error" message={`加载失败：${(tokens.error as Error).message}`} />
+          <EmptyState
+            variant="error"
+            message={t('agentOauthGoogle.list.loadFailed', { message: (tokens.error as Error).message })}
+          />
         ) : (tokens.data ?? []).length === 0 ? (
-          <EmptyState message="还没有授权任何 Google scope。" />
+          <EmptyState message={t('agentOauthGoogle.list.empty')} />
         ) : (
           <div className="rounded-xl border border-border overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-left border-b border-border bg-surface">
                 <tr>
-                  <th className="p-3">Scope</th>
-                  <th className="p-3">Status</th>
-                  <th className="p-3">Granted</th>
-                  <th className="p-3">Expires</th>
+                  <th className="p-3">{t('agentOauthGoogle.table.scope')}</th>
+                  <th className="p-3">{t('agentOauthGoogle.table.status')}</th>
+                  <th className="p-3">{t('agentOauthGoogle.table.granted')}</th>
+                  <th className="p-3">{t('agentOauthGoogle.table.expires')}</th>
                   <th className="p-3"></th>
                 </tr>
               </thead>
@@ -120,7 +128,7 @@ export function AgentOauthGoogle() {
                   <tr key={tok.id} className="border-b border-border/50">
                     <td className="p-3 font-mono text-xs">{shortenScope(tok.scope)}</td>
                     <td className="p-3">
-                      <StatusBadge status={tokenStatus(tok)} label={tokenStatusLabel(tok)} />
+                      <StatusBadge status={tokenStatus(tok)} label={tokenStatusLabel(tok, t)} />
                     </td>
                     <td className="p-3 text-xs">{formatTs(tok.grantedAt)}</td>
                     <td className="p-3 text-xs">{formatTs(tok.accessExpiresAt)}</td>
@@ -131,11 +139,11 @@ export function AgentOauthGoogle() {
                           className="text-xs text-warning hover:underline"
                           disabled={revoke.isPending}
                           onClick={() => {
-                            if (!window.confirm(`撤销 ${shortenScope(tok.scope)} 授权？所有正在调用此 scope 的 agent 将立即失败。`)) return;
+                            if (!window.confirm(t('agentOauthGoogle.list.revokeConfirm', { scope: shortenScope(tok.scope) }))) return;
                             revoke.mutate({ id: tok.id });
                           }}
                         >
-                          撤销
+                          {t('agentOauthGoogle.list.revoke')}
                         </button>
                       )}
                     </td>

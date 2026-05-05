@@ -9,6 +9,7 @@
 
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { PageHeader } from '../components/layout/PageHeader';
 import { Skeleton } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -34,15 +35,15 @@ function permissionStatus(p: ToolPermission): 'active' | 'paused' | 'error' | 'c
   return 'active';
 }
 
-function permissionStatusLabel(p: ToolPermission): string {
-  if (p.revokedAt !== null) return 'Revoked';
-  if (p.expiresAt !== null && p.expiresAt < Date.now()) return 'Expired';
-  return 'Active';
+function permissionStatusLabel(p: ToolPermission, t: TFunction): string {
+  if (p.revokedAt !== null) return t('toolPermissions.statusLabels.revoked');
+  if (p.expiresAt !== null && p.expiresAt < Date.now()) return t('toolPermissions.statusLabels.expired');
+  return t('toolPermissions.statusLabels.active');
 }
 
 export function AdminToolPermissions() {
   const { t } = useTranslation();
-  useDocumentTitle('工具权限');
+  useDocumentTitle(t('toolPermissions.title'));
   const { role } = useAuth();
   const isAdmin = role === 'admin';
 
@@ -57,7 +58,12 @@ export function AdminToolPermissions() {
   if (!isAdmin) return <EmptyState variant="error" message={t('adminConfig.noPermission')} />;
   if (list.isLoading) return <Skeleton variant="card" />;
   if (list.error) {
-    return <EmptyState variant="error" message={`加载失败：${(list.error as Error).message}`} />;
+    return (
+      <EmptyState
+        variant="error"
+        message={t('toolPermissions.errors.loadFailed', { message: (list.error as Error).message })}
+      />
+    );
   }
 
   const rows = (list.data ?? []).filter((p) => {
@@ -70,15 +76,15 @@ export function AdminToolPermissions() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="工具权限"
-        subtitle="管理 (persona, tool) 粒度的执行授权；revocation 是 soft delete，可追溯"
+        title={t('toolPermissions.title')}
+        subtitle={t('toolPermissions.subtitle')}
         actions={
           <button
             type="button"
             className="rounded bg-primary px-3 py-1.5 text-sm text-white hover:bg-primary-light disabled:opacity-50"
             onClick={() => setShowGrantForm((v) => !v)}
           >
-            {showGrantForm ? '取消' : '授予权限'}
+            {showGrantForm ? t('toolPermissions.actions.cancel') : t('toolPermissions.actions.grant')}
           </button>
         }
       />
@@ -99,7 +105,7 @@ export function AdminToolPermissions() {
         <input
           type="text"
           className="rounded border border-border bg-surface px-2 py-1"
-          placeholder="按 personaId 过滤"
+          placeholder={t('toolPermissions.filters.personaPlaceholder')}
           value={filterPersona}
           onChange={(e) => setFilterPersona(e.target.value)}
         />
@@ -108,28 +114,33 @@ export function AdminToolPermissions() {
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
         >
-          <option value="all">全部</option>
-          <option value="active">仅活跃</option>
-          <option value="revoked">仅已撤销</option>
+          <option value="all">{t('toolPermissions.filters.statusAll')}</option>
+          <option value="active">{t('toolPermissions.filters.statusActive')}</option>
+          <option value="revoked">{t('toolPermissions.filters.statusRevoked')}</option>
         </select>
-        <span className="text-text-secondary">{rows.length} / {list.data?.length ?? 0} 条</span>
+        <span className="text-text-secondary">
+          {t('toolPermissions.filters.countSummary', {
+            shown: rows.length,
+            total: list.data?.length ?? 0,
+          })}
+        </span>
       </div>
 
       {rows.length === 0 ? (
-        <EmptyState message="没有匹配的权限。" />
+        <EmptyState message={t('toolPermissions.empty.noMatch')} />
       ) : (
         <div className="rounded-xl border border-border overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left border-b border-border bg-surface">
               <tr>
-                <th className="p-3">Persona</th>
-                <th className="p-3">Tool</th>
-                <th className="p-3">Scope</th>
-                <th className="p-3">Constraints</th>
-                <th className="p-3">Granted</th>
-                <th className="p-3">Expires</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Actions</th>
+                <th className="p-3">{t('toolPermissions.table.persona')}</th>
+                <th className="p-3">{t('toolPermissions.table.tool')}</th>
+                <th className="p-3">{t('toolPermissions.table.scope')}</th>
+                <th className="p-3">{t('toolPermissions.table.constraints')}</th>
+                <th className="p-3">{t('toolPermissions.table.granted')}</th>
+                <th className="p-3">{t('toolPermissions.table.expires')}</th>
+                <th className="p-3">{t('toolPermissions.table.status')}</th>
+                <th className="p-3">{t('toolPermissions.table.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -144,7 +155,7 @@ export function AdminToolPermissions() {
                   <td className="p-3 text-xs">{formatTimestamp(p.grantedAt)}</td>
                   <td className="p-3 text-xs">{formatTimestamp(p.expiresAt)}</td>
                   <td className="p-3">
-                    <StatusBadge status={permissionStatus(p)} label={permissionStatusLabel(p)} />
+                    <StatusBadge status={permissionStatus(p)} label={permissionStatusLabel(p, t)} />
                   </td>
                   <td className="p-3">
                     {p.revokedAt === null && (
@@ -153,12 +164,12 @@ export function AdminToolPermissions() {
                         className="text-xs text-warning hover:underline"
                         disabled={revoke.isPending}
                         onClick={() => {
-                          const reason = window.prompt('撤销原因（必填）');
+                          const reason = window.prompt(t('toolPermissions.prompts.revokeReason'));
                           if (!reason) return;
                           revoke.mutate({ id: p.id, reason });
                         }}
                       >
-                        撤销
+                        {t('toolPermissions.actions.revoke')}
                       </button>
                     )}
                   </td>
@@ -196,6 +207,7 @@ interface GrantFormProps {
 }
 
 function GrantPermissionForm({ isPending, error, onCancel, onSubmit }: GrantFormProps) {
+  const { t } = useTranslation();
   const [personaId, setPersonaId] = useState('');
   const [toolId, setToolId] = useState('');
   const [scope, setScope] = useState<ToolScope>('execute');
@@ -214,10 +226,10 @@ function GrantPermissionForm({ isPending, error, onCancel, onSubmit }: GrantForm
         void onSubmit({ personaId, toolId, scope, constraints });
       }}
     >
-      <h2 className="text-base font-semibold">授予工具权限</h2>
+      <h2 className="text-base font-semibold">{t('toolPermissions.grantForm.title')}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <label className="space-y-1">
-          <span className="text-xs text-text-secondary">Persona ID</span>
+          <span className="text-xs text-text-secondary">{t('toolPermissions.grantForm.personaIdLabel')}</span>
           <input
             required
             className="w-full rounded border border-border bg-surface px-2 py-1 text-sm"
@@ -226,7 +238,7 @@ function GrantPermissionForm({ isPending, error, onCancel, onSubmit }: GrantForm
           />
         </label>
         <label className="space-y-1">
-          <span className="text-xs text-text-secondary">Tool ID（如 web_search / calendar / email.send）</span>
+          <span className="text-xs text-text-secondary">{t('toolPermissions.grantForm.toolIdLabel')}</span>
           <input
             required
             className="w-full rounded border border-border bg-surface px-2 py-1 text-sm"
@@ -235,7 +247,7 @@ function GrantPermissionForm({ isPending, error, onCancel, onSubmit }: GrantForm
           />
         </label>
         <label className="space-y-1">
-          <span className="text-xs text-text-secondary">Scope</span>
+          <span className="text-xs text-text-secondary">{t('toolPermissions.grantForm.scopeLabel')}</span>
           <select
             className="w-full rounded border border-border bg-surface px-2 py-1 text-sm"
             value={scope}
@@ -247,7 +259,7 @@ function GrantPermissionForm({ isPending, error, onCancel, onSubmit }: GrantForm
           </select>
         </label>
         <label className="space-y-1">
-          <span className="text-xs text-text-secondary">每日最大调用（可选）</span>
+          <span className="text-xs text-text-secondary">{t('toolPermissions.grantForm.maxPerDayLabel')}</span>
           <input
             type="number"
             min="1"
@@ -263,15 +275,15 @@ function GrantPermissionForm({ isPending, error, onCancel, onSubmit }: GrantForm
           checked={requireConfirm}
           onChange={(e) => setRequireConfirm(e.target.checked)}
         />
-        <span>调用时强制二次确认（高风险工具自动启用）</span>
+        <span>{t('toolPermissions.grantForm.requireConfirmLabel')}</span>
       </label>
       {errorMsg && <p className="text-xs text-warning">{errorMsg}</p>}
       <div className="flex gap-2">
         <button type="submit" className="rounded bg-primary px-3 py-1.5 text-sm text-white hover:bg-primary-light disabled:opacity-50" disabled={isPending}>
-          {isPending ? '提交中…' : '授予'}
+          {isPending ? t('toolPermissions.grantForm.submitting') : t('toolPermissions.grantForm.submit')}
         </button>
         <button type="button" className="rounded px-3 py-1.5 text-sm text-text-secondary hover:bg-surface" onClick={onCancel}>
-          取消
+          {t('toolPermissions.grantForm.cancel')}
         </button>
       </div>
     </form>

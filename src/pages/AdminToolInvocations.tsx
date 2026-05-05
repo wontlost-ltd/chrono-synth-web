@@ -34,7 +34,7 @@ function pickVariant(status: string): 'completed' | 'paused' | 'error' | 'syncin
 
 export function AdminToolInvocations() {
   const { t } = useTranslation();
-  useDocumentTitle('工具调用历史');
+  useDocumentTitle(t('toolInvocations.title'));
   const { role } = useAuth();
   const isAdmin = role === 'admin';
 
@@ -48,20 +48,20 @@ export function AdminToolInvocations() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="工具调用历史"
-        subtitle="按 persona 查看 tool_invocations 审计；包含成功 / 失败 / 拒绝 / 待确认所有状态"
+        title={t('toolInvocations.title')}
+        subtitle={t('toolInvocations.subtitle')}
       />
 
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <input
           type="text"
           className="rounded border border-border bg-surface px-2 py-1 flex-1 max-w-md"
-          placeholder="输入 personaId 查询"
+          placeholder={t('toolInvocations.filters.personaPlaceholder')}
           value={personaId}
           onChange={(e) => setPersonaId(e.target.value)}
         />
         <label className="flex items-center gap-1">
-          <span className="text-xs text-text-secondary">条数</span>
+          <span className="text-xs text-text-secondary">{t('toolInvocations.filters.limitLabel')}</span>
           <select
             className="rounded border border-border bg-surface px-2 py-1"
             value={limit}
@@ -76,25 +76,28 @@ export function AdminToolInvocations() {
       </div>
 
       {!personaId ? (
-        <EmptyState message="输入 personaId 后查看其工具调用历史。" />
+        <EmptyState message={t('toolInvocations.empty.enterPersona')} />
       ) : list.isLoading ? (
         <Skeleton variant="card" />
       ) : list.error ? (
-        <EmptyState variant="error" message={`加载失败：${(list.error as Error).message}`} />
+        <EmptyState
+          variant="error"
+          message={t('toolInvocations.errors.loadFailed', { message: (list.error as Error).message })}
+        />
       ) : (list.data ?? []).length === 0 ? (
-        <EmptyState message={`Persona ${personaId} 尚无工具调用记录。`} />
+        <EmptyState message={t('toolInvocations.empty.personaEmpty', { personaId })} />
       ) : (
         <div className="rounded-xl border border-border overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left border-b border-border bg-surface">
               <tr>
-                <th className="p-3">Invoked</th>
-                <th className="p-3">Tool</th>
-                <th className="p-3">Invoker</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Duration</th>
-                <th className="p-3">Output</th>
-                <th className="p-3">Error</th>
+                <th className="p-3">{t('toolInvocations.table.invoked')}</th>
+                <th className="p-3">{t('toolInvocations.table.tool')}</th>
+                <th className="p-3">{t('toolInvocations.table.invoker')}</th>
+                <th className="p-3">{t('toolInvocations.table.status')}</th>
+                <th className="p-3">{t('toolInvocations.table.duration')}</th>
+                <th className="p-3">{t('toolInvocations.table.output')}</th>
+                <th className="p-3">{t('toolInvocations.table.error')}</th>
               </tr>
             </thead>
             <tbody>
@@ -109,8 +112,12 @@ export function AdminToolInvocations() {
                   <td className="p-3">
                     <StatusBadge status={pickVariant(inv.status)} label={inv.status} />
                   </td>
-                  <td className="p-3 text-xs">{inv.durationMs} ms</td>
-                  <td className="p-3 text-xs">{inv.outputSizeBytes ? `${inv.outputSizeBytes} B` : '—'}</td>
+                  <td className="p-3 text-xs">{t('toolInvocations.table.durationMs', { ms: inv.durationMs })}</td>
+                  <td className="p-3 text-xs">
+                    {inv.outputSizeBytes
+                      ? t('toolInvocations.table.outputBytes', { bytes: inv.outputSizeBytes })
+                      : '—'}
+                  </td>
                   <td className="p-3 text-xs text-warning">
                     {inv.errorMessage ? inv.errorMessage.slice(0, 80) : '—'}
                   </td>

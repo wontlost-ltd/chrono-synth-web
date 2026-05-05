@@ -711,5 +711,231 @@
       "operations": "Operations",
       "general": "General"
     }
+  },
+  "toolPermissions": {
+    "title": "Tool Permissions",
+    "subtitle": "Manage (persona, tool) execution grants; revocation is a soft delete and stays auditable",
+    "actions": {
+      "grant": "Grant permission",
+      "cancel": "Cancel",
+      "revoke": "Revoke"
+    },
+    "filters": {
+      "personaPlaceholder": "Filter by personaId",
+      "statusAll": "All",
+      "statusActive": "Active only",
+      "statusRevoked": "Revoked only",
+      "countSummary": "{{shown}} / {{total}}"
+    },
+    "table": {
+      "persona": "Persona",
+      "tool": "Tool",
+      "scope": "Scope",
+      "constraints": "Constraints",
+      "granted": "Granted",
+      "expires": "Expires",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "statusLabels": {
+      "active": "Active",
+      "expired": "Expired",
+      "revoked": "Revoked"
+    },
+    "empty": {
+      "noMatch": "No matching permissions."
+    },
+    "prompts": {
+      "revokeReason": "Revocation reason (required)"
+    },
+    "errors": {
+      "loadFailed": "Load failed: {{message}}"
+    },
+    "grantForm": {
+      "title": "Grant tool permission",
+      "personaIdLabel": "Persona ID",
+      "toolIdLabel": "Tool ID (e.g. web_search / calendar / email.send)",
+      "scopeLabel": "Scope",
+      "maxPerDayLabel": "Max calls per day (optional)",
+      "requireConfirmLabel": "Require second-step confirmation (auto-enabled for high-risk tools)",
+      "submit": "Grant",
+      "submitting": "Submitting…",
+      "cancel": "Cancel"
+    }
+  },
+  "agencyAuthorizations": {
+    "title": "Agency Authorizations",
+    "subtitle": "Establish legal-scope agency between (persona, principalUser) with suspend / resume / revoke lifecycle",
+    "actions": {
+      "create": "New authorization",
+      "cancel": "Cancel",
+      "suspend": "Suspend",
+      "resume": "Resume",
+      "revoke": "Revoke"
+    },
+    "filters": {
+      "personaPlaceholder": "Enter personaId to query / create",
+      "enterPersonaTooltip": "Enter a personaId in the filter bar first"
+    },
+    "empty": {
+      "enterPersona": "Enter a personaId to view its agency authorizations.",
+      "personaEmpty": "Persona {{personaId}} has no authorizations yet."
+    },
+    "prompts": {
+      "revokeReason": "Revocation reason (required)"
+    },
+    "errors": {
+      "loadFailed": "Load failed: {{message}}"
+    },
+    "card": {
+      "scope": "Scope",
+      "principal": "Principal",
+      "grantedAt": "Granted at: {{ts}}",
+      "expiresAt": "Expires: {{ts}}",
+      "allowedTools": "Allowed tools: {{count}}",
+      "deniedTools": "Denied tools: {{count}}",
+      "revokedNote": "Revoked at {{ts}} — {{reason}}"
+    },
+    "createForm": {
+      "title": "Create authorization for Persona {{personaId}}",
+      "principalUserIdLabel": "Principal User ID",
+      "scopeLabel": "Scope",
+      "scopeDescriptionLabel": "Scope description (≥10 chars; used as legal evidence)",
+      "allowedToolsLabel": "Allowed tools (comma-separated, optional)",
+      "allowedToolsPlaceholder": "web_search, calendar",
+      "deniedToolsLabel": "Denied tools (comma-separated, optional)",
+      "deniedToolsPlaceholder": "email.send, payment.*",
+      "submit": "Create authorization",
+      "submitting": "Submitting…",
+      "cancel": "Cancel"
+    }
+  },
+  "toolInvocations": {
+    "title": "Tool Invocation History",
+    "subtitle": "Per-persona tool_invocations audit including success / failure / denied / pending states",
+    "filters": {
+      "personaPlaceholder": "Enter personaId to query",
+      "limitLabel": "Rows"
+    },
+    "empty": {
+      "enterPersona": "Enter a personaId to view its tool invocation history.",
+      "personaEmpty": "Persona {{personaId}} has no tool invocation records yet."
+    },
+    "errors": {
+      "loadFailed": "Load failed: {{message}}"
+    },
+    "table": {
+      "invoked": "Invoked",
+      "tool": "Tool",
+      "invoker": "Invoker",
+      "status": "Status",
+      "duration": "Duration",
+      "output": "Output",
+      "error": "Error",
+      "durationMs": "{{ms}} ms",
+      "outputBytes": "{{bytes}} B"
+    }
+  },
+  "agentOauthGoogle": {
+    "documentTitle": "Google Authorization",
+    "title": "Google Account Authorization",
+    "subtitle": "Authorize Chrono Synth to access Calendar / Gmail on your behalf; revoke any time and any in-flight agent call fails immediately",
+    "addSection": {
+      "heading": "Add new authorization",
+      "authorize": "Authorize",
+      "authorizing": "Preparing…",
+      "authorized": "Authorized",
+      "startError": "Authorization start failed: {{message}}"
+    },
+    "list": {
+      "heading": "Granted scopes",
+      "empty": "No Google scopes have been authorized yet.",
+      "loadFailed": "Load failed: {{message}}",
+      "revoke": "Revoke",
+      "revokeConfirm": "Revoke {{scope}}? Any agent currently using this scope will fail immediately."
+    },
+    "statusLabels": {
+      "active": "Active",
+      "expired": "Expired (refresh on next call)",
+      "revoked": "Revoked"
+    },
+    "table": {
+      "scope": "Scope",
+      "status": "Status",
+      "granted": "Granted",
+      "expires": "Expires"
+    }
+  },
+  "agentConfirmations": {
+    "documentTitle": "Pending Approvals",
+    "title": "Pending Approvals",
+    "subtitle": "High-risk tool calls require your second-step approval before execution; you can revoke the entire grant within 30 s",
+    "statusPending": "Pending",
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "cancel": "Cancel",
+      "execute": "Execute",
+      "executing": "Executing…"
+    },
+    "empty": "No tool calls awaiting approval.",
+    "errors": {
+      "loadFailed": "Load failed: {{message}}",
+      "submitFailed": "Submit failed: {{message}}",
+      "argsNotObject": "arguments must be a JSON object",
+      "argsParseFailed": "JSON parse failed"
+    },
+    "prompts": {
+      "rejectReason": "Rejection reason (optional)"
+    },
+    "fields": {
+      "persona": "Persona",
+      "invoker": "Invoker",
+      "invokedAt": "Triggered",
+      "inputHash": "Input hash"
+    },
+    "dialog": {
+      "title": "Approve tool call",
+      "tool": "Tool",
+      "persona": "Persona",
+      "hint": "For privacy the backend does not persist arguments; paste the original JSON arguments that triggered this call. Mismatched input_hash will be rejected."
+    }
+  },
+  "safetyDrift": {
+    "documentTitle": "AI Safety — Drift Monitor",
+    "title": "AI Safety / Persona Drift Monitor",
+    "subtitle": "Compares value weight deltas across the latest two snapshots; over-threshold writes an audit and fires the webhook",
+    "actions": {
+      "generate": "Generate report now",
+      "generating": "Analyzing…"
+    },
+    "cards": {
+      "safetyScore": "Safety Score",
+      "safetyScoreValue": "{{score}}/100",
+      "unverifiedMemory": "Unverified Memories",
+      "unverifiedMemorySubtitle": "Low confidence or unknown source",
+      "recentAlerts": "Recent Alerts (≠ ok)",
+      "recentAlertsSubtitle": "Last 10 abnormal states"
+    },
+    "empty": {
+      "noReport": "No drift report yet. Click “Generate report now” to start the first analysis.",
+      "noValueDrifts": "No comparable value changes in this analysis (likely only one snapshot exists)."
+    },
+    "report": {
+      "heading": "Latest Report",
+      "generatedAt": "Generated at {{ts}} · baseline {{baseline}}",
+      "overallScore": "Overall drift score: ",
+      "auditWritten": "Alert written to audit (auditId={{id}})"
+    },
+    "table": {
+      "value": "Value",
+      "baseline": "Baseline",
+      "current": "Current",
+      "delta": "Delta",
+      "alert": "Alert"
+    },
+    "recentAlerts": {
+      "heading": "Recent Alerts"
+    }
   }
 }

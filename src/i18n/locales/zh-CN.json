@@ -711,5 +711,231 @@
       "operations": "运营",
       "general": "通用"
     }
+  },
+  "toolPermissions": {
+    "title": "工具权限",
+    "subtitle": "管理 (persona, tool) 粒度的执行授权；revocation 是 soft delete，可追溯",
+    "actions": {
+      "grant": "授予权限",
+      "cancel": "取消",
+      "revoke": "撤销"
+    },
+    "filters": {
+      "personaPlaceholder": "按 personaId 过滤",
+      "statusAll": "全部",
+      "statusActive": "仅活跃",
+      "statusRevoked": "仅已撤销",
+      "countSummary": "{{shown}} / {{total}} 条"
+    },
+    "table": {
+      "persona": "Persona",
+      "tool": "Tool",
+      "scope": "Scope",
+      "constraints": "Constraints",
+      "granted": "Granted",
+      "expires": "Expires",
+      "status": "Status",
+      "actions": "操作"
+    },
+    "statusLabels": {
+      "active": "Active",
+      "expired": "Expired",
+      "revoked": "Revoked"
+    },
+    "empty": {
+      "noMatch": "没有匹配的权限。"
+    },
+    "prompts": {
+      "revokeReason": "撤销原因（必填）"
+    },
+    "errors": {
+      "loadFailed": "加载失败：{{message}}"
+    },
+    "grantForm": {
+      "title": "授予工具权限",
+      "personaIdLabel": "Persona ID",
+      "toolIdLabel": "Tool ID（如 web_search / calendar / email.send）",
+      "scopeLabel": "Scope",
+      "maxPerDayLabel": "每日最大调用（可选）",
+      "requireConfirmLabel": "调用时强制二次确认（高风险工具自动启用）",
+      "submit": "授予",
+      "submitting": "提交中…",
+      "cancel": "取消"
+    }
+  },
+  "agencyAuthorizations": {
+    "title": "代理授权书",
+    "subtitle": "为 (persona, principalUser) 建立法律层面的代理范围；含可暂停/恢复/撤销生命周期",
+    "actions": {
+      "create": "新建授权书",
+      "cancel": "取消",
+      "suspend": "暂停",
+      "resume": "恢复",
+      "revoke": "撤销"
+    },
+    "filters": {
+      "personaPlaceholder": "输入 personaId 来查询/创建授权书",
+      "enterPersonaTooltip": "先在过滤栏输入 personaId"
+    },
+    "empty": {
+      "enterPersona": "输入 personaId 后查看其代理授权书。",
+      "personaEmpty": "Persona {{personaId}} 尚无授权书。"
+    },
+    "prompts": {
+      "revokeReason": "撤销原因（必填）"
+    },
+    "errors": {
+      "loadFailed": "加载失败：{{message}}"
+    },
+    "card": {
+      "scope": "Scope",
+      "principal": "Principal",
+      "grantedAt": "授权于：{{ts}}",
+      "expiresAt": "过期：{{ts}}",
+      "allowedTools": "允许工具：{{count}}",
+      "deniedTools": "拒绝工具：{{count}}",
+      "revokedNote": "撤销于 {{ts}} — {{reason}}"
+    },
+    "createForm": {
+      "title": "为 Persona {{personaId}} 创建授权书",
+      "principalUserIdLabel": "Principal User ID",
+      "scopeLabel": "Scope",
+      "scopeDescriptionLabel": "Scope 描述（≥10 字符；用作法律证据）",
+      "allowedToolsLabel": "允许工具（逗号分隔，可选）",
+      "allowedToolsPlaceholder": "web_search, calendar",
+      "deniedToolsLabel": "拒绝工具（逗号分隔，可选）",
+      "deniedToolsPlaceholder": "email.send, payment.*",
+      "submit": "创建授权书",
+      "submitting": "提交中…",
+      "cancel": "取消"
+    }
+  },
+  "toolInvocations": {
+    "title": "工具调用历史",
+    "subtitle": "按 persona 查看 tool_invocations 审计；包含成功 / 失败 / 拒绝 / 待确认所有状态",
+    "filters": {
+      "personaPlaceholder": "输入 personaId 查询",
+      "limitLabel": "条数"
+    },
+    "empty": {
+      "enterPersona": "输入 personaId 后查看其工具调用历史。",
+      "personaEmpty": "Persona {{personaId}} 尚无工具调用记录。"
+    },
+    "errors": {
+      "loadFailed": "加载失败：{{message}}"
+    },
+    "table": {
+      "invoked": "Invoked",
+      "tool": "Tool",
+      "invoker": "Invoker",
+      "status": "Status",
+      "duration": "Duration",
+      "output": "Output",
+      "error": "Error",
+      "durationMs": "{{ms}} ms",
+      "outputBytes": "{{bytes}} B"
+    }
+  },
+  "agentOauthGoogle": {
+    "documentTitle": "Google 授权",
+    "title": "Google 账户授权",
+    "subtitle": "授予 Chrono Synth 代表你访问 Calendar / Gmail 的权限；可随时撤销，撤销后任何 agent 调用立即失败",
+    "addSection": {
+      "heading": "添加新授权",
+      "authorize": "授权",
+      "authorizing": "准备中…",
+      "authorized": "已授权",
+      "startError": "授权启动失败：{{message}}"
+    },
+    "list": {
+      "heading": "已授权 scope",
+      "empty": "还没有授权任何 Google scope。",
+      "loadFailed": "加载失败：{{message}}",
+      "revoke": "撤销",
+      "revokeConfirm": "撤销 {{scope}} 授权？所有正在调用此 scope 的 agent 将立即失败。"
+    },
+    "statusLabels": {
+      "active": "Active",
+      "expired": "Expired (refresh on next call)",
+      "revoked": "Revoked"
+    },
+    "table": {
+      "scope": "Scope",
+      "status": "Status",
+      "granted": "Granted",
+      "expires": "Expires"
+    }
+  },
+  "agentConfirmations": {
+    "documentTitle": "待我审批",
+    "title": "待我审批",
+    "subtitle": "高风险工具调用必须经过你的二次确认才会真正执行；30 秒内可撤销整个授权",
+    "statusPending": "待确认",
+    "actions": {
+      "approve": "审批",
+      "reject": "拒绝",
+      "cancel": "取消",
+      "execute": "执行",
+      "executing": "执行中…"
+    },
+    "empty": "没有待审批的工具调用。",
+    "errors": {
+      "loadFailed": "加载失败：{{message}}",
+      "submitFailed": "提交失败：{{message}}",
+      "argsNotObject": "arguments 必须是 JSON 对象",
+      "argsParseFailed": "JSON 解析失败"
+    },
+    "prompts": {
+      "rejectReason": "拒绝原因（可选）"
+    },
+    "fields": {
+      "persona": "Persona",
+      "invoker": "Invoker",
+      "invokedAt": "触发",
+      "inputHash": "Input hash"
+    },
+    "dialog": {
+      "title": "审批工具调用",
+      "tool": "Tool",
+      "persona": "Persona",
+      "hint": "后端为隐私保护不会持久化 arguments；请粘贴最初触发本次调用的参数 JSON。input_hash 不匹配会拒绝。"
+    }
+  },
+  "safetyDrift": {
+    "documentTitle": "AI 安全 — 漂移监测",
+    "title": "AI 安全 / 人格漂移监测",
+    "subtitle": "对比最近两次快照的价值权重变化；超过阈值时写审计 + 触发 webhook",
+    "actions": {
+      "generate": "立即生成报告",
+      "generating": "分析中…"
+    },
+    "cards": {
+      "safetyScore": "安全评分",
+      "safetyScoreValue": "{{score}}/100",
+      "unverifiedMemory": "未验证记忆",
+      "unverifiedMemorySubtitle": "低置信度或来源未知",
+      "recentAlerts": "近期告警 (≠ ok)",
+      "recentAlertsSubtitle": "最近 10 条非正常状态"
+    },
+    "empty": {
+      "noReport": "尚未生成漂移报告。点击右上角「立即生成报告」开始第一次分析。",
+      "noValueDrifts": "本次分析没有可对比的价值变化（可能只有一份快照）。"
+    },
+    "report": {
+      "heading": "最近报告",
+      "generatedAt": "生成于 {{ts}} · 基线 {{baseline}}",
+      "overallScore": "综合漂移分：",
+      "auditWritten": "告警已写入审计 (auditId={{id}})"
+    },
+    "table": {
+      "value": "价值",
+      "baseline": "基线",
+      "current": "当前",
+      "delta": "变化",
+      "alert": "告警"
+    },
+    "recentAlerts": {
+      "heading": "最近告警"
+    }
   }
 }

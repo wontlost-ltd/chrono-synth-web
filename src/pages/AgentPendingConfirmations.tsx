@@ -29,24 +29,27 @@ function formatTs(ms: number): string {
 }
 
 export function AgentPendingConfirmations() {
-  const { t: _t } = useTranslation();
-  useDocumentTitle('待我审批');
+  const { t } = useTranslation();
+  useDocumentTitle(t('agentConfirmations.documentTitle'));
   const list = usePendingConfirmations(20);
   const [activeApproval, setActiveApproval] = useState<PendingConfirmation | null>(null);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="待我审批"
-        subtitle="高风险工具调用必须经过你的二次确认才会真正执行；30 秒内可撤销整个授权"
+        title={t('agentConfirmations.title')}
+        subtitle={t('agentConfirmations.subtitle')}
       />
 
       {list.isLoading ? (
         <Skeleton variant="card" />
       ) : list.error ? (
-        <EmptyState variant="error" message={`加载失败：${(list.error as Error).message}`} />
+        <EmptyState
+          variant="error"
+          message={t('agentConfirmations.errors.loadFailed', { message: (list.error as Error).message })}
+        />
       ) : (list.data ?? []).length === 0 ? (
-        <EmptyState message="没有待审批的工具调用。" />
+        <EmptyState message={t('agentConfirmations.empty')} />
       ) : (
         <ul className="space-y-3">
           {list.data!.map((c) => (
@@ -75,13 +78,14 @@ interface ItemProps {
 }
 
 function PendingItem({ item, onApprove }: ItemProps) {
+  const { t } = useTranslation();
   const reject = useRejectConfirmation();
   return (
     <li className="rounded-xl border border-border bg-surface-elevated p-4 space-y-2">
       <header className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="font-mono text-xs">{item.toolId}</span>
-          <StatusBadge status="paused" label="待确认" />
+          <StatusBadge status="paused" label={t('agentConfirmations.statusPending')} />
         </div>
         <div className="flex gap-1">
           <button
@@ -89,7 +93,7 @@ function PendingItem({ item, onApprove }: ItemProps) {
             className="rounded bg-primary px-3 py-1 text-xs text-white hover:bg-primary-light"
             onClick={onApprove}
           >
-            审批
+            {t('agentConfirmations.actions.approve')}
           </button>
           <button
             type="button"
@@ -97,19 +101,19 @@ function PendingItem({ item, onApprove }: ItemProps) {
             disabled={reject.isPending}
             onClick={() => {
               if (!item.confirmationTokenId) return;
-              const reason = window.prompt('拒绝原因（可选）') ?? 'user_rejected';
+              const reason = window.prompt(t('agentConfirmations.prompts.rejectReason')) ?? 'user_rejected';
               reject.mutate({ tokenId: item.confirmationTokenId, reason });
             }}
           >
-            拒绝
+            {t('agentConfirmations.actions.reject')}
           </button>
         </div>
       </header>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-text-secondary">
-        <div>Persona：<span className="font-mono">{item.personaId}</span></div>
-        <div>Invoker：<span className="font-mono">{item.invokerType}</span></div>
-        <div>触发：{formatTs(item.invokedAt)}</div>
-        <div>Input hash：<span className="font-mono">{item.inputHash.slice(0, 16)}…</span></div>
+        <div>{t('agentConfirmations.fields.persona')}：<span className="font-mono">{item.personaId}</span></div>
+        <div>{t('agentConfirmations.fields.invoker')}：<span className="font-mono">{item.invokerType}</span></div>
+        <div>{t('agentConfirmations.fields.invokedAt')}：{formatTs(item.invokedAt)}</div>
+        <div>{t('agentConfirmations.fields.inputHash')}：<span className="font-mono">{item.inputHash.slice(0, 16)}…</span></div>
       </div>
     </li>
   );
@@ -121,6 +125,7 @@ interface ApproveDialogProps {
 }
 
 function ApproveDialog({ item, onClose }: ApproveDialogProps) {
+  const { t } = useTranslation();
   const approve = useApproveConfirmation();
   const [argsJson, setArgsJson] = useState('{\n  \n}');
   const [parseError, setParseError] = useState<string | null>(null);
@@ -130,10 +135,10 @@ function ApproveDialog({ item, onClose }: ApproveDialogProps) {
     try {
       parsed = JSON.parse(argsJson);
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        throw new Error('arguments 必须是 JSON 对象');
+        throw new Error(t('agentConfirmations.errors.argsNotObject'));
       }
     } catch (err) {
-      setParseError(err instanceof Error ? err.message : 'JSON 解析失败');
+      setParseError(err instanceof Error ? err.message : t('agentConfirmations.errors.argsParseFailed'));
       return;
     }
     setParseError(null);
@@ -149,13 +154,11 @@ function ApproveDialog({ item, onClose }: ApproveDialogProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-lg rounded-xl border border-border bg-surface-elevated p-4 space-y-3">
-        <h2 className="text-base font-semibold">审批工具调用</h2>
+        <h2 className="text-base font-semibold">{t('agentConfirmations.dialog.title')}</h2>
         <div className="text-sm space-y-1">
-          <p><strong>Tool：</strong> <span className="font-mono">{item.toolId}</span></p>
-          <p><strong>Persona：</strong> <span className="font-mono">{item.personaId}</span></p>
-          <p className="text-xs text-text-secondary">
-            后端为隐私保护不会持久化 arguments；请粘贴最初触发本次调用的参数 JSON。input_hash 不匹配会拒绝。
-          </p>
+          <p><strong>{t('agentConfirmations.dialog.tool')}：</strong> <span className="font-mono">{item.toolId}</span></p>
+          <p><strong>{t('agentConfirmations.dialog.persona')}：</strong> <span className="font-mono">{item.personaId}</span></p>
+          <p className="text-xs text-text-secondary">{t('agentConfirmations.dialog.hint')}</p>
         </div>
         <textarea
           className="w-full rounded border border-border bg-surface px-2 py-1 font-mono text-xs"
@@ -165,7 +168,9 @@ function ApproveDialog({ item, onClose }: ApproveDialogProps) {
         />
         {parseError && <p className="text-xs text-warning">{parseError}</p>}
         {approve.error && (
-          <p className="text-xs text-warning">提交失败：{(approve.error as Error).message}</p>
+          <p className="text-xs text-warning">
+            {t('agentConfirmations.errors.submitFailed', { message: (approve.error as Error).message })}
+          </p>
         )}
         <div className="flex justify-end gap-2">
           <button
@@ -173,7 +178,7 @@ function ApproveDialog({ item, onClose }: ApproveDialogProps) {
             className="rounded px-3 py-1.5 text-sm text-text-secondary hover:bg-surface"
             onClick={onClose}
           >
-            取消
+            {t('agentConfirmations.actions.cancel')}
           </button>
           <button
             type="button"
@@ -181,7 +186,9 @@ function ApproveDialog({ item, onClose }: ApproveDialogProps) {
             disabled={approve.isPending}
             onClick={handleSubmit}
           >
-            {approve.isPending ? '执行中…' : '执行'}
+            {approve.isPending
+              ? t('agentConfirmations.actions.executing')
+              : t('agentConfirmations.actions.execute')}
           </button>
         </div>
       </div>

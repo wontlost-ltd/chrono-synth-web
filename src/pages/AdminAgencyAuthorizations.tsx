@@ -40,7 +40,7 @@ function formatTs(ms: number | null): string {
 
 export function AdminAgencyAuthorizations() {
   const { t } = useTranslation();
-  useDocumentTitle('代理授权书');
+  useDocumentTitle(t('agencyAuthorizations.title'));
   const { role } = useAuth();
   const isAdmin = role === 'admin';
 
@@ -58,17 +58,17 @@ export function AdminAgencyAuthorizations() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="代理授权书"
-        subtitle="为 (persona, principalUser) 建立法律层面的代理范围；含可暂停/恢复/撤销生命周期"
+        title={t('agencyAuthorizations.title')}
+        subtitle={t('agencyAuthorizations.subtitle')}
         actions={
           <button
             type="button"
             className="rounded bg-primary px-3 py-1.5 text-sm text-white hover:bg-primary-light disabled:opacity-50"
             onClick={() => setShowCreate((v) => !v)}
             disabled={!personaId}
-            title={personaId ? '' : '先在过滤栏输入 personaId'}
+            title={personaId ? '' : t('agencyAuthorizations.filters.enterPersonaTooltip')}
           >
-            {showCreate ? '取消' : '新建授权书'}
+            {showCreate ? t('agencyAuthorizations.actions.cancel') : t('agencyAuthorizations.actions.create')}
           </button>
         }
       />
@@ -77,7 +77,7 @@ export function AdminAgencyAuthorizations() {
         <input
           type="text"
           className="rounded border border-border bg-surface px-2 py-1 flex-1 max-w-md"
-          placeholder="输入 personaId 来查询/创建授权书"
+          placeholder={t('agencyAuthorizations.filters.personaPlaceholder')}
           value={personaId}
           onChange={(e) => setPersonaId(e.target.value)}
         />
@@ -97,13 +97,16 @@ export function AdminAgencyAuthorizations() {
       )}
 
       {!personaId ? (
-        <EmptyState message="输入 personaId 后查看其代理授权书。" />
+        <EmptyState message={t('agencyAuthorizations.empty.enterPersona')} />
       ) : list.isLoading ? (
         <Skeleton variant="card" />
       ) : list.error ? (
-        <EmptyState variant="error" message={`加载失败：${(list.error as Error).message}`} />
+        <EmptyState
+          variant="error"
+          message={t('agencyAuthorizations.errors.loadFailed', { message: (list.error as Error).message })}
+        />
       ) : (list.data ?? []).length === 0 ? (
-        <EmptyState message={`Persona ${personaId} 尚无授权书。`} />
+        <EmptyState message={t('agencyAuthorizations.empty.personaEmpty', { personaId })} />
       ) : (
         <ul className="space-y-3">
           {list.data!.map((a) => (
@@ -113,7 +116,7 @@ export function AdminAgencyAuthorizations() {
               onSuspend={() => suspend.mutate(a.id)}
               onResume={() => resume.mutate(a.id)}
               onRevoke={() => {
-                const reason = window.prompt('撤销原因（必填）');
+                const reason = window.prompt(t('agencyAuthorizations.prompts.revokeReason'));
                 if (!reason) return;
                 revoke.mutate({ id: a.id, reason });
               }}
@@ -133,6 +136,7 @@ interface CardProps {
 }
 
 function AuthorizationCard({ auth, onSuspend, onResume, onRevoke }: CardProps) {
+  const { t } = useTranslation();
   const isActive = auth.status === 'active';
   const isSuspended = auth.status === 'suspended';
   const isFinal = auth.status === 'revoked' || auth.status === 'expired';
@@ -145,37 +149,43 @@ function AuthorizationCard({ auth, onSuspend, onResume, onRevoke }: CardProps) {
             <StatusBadge status={STATUS_BADGE[auth.status]} label={auth.status.toUpperCase()} />
           </div>
           <p className="mt-1 text-sm">
-            <strong>Scope:</strong> {auth.scope} · <strong>Principal:</strong>{' '}
+            <strong>{t('agencyAuthorizations.card.scope')}:</strong> {auth.scope} ·{' '}
+            <strong>{t('agencyAuthorizations.card.principal')}:</strong>{' '}
             <span className="font-mono text-xs">{auth.principalUserId}</span>
           </p>
         </div>
         <div className="flex gap-1">
           {isActive && (
             <button type="button" className="text-xs text-text-secondary hover:underline" onClick={onSuspend}>
-              暂停
+              {t('agencyAuthorizations.actions.suspend')}
             </button>
           )}
           {isSuspended && (
             <button type="button" className="text-xs text-primary hover:underline" onClick={onResume}>
-              恢复
+              {t('agencyAuthorizations.actions.resume')}
             </button>
           )}
           {!isFinal && (
             <button type="button" className="text-xs text-warning hover:underline" onClick={onRevoke}>
-              撤销
+              {t('agencyAuthorizations.actions.revoke')}
             </button>
           )}
         </div>
       </header>
       <p className="text-sm text-text-secondary">{auth.scopeDescription}</p>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-text-secondary">
-        <div>授权于：{formatTs(auth.grantedAt)}</div>
-        <div>过期：{formatTs(auth.expiresAt)}</div>
-        <div>允许工具：{auth.allowedTools.length}</div>
-        <div>拒绝工具：{auth.deniedTools.length}</div>
+        <div>{t('agencyAuthorizations.card.grantedAt', { ts: formatTs(auth.grantedAt) })}</div>
+        <div>{t('agencyAuthorizations.card.expiresAt', { ts: formatTs(auth.expiresAt) })}</div>
+        <div>{t('agencyAuthorizations.card.allowedTools', { count: auth.allowedTools.length })}</div>
+        <div>{t('agencyAuthorizations.card.deniedTools', { count: auth.deniedTools.length })}</div>
       </div>
       {auth.revokedAt !== null && (
-        <p className="text-xs text-warning">撤销于 {formatTs(auth.revokedAt)} — {auth.revocationReason}</p>
+        <p className="text-xs text-warning">
+          {t('agencyAuthorizations.card.revokedNote', {
+            ts: formatTs(auth.revokedAt),
+            reason: auth.revocationReason,
+          })}
+        </p>
       )}
     </li>
   );
@@ -198,6 +208,7 @@ interface FormProps {
 }
 
 function CreateAgencyForm({ personaId, isPending, error, onCancel, onSubmit }: FormProps) {
+  const { t } = useTranslation();
   const [principalUserId, setPrincipalUserId] = useState('');
   const [scope, setScope] = useState<AgencyScope>('research');
   const [scopeDescription, setScopeDescription] = useState('');
@@ -222,10 +233,12 @@ function CreateAgencyForm({ personaId, isPending, error, onCancel, onSubmit }: F
         });
       }}
     >
-      <h2 className="text-base font-semibold">为 Persona <code className="text-xs">{personaId}</code> 创建授权书</h2>
+      <h2 className="text-base font-semibold">
+        {t('agencyAuthorizations.createForm.title', { personaId })}
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <label className="space-y-1">
-          <span className="text-xs text-text-secondary">Principal User ID</span>
+          <span className="text-xs text-text-secondary">{t('agencyAuthorizations.createForm.principalUserIdLabel')}</span>
           <input
             required
             className="w-full rounded border border-border bg-surface px-2 py-1 text-sm"
@@ -234,7 +247,7 @@ function CreateAgencyForm({ personaId, isPending, error, onCancel, onSubmit }: F
           />
         </label>
         <label className="space-y-1">
-          <span className="text-xs text-text-secondary">Scope</span>
+          <span className="text-xs text-text-secondary">{t('agencyAuthorizations.createForm.scopeLabel')}</span>
           <select
             className="w-full rounded border border-border bg-surface px-2 py-1 text-sm"
             value={scope}
@@ -245,7 +258,7 @@ function CreateAgencyForm({ personaId, isPending, error, onCancel, onSubmit }: F
         </label>
       </div>
       <label className="space-y-1 block">
-        <span className="text-xs text-text-secondary">Scope 描述（≥10 字符；用作法律证据）</span>
+        <span className="text-xs text-text-secondary">{t('agencyAuthorizations.createForm.scopeDescriptionLabel')}</span>
         <textarea
           required
           minLength={10}
@@ -258,21 +271,21 @@ function CreateAgencyForm({ personaId, isPending, error, onCancel, onSubmit }: F
       </label>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <label className="space-y-1">
-          <span className="text-xs text-text-secondary">允许工具（逗号分隔，可选）</span>
+          <span className="text-xs text-text-secondary">{t('agencyAuthorizations.createForm.allowedToolsLabel')}</span>
           <input
             className="w-full rounded border border-border bg-surface px-2 py-1 text-sm"
             value={allowedToolsRaw}
             onChange={(e) => setAllowedToolsRaw(e.target.value)}
-            placeholder="web_search, calendar"
+            placeholder={t('agencyAuthorizations.createForm.allowedToolsPlaceholder')}
           />
         </label>
         <label className="space-y-1">
-          <span className="text-xs text-text-secondary">拒绝工具（逗号分隔，可选）</span>
+          <span className="text-xs text-text-secondary">{t('agencyAuthorizations.createForm.deniedToolsLabel')}</span>
           <input
             className="w-full rounded border border-border bg-surface px-2 py-1 text-sm"
             value={deniedToolsRaw}
             onChange={(e) => setDeniedToolsRaw(e.target.value)}
-            placeholder="email.send, payment.*"
+            placeholder={t('agencyAuthorizations.createForm.deniedToolsPlaceholder')}
           />
         </label>
       </div>
@@ -283,14 +296,14 @@ function CreateAgencyForm({ personaId, isPending, error, onCancel, onSubmit }: F
           className="rounded bg-primary px-3 py-1.5 text-sm text-white hover:bg-primary-light disabled:opacity-50"
           disabled={isPending}
         >
-          {isPending ? '提交中…' : '创建授权书'}
+          {isPending ? t('agencyAuthorizations.createForm.submitting') : t('agencyAuthorizations.createForm.submit')}
         </button>
         <button
           type="button"
           className="rounded px-3 py-1.5 text-sm text-text-secondary hover:bg-surface"
           onClick={onCancel}
         >
-          取消
+          {t('agencyAuthorizations.createForm.cancel')}
         </button>
       </div>
     </form>
