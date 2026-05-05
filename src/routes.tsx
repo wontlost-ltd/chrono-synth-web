@@ -22,6 +22,7 @@ const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.S
 const SSOCallback = lazy(() => import('./pages/SSOCallback').then(m => ({ default: m.SSOCallback })));
 const AdminConfig = lazy(() => import('./pages/AdminConfig').then(m => ({ default: m.AdminConfig })));
 const EnterpriseConsole = lazy(() => import('./pages/EnterpriseConsole').then(m => ({ default: m.EnterpriseConsole })));
+const SafetyDriftReport = lazy(() => import('./pages/SafetyDriftReport').then(m => ({ default: m.SafetyDriftReport })));
 
 /* 新功能页面 */
 const AvatarListPage = lazy(() => import('./features/avatars/pages/AvatarListPage'));
@@ -72,6 +73,7 @@ export const routes: RouteObject[] = [
   { path: '/settings', element: <Protected><Settings /></Protected> },
   { path: '/enterprise', element: <Protected><AdminOnly><EnterpriseConsole /></AdminOnly></Protected> },
   { path: '/admin/config', element: <Protected><AdminOnly><AdminConfig /></AdminOnly></Protected> },
+  { path: '/admin/safety/drift', element: <Protected><AdminOnly><SafetyDriftReport /></AdminOnly></Protected> },
   { path: '/sso/callback', element: <LazyPage><SSOCallback /></LazyPage> },
   /* 分身管理 */
   { path: '/avatars', element: <Protected><AvatarListPage /></Protected> },
