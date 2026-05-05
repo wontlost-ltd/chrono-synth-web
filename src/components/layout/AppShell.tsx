@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Sidebar } from './Sidebar';
+import { SetupChecklistContainer } from '../onboarding/SetupChecklistContainer';
+import { ChangelogDrawer } from '../changelog/ChangelogDrawer';
 
 interface AppShellProps {
   children: ReactNode;
@@ -90,6 +92,13 @@ export function AppShell({ children }: AppShellProps) {
       <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto p-6 pt-14 lg:pt-6 outline-none" aria-hidden={mobileOpen || undefined} inert={mobileOpen || undefined}>
         {children}
       </main>
+
+      {/* P1.7.2 onboarding companion. Hides itself once dismissed or all
+        * five steps complete; sits on top of main content with z-40. */}
+      <SetupChecklistContainer />
+      {/* P1.7.2 changelog drawer (bottom-left); auto-opens once after each
+        * release, then user controls via the trigger button. */}
+      <ChangelogDrawer />
     </div>
   );
 }

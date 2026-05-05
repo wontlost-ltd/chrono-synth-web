@@ -952,5 +952,22 @@
       "firstConversation": "Have your first conversation",
       "inviteTeam": "Invite a teammate"
     }
+  },
+  "changelog": {
+    "title": "Recent updates",
+    "label": "Updates",
+    "openLabel": "Open changelog",
+    "close": "Close",
+    "unread": "Unread",
+    "entries": {
+      "0": {
+        "title": "P1.7.2 — Setup checklist + structured empty states + analytics",
+        "body": "· Floating bottom-right setup checklist: 5-step guide + progress bar + persistent dismissal\n· EmptyState upgrade: illustrations + title + primary/secondary CTAs (backward-compatible)\n· Client-side analytics tracker + server-side events_user_journey persistence (v069)"
+      },
+      "1": {
+        "title": "P0.4 / P1.4 — Full i18n + strict CSP",
+        "body": "· 6 admin/agent pages fully translated for zh-CN + en-US\n· Strict CSP + COOP/COEP/CORP + Trusted Types report-only\n· HSTS upgraded to 2-year + preload"
+      }
+    }
   }
 }

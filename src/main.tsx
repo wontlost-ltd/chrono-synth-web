@@ -4,6 +4,9 @@ initSentry();
 import { reportWebVitals } from './lib/web-vitals';
 reportWebVitals();
 
+import { initAnalytics } from './lib/analytics';
+initAnalytics();
+
 import './i18n';
 
 import { StrictMode } from 'react';

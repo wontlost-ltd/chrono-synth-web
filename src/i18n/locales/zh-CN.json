@@ -952,5 +952,22 @@
       "firstConversation": "完成第一次对话",
       "inviteTeam": "邀请团队成员"
     }
+  },
+  "changelog": {
+    "title": "近期更新",
+    "label": "更新",
+    "openLabel": "打开更新日志",
+    "close": "关闭",
+    "unread": "有未读",
+    "entries": {
+      "0": {
+        "title": "P1.7.2 — 上手清单 + 结构化空态 + 埋点",
+        "body": "· 右下角悬浮上手清单：5 步引导 + 进度条 + 持久化关闭\n· EmptyState 升级：插画 + 标题 + 主/副 CTA（向后兼容）\n· 客户端埋点 + 后端 events_user_journey 落库（v069）"
+      },
+      "1": {
+        "title": "P0.4 / P1.4 — i18n 全量 + 严格 CSP",
+        "body": "· 6 个 admin/agent 页面 zh-CN + en-US 全量翻译\n· 严格 CSP + COOP/COEP/CORP + Trusted Types report-only\n· HSTS 升级到 2 年 + preload"
+      }
+    }
   }
 }
