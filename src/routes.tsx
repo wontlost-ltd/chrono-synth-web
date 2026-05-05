@@ -40,6 +40,8 @@ const AutorunRunsPage = lazy(() => import('./features/autorun/pages/AutorunRunsP
 const PersonaListPage = lazy(() => import('./features/personas/pages/PersonaListPage'));
 const PersonaCorePage = lazy(() => import('./features/persona-core/pages/PersonaCorePage'));
 const MarketplacePage = lazy(() => import('./features/marketplace/pages/MarketplacePage'));
+const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
+const Forbidden = lazy(() => import('./pages/Forbidden').then(m => ({ default: m.Forbidden })));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return (
@@ -98,5 +100,8 @@ export const routes: RouteObject[] = [
   { path: '/personas', element: <Protected><PersonaListPage /></Protected> },
   { path: '/persona-core', element: <Protected><PersonaCorePage /></Protected> },
   { path: '/marketplace', element: <Protected><MarketplacePage /></Protected> },
-  { path: '*', element: <Navigate to="/dashboard" replace /> },
+  /* P3.9 — branded error pages instead of silent redirects */
+  { path: '/403', element: <LazyPage><Forbidden /></LazyPage> },
+  { path: '/404', element: <LazyPage><NotFound /></LazyPage> },
+  { path: '*', element: <LazyPage><NotFound /></LazyPage> },
 ];

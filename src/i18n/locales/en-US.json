@@ -996,5 +996,25 @@
       "agentOauthGoogle": "Google account authorization",
       "agentConfirmations": "Pending approvals"
     }
+  },
+  "errorPages": {
+    "notFound": {
+      "documentTitle": "Page not found",
+      "title": "We can't find that page",
+      "body": "The link may have expired, or the path you entered doesn't exist. Try one of the common entry points below."
+    },
+    "forbidden": {
+      "documentTitle": "Access denied",
+      "title": "You don't have permission to view this page",
+      "body": "This page is admin-only. If you think this is a mistake, contact your tenant administrator.",
+      "backToDashboard": "Back to dashboard"
+    },
+    "suggestions": {
+      "heading": "Try these",
+      "dashboard": "Dashboard",
+      "personas": "Personas",
+      "simulations": "Simulations",
+      "settings": "Settings"
+    }
   }
 }

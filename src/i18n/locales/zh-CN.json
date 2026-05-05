@@ -996,5 +996,25 @@
       "agentOauthGoogle": "Google 账户授权",
       "agentConfirmations": "待我审批"
     }
+  },
+  "errorPages": {
+    "notFound": {
+      "documentTitle": "页面未找到",
+      "title": "我们找不到那个页面",
+      "body": "链接可能失效，或者你输入的路径不存在。看看下面这些常用入口。"
+    },
+    "forbidden": {
+      "documentTitle": "没有访问权限",
+      "title": "你没有进入此页面的权限",
+      "body": "此页面仅对管理员开放。如果你认为这是误判，请联系租户管理员。",
+      "backToDashboard": "回到仪表盘"
+    },
+    "suggestions": {
+      "heading": "试试这些",
+      "dashboard": "仪表盘",
+      "personas": "Personas",
+      "simulations": "模拟",
+      "settings": "设置"
+    }
   }
 }
