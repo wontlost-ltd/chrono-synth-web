@@ -21,7 +21,8 @@ module.exports = {
       preset: 'lighthouse:no-pwa',
       assertions: {
         'categories:performance': ['warn', { minScore: 0.8 }],
-        'categories:accessibility': ['error', { minScore: 0.9 }],
+        // P1.3：a11y 阈值从 0.9 → 0.95，对齐 enterprise-readiness 计划
+        'categories:accessibility': ['error', { minScore: 0.95 }],
         'categories:best-practices': ['warn', { minScore: 0.85 }],
         'categories:seo': ['warn', { minScore: 0.8 }],
         // 关键 a11y 规则强制通过
@@ -31,6 +32,12 @@ module.exports = {
         'image-alt': 'error',
         'label': 'error',
         'meta-viewport': 'error',
+        // P1.3 新增：交互元素必须有可达名称、focus order 合理、ARIA 属性正确
+        'button-name': 'error',
+        'link-name': 'error',
+        'aria-valid-attr': 'error',
+        'aria-valid-attr-value': 'error',
+        'duplicate-id-active': 'error',
       },
     },
     upload: {
