@@ -55,9 +55,12 @@ test.describe('Simulation Pages', () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
-  test('unknown route redirects to dashboard then login', async ({ page }) => {
+  test('unknown route renders the 404 page (P3.9; not auth-gated)', async ({ page }) => {
+    /* The catch-all renders <NotFound />. URL stays put; assert we see
+     * the rendered 404 surface. */
     await page.goto('/nonexistent-page');
-    await expect(page).toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/\/nonexistent-page/);
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 
   test('simulation ID redirect works', async ({ page }) => {

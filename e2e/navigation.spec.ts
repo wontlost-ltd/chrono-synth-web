@@ -6,9 +6,15 @@ test.describe('Navigation', () => {
     await expect(page).toHaveURL(/\/login/);
   });
 
-  test('unknown routes redirect to dashboard then login', async ({ page }) => {
+  test('unknown routes render the 404 page (not auth-gated)', async ({ page }) => {
+    /* P3.9 changed the catch-all from `Navigate('/dashboard')` to a real
+     * NotFound component. The 404 surface is intentionally not behind the
+     * auth gate — telling someone "that path doesn't exist" doesn't leak
+     * any data. The URL stays put; the page renders the branded 404. */
     await page.goto('/this-does-not-exist');
-    await expect(page).toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/\/this-does-not-exist/);
+    /* The NotFound page renders an h1 with the title key */
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   });
 
   test('login page has correct document title', async ({ page }) => {
