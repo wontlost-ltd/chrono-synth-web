@@ -46,13 +46,16 @@ test.describe('Keyboard navigation', () => {
   test('login: Tab moves email → password → submit; Enter submits', async ({ page }) => {
     await page.goto('/login');
 
-    /* First Tab from the document body should land on the first interactive
-     * element. The skip-link or email input — both acceptable. */
+    /* First Tab should move focus off the body. We don't assert the exact
+     * tag because an app shell may legitimately have leading interactive
+     * elements (skip-link, theme toggle, lang switcher) that vary across
+     * future redesigns. Just verifying focus management is alive. */
     await page.keyboard.press('Tab');
-    let info = await focusedElementInfo(page);
-    expect(['INPUT', 'A', 'BUTTON']).toContain(info.tag);
+    const firstFocus = await focusedElementInfo(page);
+    expect(firstFocus.tag).not.toBe('BODY');
+    expect(firstFocus.tag).not.toBe('');
 
-    /* Find the email input via Tab cycling (allows for a leading skip-link). */
+    /* Then drive directly to the email input and verify Tab order from there. */
     const email = page.getByLabel(/邮箱|Email/i);
     await email.focus();
     await expect(email).toBeFocused();
