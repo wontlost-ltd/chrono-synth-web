@@ -937,5 +937,20 @@
     "recentAlerts": {
       "heading": "最近告警"
     }
+  },
+  "setupChecklist": {
+    "title": "上手清单",
+    "subtitle": "已完成 {{completed}} / {{total}}",
+    "collapse": "折叠",
+    "dismiss": "关闭",
+    "completed": "已完成",
+    "progressLabel": "进度 {{progress}}%",
+    "steps": {
+      "createPersona": "创建第一个 persona",
+      "addKnowledge": "注入知识源",
+      "grantTools": "授权工具调用",
+      "firstConversation": "完成第一次对话",
+      "inviteTeam": "邀请团队成员"
+    }
   }
 }

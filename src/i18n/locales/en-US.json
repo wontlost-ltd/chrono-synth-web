@@ -937,5 +937,20 @@
     "recentAlerts": {
       "heading": "Recent Alerts"
     }
+  },
+  "setupChecklist": {
+    "title": "Get started",
+    "subtitle": "{{completed}} of {{total}} completed",
+    "collapse": "Collapse",
+    "dismiss": "Dismiss",
+    "completed": "Completed",
+    "progressLabel": "Progress {{progress}}%",
+    "steps": {
+      "createPersona": "Create your first persona",
+      "addKnowledge": "Add a knowledge source",
+      "grantTools": "Grant a tool permission",
+      "firstConversation": "Have your first conversation",
+      "inviteTeam": "Invite a teammate"
+    }
   }
 }
