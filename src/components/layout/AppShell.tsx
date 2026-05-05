@@ -7,6 +7,7 @@ import { ChangelogDrawer } from '../changelog/ChangelogDrawer';
 import { CommandPalette } from '../cmdk/CommandPalette';
 import { DEFAULT_COMMANDS } from '../cmdk/defaultCommands';
 import { useHotkey } from '../../lib/hotkeys';
+import { useFeatureFlag } from '../../lib/featureFlags';
 
 interface AppShellProps {
   children: ReactNode;
@@ -22,6 +23,12 @@ export function AppShell({ children }: AppShellProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
+
+  /* Feature flags gate the surface. Default ON; flip via localStorage
+   * key 'chrono.flag.<id>' = 'false' or via remote provider. */
+  const cmdkEnabled = useFeatureFlag('cmdk.enabled', true);
+  const checklistEnabled = useFeatureFlag('onboarding.checklist.enabled', true);
+  const changelogEnabled = useFeatureFlag('changelog.drawer.enabled', true);
 
   /* Vim-style g+key navigation. Each command in DEFAULT_COMMANDS already
    * declares its own hotkey; we register them once at the shell level so
@@ -109,13 +116,13 @@ export function AppShell({ children }: AppShellProps) {
 
       {/* P1.7.2 onboarding companion. Hides itself once dismissed or all
         * five steps complete; sits on top of main content with z-40. */}
-      <SetupChecklistContainer />
+      {checklistEnabled && <SetupChecklistContainer />}
       {/* P1.7.2 changelog drawer (bottom-left); auto-opens once after each
         * release, then user controls via the trigger button. */}
-      <ChangelogDrawer />
+      {changelogEnabled && <ChangelogDrawer />}
       {/* P2.6 global command palette (Cmd/Ctrl+K). Self-renders only when
         * open; safe to mount unconditionally. */}
-      <CommandPalette commands={DEFAULT_COMMANDS} />
+      {cmdkEnabled && <CommandPalette commands={DEFAULT_COMMANDS} />}
     </div>
   );
 }
