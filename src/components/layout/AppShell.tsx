@@ -9,6 +9,7 @@ import { DEFAULT_COMMANDS } from '../cmdk/defaultCommands';
 import { useHotkey } from '../../lib/hotkeys';
 import { useFeatureFlag } from '../../lib/featureFlags';
 import { PageTransition } from '../motion/PageTransition';
+import { ThemeSwitcher } from '../ThemeSwitcher';
 
 interface AppShellProps {
   children: ReactNode;
@@ -112,6 +113,9 @@ export function AppShell({ children }: AppShellProps) {
       </div>
 
       <main id="main-content" tabIndex={-1} className="flex-1 overflow-y-auto p-6 pt-14 lg:pt-6 outline-none" aria-hidden={mobileOpen || undefined} inert={mobileOpen || undefined}>
+        <div className="flex justify-end mb-2">
+          <ThemeSwitcher />
+        </div>
         <PageTransition>{children}</PageTransition>
       </main>
 

@@ -42,6 +42,9 @@ const PersonaCorePage = lazy(() => import('./features/persona-core/pages/Persona
 const MarketplacePage = lazy(() => import('./features/marketplace/pages/MarketplacePage'));
 const NotFound = lazy(() => import('./pages/NotFound').then(m => ({ default: m.NotFound })));
 const Forbidden = lazy(() => import('./pages/Forbidden').then(m => ({ default: m.Forbidden })));
+const PersonaHealthPage = lazy(() =>
+  import('./features/dashboards/PersonaHealth').then((m) => ({ default: m.PersonaHealth })),
+);
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return (
@@ -99,6 +102,7 @@ export const routes: RouteObject[] = [
   /* 人格管理 */
   { path: '/personas', element: <Protected><PersonaListPage /></Protected> },
   { path: '/persona-core', element: <Protected><PersonaCorePage /></Protected> },
+  { path: '/personas/:id/health', element: <Protected><PersonaHealthPage /></Protected> },
   { path: '/marketplace', element: <Protected><MarketplacePage /></Protected> },
   /* P3.9 — branded error pages instead of silent redirects */
   { path: '/403', element: <LazyPage><Forbidden /></LazyPage> },

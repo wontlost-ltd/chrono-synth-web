@@ -1,0 +1,107 @@
+/* P1.7.1 — semantic theme overrides driven by @chrono/design-tokens v2.
+ *
+ * Approach: keep the existing `@theme` block in globals.css (Tailwind v4
+ * needs it at the source-of-truth) but add `data-theme="dark"` and
+ * `data-theme="high-contrast"` selectors that override the same CSS
+ * variables. The ThemeProvider in src/lib/theme.ts toggles the attribute
+ * on <html>; Tailwind utilities reference --color-primary etc., so they
+ * pick up the new values automatically.
+ *
+ * Values are sourced from packages/design-tokens/src/v2/colors.ts.
+ * Keep this file in sync when those constants change.
+ *
+ * @media (prefers-color-scheme: dark) — only kicks in when no explicit
+ * data-theme is set, so a user who chose "light" stays in light even on
+ * a dark-mode OS.
+ */
+
+:root[data-theme='dark'],
+:root[data-theme='dark'] body {
+  /* surface */
+  --color-surface: #0F172A;
+  --color-surface-elevated: #1E293B;
+  --color-overlay: rgba(0, 0, 0, 0.6);
+
+  /* text */
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #CBD5E1;
+
+  /* border */
+  --color-border: #334155;
+
+  /* brand */
+  --color-primary: #3B82F6;
+  --color-primary-light: #60A5FA;
+  --color-accent: #FBBF24;
+  --color-accent-light: #FCD34D;
+
+  /* status */
+  --color-success: #22C55E;
+  --color-warning: #FBBF24;
+  --color-error: #EF4444;
+
+  /* chart */
+  --color-chart-1: #60A5FA;
+  --color-chart-2: #2DD4BF;
+  --color-chart-3: #FBBF24;
+  --color-chart-4: #A78BFA;
+  --color-chart-5: #F87171;
+  --color-chart-6: #34D399;
+  --color-chart-grid: #334155;
+
+  /* neutral */
+  --color-neutral-1: #1E293B;
+  --color-neutral-2: #475569;
+  --color-neutral-3: #64748B;
+}
+
+:root[data-theme='high-contrast'],
+:root[data-theme='high-contrast'] body {
+  /* AAA-grade contrast for accessibility-preference toggle. */
+  --color-surface: #FFFFFF;
+  --color-surface-elevated: #FFFFFF;
+  --color-overlay: rgba(0, 0, 0, 0.7);
+
+  --color-text-primary: #000000;
+  --color-text-secondary: #1F2937;
+
+  --color-border: #1F2937;
+
+  --color-primary: #1E3A8A;
+  --color-primary-light: #1E40AF;
+  --color-accent: #7F1D1D;
+
+  --color-success: #14532D;
+  --color-warning: #7F1D1D;
+  --color-error: #7F1D1D;
+
+  --color-chart-1: #1E3A8A;
+  --color-chart-2: #14532D;
+  --color-chart-3: #7F1D1D;
+  --color-chart-4: #581C87;
+  --color-chart-5: #0F172A;
+  --color-chart-6: #000000;
+  --color-chart-grid: #000000;
+
+  --color-neutral-1: #F3F4F6;
+  --color-neutral-2: #6B7280;
+  --color-neutral-3: #4B5563;
+}
+
+/* OS-level dark preference, only when no explicit theme is set. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --color-surface: #0F172A;
+    --color-surface-elevated: #1E293B;
+    --color-text-primary: #F8FAFC;
+    --color-text-secondary: #CBD5E1;
+    --color-border: #334155;
+    --color-primary: #3B82F6;
+    --color-primary-light: #60A5FA;
+    --color-success: #22C55E;
+    --color-warning: #FBBF24;
+    --color-error: #EF4444;
+    --color-chart-grid: #334155;
+  }
+}

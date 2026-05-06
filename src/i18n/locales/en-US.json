@@ -1032,6 +1032,30 @@
         "d7": "7 days ago",
         "d30": "30 days ago"
       }
+    },
+    "decisionTrend": {
+      "heading": "Decision count, last 30 days",
+      "empty": "No decisions recorded recently."
+    },
+    "memoryStack": {
+      "heading": "Memory growth, last 30 days",
+      "empty": "No memory data yet.",
+      "legend": {
+        "episodic": "Episodic",
+        "semantic": "Semantic",
+        "procedural": "Procedural"
+      }
+    },
+    "toolMix": {
+      "heading": "Tool invocation mix, last 7 days",
+      "empty": "No successful tool invocations in the last week."
+    },
+    "driftTimeline": {
+      "heading": "Drift history, last 90 days",
+      "empty": "No drift reports yet."
+    },
+    "errors": {
+      "loadFailed": "Load failed: {{message}}"
     }
   },
   "growth": {
@@ -1074,6 +1098,15 @@
     },
     "firstTool": {
       "title": "Grant your first tool permission"
+    }
+  },
+  "theme": {
+    "label": "Theme",
+    "choices": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark",
+      "highContrast": "High contrast"
     }
   }
 }

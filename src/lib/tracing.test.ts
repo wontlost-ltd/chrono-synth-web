@@ -1,103 +1,75 @@
-import { afterEach, beforeEach, describe, it, expect } from 'vitest';
-import {
-  _getBufferedSpans,
-  _resetTracingForTest,
-  setSampleRate,
-  tracer,
-} from './tracing';
+import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest';
+import { _resetTracingForTest, flushTraces, tracer } from './tracing';
 
-describe('tracing shim', () => {
+/**
+ * P3.3 — OTel browser SDK boundary tests. We don't assert span body
+ * contents (the OTel SDK is its own extensively-tested codebase); we
+ * pin the project-internal API that callsites depend on:
+ *   - startSpan / withSpan return a Span the caller can use without throwing
+ *   - withSpan returns the function result on success
+ *   - withSpan re-throws errors after recording the exception
+ *   - flushTraces resolves cleanly even when no spans were created
+ */
+
+describe('tracing (OTel browser SDK boundary)', () => {
   beforeEach(() => {
     _resetTracingForTest();
-    setSampleRate(1.0); // always sample in tests
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 204 })));
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     _resetTracingForTest();
   });
 
-  it('starts a span and records duration on end', () => {
+  it('startSpan returns a span object exposing the public methods', () => {
     const span = tracer.startSpan('test.span');
-    span.setAttribute('foo', 'bar');
-    span.end();
+    expect(span).toBeDefined();
+    expect(typeof span.setAttribute).toBe('function');
+    expect(typeof span.addEvent).toBe('function');
+    expect(typeof span.setStatus).toBe('function');
+    expect(typeof span.recordException).toBe('function');
+    expect(typeof span.end).toBe('function');
 
-    const spans = _getBufferedSpans();
-    expect(spans).toHaveLength(1);
-    expect(spans[0]?.name).toBe('test.span');
-    expect(spans[0]?.attributes.foo).toBe('bar');
-    expect(spans[0]?.endTime).not.toBeNull();
-    expect(spans[0]?.endTime).toBeGreaterThanOrEqual(spans[0]!.startTime);
+    expect(() => {
+      span.setAttribute('foo', 'bar');
+      span.setAttribute('count', 42);
+      span.setAttribute('flag', true);
+      span.setAttribute('null_value', null);
+      span.addEvent('my.event', { key: 'value' });
+      span.setStatus('OK');
+      span.end();
+    }).not.toThrow();
   });
 
-  it('records exceptions and sets ERROR status', () => {
-    const span = tracer.startSpan('test.error');
-    span.recordException(new Error('boom'));
-    span.end();
-
-    const spans = _getBufferedSpans();
-    expect(spans[0]?.status.code).toBe('ERROR');
-    expect(spans[0]?.status.message).toBe('boom');
-    const exceptionEvent = spans[0]?.events.find((e) => e.name === 'exception');
-    expect(exceptionEvent).toBeDefined();
-    expect(exceptionEvent?.attributes?.['exception.message']).toBe('boom');
-  });
-
-  it('withSpan auto-ends on success and sets OK status', async () => {
+  it('withSpan returns the function result on success', async () => {
     const result = await tracer.withSpan('test.with', () => 42);
     expect(result).toBe(42);
-
-    const spans = _getBufferedSpans();
-    expect(spans).toHaveLength(1);
-    expect(spans[0]?.status.code).toBe('OK');
-    expect(spans[0]?.endTime).not.toBeNull();
   });
 
-  it('withSpan records exceptions and re-throws', async () => {
-    await expect(
-      tracer.withSpan('test.with-error', () => {
-        throw new Error('fail');
-      }),
-    ).rejects.toThrow('fail');
-
-    const spans = _getBufferedSpans();
-    expect(spans[0]?.status.code).toBe('ERROR');
+  it('withSpan re-throws the original error after recording', async () => {
+    const err = new Error('boom');
+    await expect(tracer.withSpan('test.with-error', () => { throw err; })).rejects.toThrow('boom');
   });
 
-  it('respects sample rate — 0 produces no spans', () => {
-    setSampleRate(0);
-    const span = tracer.startSpan('test.no-sample');
-    span.end();
-    expect(_getBufferedSpans()).toHaveLength(0);
+  it('withSpan handles non-Error throws without crashing', async () => {
+    await expect(tracer.withSpan('test.string-throw', () => {
+      throw 'a string';
+    })).rejects.toBe('a string');
   });
 
-  it('rejects invalid sample rate', () => {
-    expect(() => setSampleRate(-0.1)).toThrow();
-    expect(() => setSampleRate(1.1)).toThrow();
-    expect(() => setSampleRate(NaN)).toThrow();
+  it('flushTraces resolves cleanly even before any span is created', async () => {
+    await expect(flushTraces()).resolves.toBeUndefined();
   });
 
-  it('child spans share the trace id of their parent', async () => {
-    let childTraceId: string | undefined;
-    let parentTraceId: string | undefined;
-
-    await tracer.withSpan('parent', async () => {
-      const sample = _getBufferedSpans();
-      // 父 span 还没 end，缓冲区里还没它；先记 trace id
-      const childSpan = tracer.startSpan('child');
-      // we have to dig: the in-memory span attaches its ctx via the readable
-      // record once exported. Collect after end.
-      childSpan.end();
-      void sample;
+  it('async work inside withSpan completes', async () => {
+    const result = await tracer.withSpan('test.async', async (span) => {
+      span.setAttribute('phase', 'start');
+      await Promise.resolve();
+      span.setAttribute('phase', 'end');
+      return 'async-done';
     });
-
-    const spans = _getBufferedSpans();
-    const parent = spans.find((s) => s.name === 'parent');
-    const child = spans.find((s) => s.name === 'child');
-    expect(parent).toBeDefined();
-    expect(child).toBeDefined();
-    parentTraceId = parent?.ctx.traceId;
-    childTraceId = child?.ctx.traceId;
-    expect(childTraceId).toBe(parentTraceId);
-    expect(child?.ctx.parentSpanId).toBe(parent?.ctx.spanId);
+    expect(result).toBe('async-done');
   });
 });

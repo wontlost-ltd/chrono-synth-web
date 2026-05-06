@@ -1032,6 +1032,30 @@
         "d7": "7 天前",
         "d30": "30 天前"
       }
+    },
+    "decisionTrend": {
+      "heading": "近 30 天决策频次",
+      "empty": "近期没有决策记录。"
+    },
+    "memoryStack": {
+      "heading": "近 30 天记忆增长",
+      "empty": "尚未积累记忆数据。",
+      "legend": {
+        "episodic": "情景",
+        "semantic": "语义",
+        "procedural": "程序"
+      }
+    },
+    "toolMix": {
+      "heading": "近 7 天工具调用占比",
+      "empty": "近一周没有成功的工具调用。"
+    },
+    "driftTimeline": {
+      "heading": "近 90 天漂移历史",
+      "empty": "尚未生成漂移报告。"
+    },
+    "errors": {
+      "loadFailed": "加载失败：{{message}}"
     }
   },
   "growth": {
@@ -1074,6 +1098,15 @@
     },
     "firstTool": {
       "title": "授权第一个工具"
+    }
+  },
+  "theme": {
+    "label": "主题",
+    "choices": {
+      "system": "跟随系统",
+      "light": "浅色",
+      "dark": "深色",
+      "highContrast": "高对比度"
     }
   }
 }
