@@ -44,6 +44,11 @@ i18n
       caches: ['localStorage'],
     },
     partialBundledLanguages: true,
+    /* react-i18next 17 keeps useSuspense=true as the default; we explicitly
+     * disable it because our app does eager resource loading right after
+     * init (see initLoads below), and Suspense fallbacks would briefly
+     * unmount the AppShell while the bundle deserialises. */
+    react: { useSuspense: false },
   });
 
 /** 初始加载检测到的语言和回退语言 */
