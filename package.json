@@ -38,7 +38,7 @@
     "serialize-javascript": "^7.0.4"
   },
   "devDependencies": {
-    "@axe-core/playwright": "^4.11.1",
+    "@axe-core/playwright": "^4.11.3",
     "@chrono/contracts": "file:packages/contracts",
     "@chrono/design-tokens": "file:packages/design-tokens",
     "@chrono/kernel-testkit": "file:packages/kernel-testkit",
