@@ -44,10 +44,24 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          charts: ['recharts', 'd3-sankey'],
-          query: ['@tanstack/react-query'],
+        /* Vite 8 ships rolldown by default, which only accepts the function
+         * form of manualChunks. Mirror the previous static map by checking
+         * id against well-known package roots. */
+        manualChunks(id: string): string | undefined {
+          if (id.includes('/node_modules/recharts/') || id.includes('/node_modules/d3-sankey/')) {
+            return 'charts';
+          }
+          if (id.includes('/node_modules/@tanstack/react-query/')) {
+            return 'query';
+          }
+          if (
+            id.includes('/node_modules/react/') ||
+            id.includes('/node_modules/react-dom/') ||
+            id.includes('/node_modules/react-router-dom/')
+          ) {
+            return 'vendor';
+          }
+          return undefined;
         },
       },
     },

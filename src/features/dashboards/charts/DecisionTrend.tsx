@@ -61,7 +61,7 @@ export function DecisionTrend({ data, height = 240 }: Props) {
               borderRadius: 8,
               fontSize: 12,
             }}
-            labelFormatter={(label: number) => new Date(label).toLocaleDateString()}
+            labelFormatter={(label) => new Date(Number(label)).toLocaleDateString()}
           />
           <Line
             type="monotone"

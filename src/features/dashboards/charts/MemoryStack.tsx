@@ -58,7 +58,7 @@ export function MemoryStack({ data, height = 240, legendLabels = DEFAULT_LEGEND 
               borderRadius: 8,
               fontSize: 12,
             }}
-            labelFormatter={(label: number) => new Date(label).toLocaleDateString()}
+            labelFormatter={(label) => new Date(Number(label)).toLocaleDateString()}
           />
           <Legend wrapperStyle={{ fontSize: 12 }} />
           <Bar

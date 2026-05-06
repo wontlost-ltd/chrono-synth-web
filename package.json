@@ -31,7 +31,7 @@
     "react-dom": "^19.1.0",
     "react-i18next": "^17.0.6",
     "react-router-dom": "^7.5.0",
-    "recharts": "^2.15.3",
+    "recharts": "^3.8.1",
     "web-vitals": "^5.1.0"
   },
   "overrides": {
@@ -50,12 +50,12 @@
     "@types/d3-sankey": "^0.12.4",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^4.4.1",
+    "@vitejs/plugin-react": "^6.0.1",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4.1.4",
     "typescript": "^6.0.3",
-    "vite": "^6.3.2",
+    "vite": "^8.0.10",
     "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.0.18"
   }

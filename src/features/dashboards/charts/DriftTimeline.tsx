@@ -88,10 +88,12 @@ export function DriftTimeline({ data, height = 220 }: Props) {
               fontSize: 12,
             }}
             labelFormatter={() => ''}
-            formatter={(value: number | string, key: string) => {
-              if (key === 'x') return [new Date(value as number).toLocaleDateString(), 'Date'];
-              if (key === 'y') return [(value as number).toFixed(3), 'Drift'];
-              return [value, key];
+            formatter={(value, key) => {
+              const v = value as number | string;
+              const k = String(key);
+              if (k === 'x') return [new Date(Number(v)).toLocaleDateString(), 'Date'];
+              if (k === 'y') return [(Number(v)).toFixed(3), 'Drift'];
+              return [String(v), k];
             }}
           />
           <Scatter data={points} isAnimationActive={animate}>
