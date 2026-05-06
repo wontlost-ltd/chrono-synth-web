@@ -36,6 +36,9 @@ async function seedSession(page: Page) {
   await page.goto('/login');
   await page.evaluate((value) => {
     localStorage.setItem('chrono-session', value);
+    /* Suppress the P3.7 first-run welcome modal so its illustration overlay
+     * doesn't pollute axe scans on every admin route. */
+    localStorage.setItem('chrono.user.welcome-seen', 'true');
   }, SESSION_STATE);
 }
 

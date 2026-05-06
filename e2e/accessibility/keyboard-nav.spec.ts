@@ -27,6 +27,9 @@ async function seedSession(page: Page) {
   await page.goto('/login');
   await page.evaluate((value) => {
     localStorage.setItem('chrono-session', value);
+    /* Suppress the P3.7 first-run welcome modal so it doesn't steal focus
+     * during keyboard nav assertions. */
+    localStorage.setItem('chrono.user.welcome-seen', 'true');
   }, SESSION_STATE);
 }
 

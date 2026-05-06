@@ -123,14 +123,16 @@
 .welcome-intro-skip {
   background: transparent;
   border: none;
-  color: var(--color-text-tertiary, #9ca3af);
+  /* WCAG AA 要求 4.5:1。--color-text-tertiary 在浅灰背景上仅 ~3:1，
+   * 因此 secondary 才是默认值；hover 切到 primary 提升可见反馈。 */
+  color: var(--color-text-secondary, #4b5563);
   font-size: 14px;
   cursor: pointer;
   padding: 8px 12px;
 }
 
 .welcome-intro-skip:hover {
-  color: var(--color-text-secondary, #6b7280);
+  color: var(--color-text-primary, #111827);
 }
 
 .welcome-intro-next {
