@@ -18,6 +18,60 @@ const STORAGE_KEY = 'chrono.user.welcome-seen';
 const SEGMENTS = ['hello', 'persona', 'growth'] as const;
 type SegmentKey = (typeof SEGMENTS)[number];
 
+/* Per-segment SVG. Three deliberate motifs that map to product story:
+ *  hello   — single node + halo (the user arrives)
+ *  persona — node cluster connected by lines (memories + values cohere)
+ *  growth  — concentric rings (capability surface expands with use)
+ *
+ * No gradients, no filters — flat strokes only. The earlier blob-gradient
+ * version was a generic AI-onboarding tell. */
+function WelcomeArt({ segment }: { segment: SegmentKey }) {
+  const stroke = 'var(--color-primary, #3b82f6)';
+  const accent = 'var(--color-chart-2, #10b981)';
+  if (segment === 'hello') {
+    return (
+      <svg viewBox="0 0 200 120" className="welcome-intro-svg" role="img">
+        <circle cx="100" cy="60" r="44" fill="none" stroke={stroke} strokeOpacity="0.25" strokeWidth="1.5" />
+        <circle cx="100" cy="60" r="28" fill="none" stroke={stroke} strokeOpacity="0.5" strokeWidth="1.5" />
+        <circle cx="100" cy="60" r="12" fill={stroke} />
+      </svg>
+    );
+  }
+  if (segment === 'persona') {
+    return (
+      <svg viewBox="0 0 200 120" className="welcome-intro-svg" role="img">
+        <line x1="100" y1="60" x2="56" y2="32"  stroke={stroke} strokeOpacity="0.4" strokeWidth="1.5" />
+        <line x1="100" y1="60" x2="148" y2="38" stroke={stroke} strokeOpacity="0.4" strokeWidth="1.5" />
+        <line x1="100" y1="60" x2="64" y2="92"  stroke={stroke} strokeOpacity="0.4" strokeWidth="1.5" />
+        <line x1="100" y1="60" x2="142" y2="90" stroke={stroke} strokeOpacity="0.4" strokeWidth="1.5" />
+        <circle cx="100" cy="60" r="14" fill={stroke} />
+        <circle cx="56"  cy="32" r="6"  fill={accent} />
+        <circle cx="148" cy="38" r="6"  fill={accent} />
+        <circle cx="64"  cy="92" r="6"  fill={accent} />
+        <circle cx="142" cy="90" r="6"  fill={accent} />
+      </svg>
+    );
+  }
+  /* growth */
+  return (
+    <svg viewBox="0 0 200 120" className="welcome-intro-svg" role="img">
+      {[18, 32, 46, 60].map((r, i) => (
+        <circle
+          key={r}
+          cx="100"
+          cy="60"
+          r={r}
+          fill="none"
+          stroke={stroke}
+          strokeOpacity={0.65 - i * 0.13}
+          strokeWidth="1.5"
+        />
+      ))}
+      <circle cx="100" cy="60" r="6" fill={stroke} />
+    </svg>
+  );
+}
+
 function readSeen(): boolean {
   if (typeof window === 'undefined') return true;
   try {
@@ -85,7 +139,7 @@ export function WelcomeIntro() {
         className="welcome-intro outline-none"
       >
         <div className="welcome-intro-illustration" aria-hidden="true">
-          <div className={`welcome-intro-art welcome-intro-art-${key}`} />
+          <WelcomeArt segment={key} />
         </div>
 
         <div className="welcome-intro-content">

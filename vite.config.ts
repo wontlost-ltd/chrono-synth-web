@@ -47,10 +47,12 @@ export default defineConfig({
         /* Vite 8 ships rolldown by default, which only accepts the function
          * form of manualChunks. Mirror the previous static map by checking
          * id against well-known package roots. */
+        /* Keep React + react-query in a stable vendor chunk; everything else
+         * (including recharts and d3-sankey) follows the dynamic-import graph
+         * so each lazy route only pays for the charts it renders. The earlier
+         * `charts: ['recharts', 'd3-sankey']` rule was hoisting the entire
+         * charts library into a preloaded chunk that loaded on every navigation. */
         manualChunks(id: string): string | undefined {
-          if (id.includes('/node_modules/recharts/') || id.includes('/node_modules/d3-sankey/')) {
-            return 'charts';
-          }
           if (id.includes('/node_modules/@tanstack/react-query/')) {
             return 'query';
           }

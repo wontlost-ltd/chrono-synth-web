@@ -61,7 +61,7 @@ export function GrowthTree() {
                 <div className="growth-tree-edge" aria-hidden="true">
                   <div
                     className="growth-tree-edge-fill"
-                    style={{ height: `${fill * 100}%` }}
+                    style={{ transform: `scaleY(${fill})` }}
                   />
                 </div>
               )}

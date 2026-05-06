@@ -17,57 +17,17 @@
 }
 
 .welcome-intro-illustration {
-  height: 200px;
-  position: relative;
-  overflow: hidden;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--color-surface-subtle, #f3f4f6);
 }
 
-.welcome-intro-art {
-  position: absolute;
-  inset: -20% -10%;
-  border-radius: 50%;
-  filter: blur(40px);
-  opacity: 0.85;
-  animation: welcome-art-drift 12s ease-in-out infinite alternate;
-}
-
-.welcome-intro-art-hello {
-  background: radial-gradient(
-    circle at 30% 40%,
-    var(--color-chart-1, #3b82f6) 0%,
-    var(--color-chart-3, #f59e0b) 60%,
-    transparent 100%
-  );
-}
-
-.welcome-intro-art-persona {
-  background: radial-gradient(
-    circle at 70% 50%,
-    var(--color-chart-2, #10b981) 0%,
-    var(--color-chart-1, #3b82f6) 70%,
-    transparent 100%
-  );
-}
-
-.welcome-intro-art-growth {
-  background: radial-gradient(
-    circle at 50% 60%,
-    var(--color-chart-3, #f59e0b) 0%,
-    var(--color-chart-4, #ef4444) 60%,
-    transparent 100%
-  );
-}
-
-@keyframes welcome-art-drift {
-  from { transform: translate(0, 0)   scale(1); }
-  to   { transform: translate(8%, 4%) scale(1.05); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .welcome-intro-art {
-    animation: none;
-  }
+.welcome-intro-svg {
+  width: 60%;
+  max-width: 280px;
+  height: auto;
 }
 
 .welcome-intro-content {
