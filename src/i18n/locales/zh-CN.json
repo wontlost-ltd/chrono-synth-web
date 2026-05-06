@@ -1082,6 +1082,50 @@
       "body": "继续日常使用即可解锁该功能。",
       "daysRemaining_one": "还剩 {{count}} 天即可解锁",
       "daysRemaining_other": "还剩 {{count}} 天即可解锁"
+    },
+    "page": {
+      "title": "你的成长",
+      "subtitle": "等级 {{level}} · 已使用 {{daysOfUse}} 天"
+    },
+    "tree": {
+      "label": "能力进阶",
+      "daysUntilNext_one": "还有 {{count}} 天进入下一个等级",
+      "daysUntilNext_other": "还有 {{count}} 天进入下一个等级",
+      "maxReached": "已达到最高等级。"
+    },
+    "welcome": {
+      "skip": "跳过",
+      "next": "继续",
+      "start": "开始使用",
+      "hello": {
+        "title": "欢迎来到 ChronoSynth",
+        "body": "ChronoSynth 是你个人认知的工作台。我们帮你构建一个数字 persona，反映你的价值观、学习你的决策，并始终与你想要的方向保持一致。"
+      },
+      "persona": {
+        "title": "Persona 是核心单元",
+        "body": "每段对话、每次模拟、每条记忆都归属于某个 persona。先从一个开始 —— 之后可以根据需要分叉或特化。"
+      },
+      "growth": {
+        "title": "能力随使用解锁",
+        "body": "我们不会一上来就把所有高级界面塞给你。随着你使用 ChronoSynth 的时间增长，新工具、模拟和管理功能会在它们真正派上用场时逐步出现。"
+      }
+    },
+    "celebration": {
+      "eyebrow": "升级",
+      "title": "你已达到 {{level}}",
+      "unlocksLabel": "新解锁内容",
+      "dismiss": "太棒了"
+    },
+    "unlocks": {
+      "personas": "Persona 管理",
+      "conversation": "对话",
+      "simulations": "反事实模拟",
+      "memory_graph": "记忆图谱",
+      "agent_tools": "Agent 工具调用",
+      "oauth_authorizations": "外部 OAuth 授权",
+      "multi_persona": "多 persona 编排",
+      "governance": "治理控制",
+      "admin_console": "管理控制台"
     }
   },
   "suggestions": {

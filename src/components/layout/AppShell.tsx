@@ -10,6 +10,9 @@ import { useHotkey } from '../../lib/hotkeys';
 import { useFeatureFlag } from '../../lib/featureFlags';
 import { PageTransition } from '../motion/PageTransition';
 import { ThemeSwitcher } from '../ThemeSwitcher';
+import { LevelUpCelebration } from '../../features/growth/LevelUpCelebration';
+import { WelcomeIntro } from '../../features/growth/WelcomeIntro';
+import { useAuth } from '../../hooks/useAuth';
 
 interface AppShellProps {
   children: ReactNode;
@@ -17,6 +20,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
@@ -128,6 +132,13 @@ export function AppShell({ children }: AppShellProps) {
       {/* P2.6 global command palette (Cmd/Ctrl+K). Self-renders only when
         * open; safe to mount unconditionally. */}
       {cmdkEnabled && <CommandPalette commands={DEFAULT_COMMANDS} />}
+
+      {/* P3.7 narrative onboarding: 3-segment intro on first auth visit, plus
+        * level-up celebrations whenever the user crosses a capability boundary.
+        * Both gate themselves on auth so unauthenticated /sso/callback etc.
+        * don't trigger them. */}
+      {isAuthenticated && <WelcomeIntro />}
+      {isAuthenticated && <LevelUpCelebration />}
     </div>
   );
 }

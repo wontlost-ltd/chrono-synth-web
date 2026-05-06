@@ -45,6 +45,7 @@ const Forbidden = lazy(() => import('./pages/Forbidden').then(m => ({ default: m
 const PersonaHealthPage = lazy(() =>
   import('./features/dashboards/PersonaHealth').then((m) => ({ default: m.PersonaHealth })),
 );
+const GrowthPage = lazy(() => import('./pages/GrowthPage'));
 
 function LazyPage({ children }: { children: React.ReactNode }) {
   return (
@@ -103,6 +104,7 @@ export const routes: RouteObject[] = [
   { path: '/personas', element: <Protected><PersonaListPage /></Protected> },
   { path: '/persona-core', element: <Protected><PersonaCorePage /></Protected> },
   { path: '/personas/:id/health', element: <Protected><PersonaHealthPage /></Protected> },
+  { path: '/growth', element: <Protected><GrowthPage /></Protected> },
   { path: '/marketplace', element: <Protected><MarketplacePage /></Protected> },
   /* P3.9 — branded error pages instead of silent redirects */
   { path: '/403', element: <LazyPage><Forbidden /></LazyPage> },

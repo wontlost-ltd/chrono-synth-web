@@ -1082,6 +1082,50 @@
       "body": "Keep using the app to unlock this feature.",
       "daysRemaining_one": "{{count}} day until unlock",
       "daysRemaining_other": "{{count}} days until unlock"
+    },
+    "page": {
+      "title": "Your growth",
+      "subtitle": "Level {{level}} · {{daysOfUse}} days of use"
+    },
+    "tree": {
+      "label": "Capability ladder",
+      "daysUntilNext_one": "{{count}} day until the next level",
+      "daysUntilNext_other": "{{count}} days until the next level",
+      "maxReached": "You've reached the highest level."
+    },
+    "welcome": {
+      "skip": "Skip",
+      "next": "Next",
+      "start": "Get started",
+      "hello": {
+        "title": "Welcome to ChronoSynth",
+        "body": "ChronoSynth is your personal cognition workspace. We help you grow a digital persona that reflects your values, learns from your decisions, and stays aligned with how you want to operate."
+      },
+      "persona": {
+        "title": "Personas are your unit of value",
+        "body": "Every conversation, every simulation, every memory belongs to a persona. Start with one — you can fork or specialize later as your needs evolve."
+      },
+      "growth": {
+        "title": "Capabilities unlock with use",
+        "body": "We don't dump every advanced surface on you on day one. As you spend time with ChronoSynth, new tools, simulations, and admin features appear when they're useful."
+      }
+    },
+    "celebration": {
+      "eyebrow": "Level up",
+      "title": "You've reached {{level}}",
+      "unlocksLabel": "Newly unlocked",
+      "dismiss": "Awesome"
+    },
+    "unlocks": {
+      "personas": "Persona management",
+      "conversation": "Conversations",
+      "simulations": "Counterfactual simulations",
+      "memory_graph": "Memory graph",
+      "agent_tools": "Agent tool invocations",
+      "oauth_authorizations": "External OAuth authorizations",
+      "multi_persona": "Multi-persona orchestration",
+      "governance": "Governance controls",
+      "admin_console": "Admin console"
     }
   },
   "suggestions": {
