@@ -80,7 +80,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
-          cache: 'npm'
+          cache: ${{ vars.CI_RUNNER_LABELS && '' || 'npm' }}
       - run: npm ci --ignore-scripts
       - name: Run allowlist check
         run: |
@@ -99,7 +99,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '24'
-          cache: 'npm'
+          cache: ${{ vars.CI_RUNNER_LABELS && '' || 'npm' }}
       - run: npm ci --ignore-scripts
       - uses: anchore/sbom-action@v0
         with:
