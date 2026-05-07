@@ -7,6 +7,10 @@ on:
     branches: [main]
 
 jobs:
+  # E2E stays on ubuntu-latest. The full Playwright suite is heavier
+  # (~5-10 min) and has the worst impact on the self-hosted runner's
+  # concurrency=1 queue when pushes are frequent. GitHub-hosted parallel
+  # capacity wins for this job. a11y is lighter and gets routed below.
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -30,7 +34,7 @@ jobs:
           if-no-files-found: ignore
 
   a11y:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.CI_RUNNER_LABELS && fromJSON(vars.CI_RUNNER_LABELS) || 'ubuntu-latest' }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
@@ -38,8 +42,12 @@ jobs:
         with:
           node-version: '24'
       - run: npm ci
-      - name: Install Playwright browsers
+      - name: Install Playwright browsers (Linux)
+        if: runner.os == 'Linux'
         run: npx playwright install --with-deps chromium
+      - name: Install Playwright browsers (macOS)
+        if: runner.os == 'macOS'
+        run: npx playwright install chromium
       - name: Run axe + keyboard-nav accessibility audit
         # 包含 legacy 两个 spec + P1.3 扩展 suite（e2e/accessibility/）
         run: |
