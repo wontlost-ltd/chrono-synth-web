@@ -2,6 +2,12 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
+  // e2e/podman/ targets a podman-compose stack at 127.0.0.1:8080 with
+  // a real backend behind nginx. The default config here drives the
+  // dev vite server (npm run dev) without a backend, so the podman
+  // spec's /healthz request 404s. Run those via playwright.podman.config.ts
+  // when the podman stack is up.
+  testIgnore: ['podman/**'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
