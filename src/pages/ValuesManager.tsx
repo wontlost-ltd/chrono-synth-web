@@ -149,7 +149,7 @@ function ValueRow({ v, weightLabel }: { v: { id: string; label: string; weight: 
       </div>
       <div className="flex items-center gap-3">
         <div className="h-2 w-24 overflow-hidden rounded-full bg-border" role="progressbar" aria-valuenow={v.weight * 100} aria-valuemin={0} aria-valuemax={100} aria-label={`${v.label} ${weightLabel}`}>
-          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${v.weight * 100}%` }} />
+          <div className="h-full w-full origin-left rounded-full bg-primary transition-transform duration-200 ease-out motion-reduce:transition-none" style={{ transform: `scaleX(${v.weight})` }} />
         </div>
         <span className="w-10 text-right text-sm font-medium">{v.weight.toFixed(2)}</span>
       </div>

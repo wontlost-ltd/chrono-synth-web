@@ -24,7 +24,7 @@ export function Register() {
   const mismatch = confirm.length > 0 && password !== confirm;
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-surface p-4">
+    <main className="flex min-h-dvh items-center justify-center bg-surface p-4">
       <div className="w-full max-w-sm rounded-xl border border-border bg-surface-elevated p-8 shadow-sm">
         <h1 className="mb-6 text-center text-2xl font-bold text-primary">{t('register.title')}</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -95,6 +95,6 @@ export function Register() {
           </Link>
         </p>
       </div>
-    </div>
+    </main>
   );
 }

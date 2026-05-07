@@ -218,15 +218,17 @@ function UsageMeter({ label, used, limit }: { label: string; used: number; limit
         {used.toLocaleString()} / {isUnlimited ? t('billing.unlimited') : limit.toLocaleString()}
       </p>
       {hasLimit && (
-        <div className="mt-1 h-2 overflow-hidden rounded-full bg-border">
+        <div
+          className="mt-1 h-2 overflow-hidden rounded-full bg-border"
+          role="progressbar"
+          aria-label={label}
+          aria-valuenow={Math.min(used, limit)}
+          aria-valuemin={0}
+          aria-valuemax={limit}
+        >
           <div
-            className={`h-full rounded-full transition-all ${pct > 90 ? 'bg-warning' : 'bg-primary'}`}
-            style={{ width: `${Math.min(pct, 100)}%` }}
-            role="progressbar"
-            aria-label={label}
-            aria-valuenow={Math.min(used, limit)}
-            aria-valuemin={0}
-            aria-valuemax={limit}
+            className={`h-full w-full origin-left rounded-full transition-transform duration-200 ease-out motion-reduce:transition-none ${pct > 90 ? 'bg-warning' : 'bg-primary'}`}
+            style={{ transform: `scaleX(${Math.min(pct, 100) / 100})` }}
           />
         </div>
       )}

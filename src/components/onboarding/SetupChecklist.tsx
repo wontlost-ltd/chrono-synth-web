@@ -160,7 +160,7 @@ export function SetupChecklist({ steps, storageKey = DEFAULT_STORAGE_KEY }: Setu
           </header>
 
           <div
-            className="h-1 bg-border"
+            className="h-1 bg-border overflow-hidden"
             role="progressbar"
             aria-valuenow={progress}
             aria-valuemin={0}
@@ -168,8 +168,8 @@ export function SetupChecklist({ steps, storageKey = DEFAULT_STORAGE_KEY }: Setu
             aria-label={t('setupChecklist.progressLabel', { progress })}
           >
             <div
-              className="h-full bg-primary transition-all"
-              style={{ width: `${progress}%` }}
+              className="h-full w-full origin-left bg-primary transition-transform duration-200 ease-out motion-reduce:transition-none"
+              style={{ transform: `scaleX(${progress / 100})` }}
             />
           </div>
 

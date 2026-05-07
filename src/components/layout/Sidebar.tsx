@@ -100,7 +100,7 @@ export function Sidebar({ collapsed, onToggle, onClose }: SidebarProps) {
   const isAdmin = user?.role === 'admin';
 
   return (
-    <aside className={`flex h-full flex-col border-r border-border bg-surface-elevated transition-all ${collapsed ? 'w-16' : 'w-56'}`}>
+    <aside className={`flex h-full flex-col border-r border-border bg-surface-elevated transition-[width] duration-200 ease-out motion-reduce:transition-none ${collapsed ? 'w-16' : 'w-56'}`}>
       <div className="flex h-14 items-center justify-between border-b border-border px-4">
         {!collapsed && <span className="text-lg font-bold text-primary">ChronoSynth</span>}
         <div className="flex gap-1">
