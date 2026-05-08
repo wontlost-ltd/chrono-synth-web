@@ -1,6 +1,17 @@
 # ChronoSynth Web
 
-ChronoSynth 的前端控制台仓库，负责提供认证入口、企业控制台、Persona Core / Marketplace 视图，以及对后端 `/api/`、`/worker/`、`/prometheus/`、`/grafana/` 能力的统一 Web 入口。
+The web console for **ChronoSynth — agent governance for enterprise AI**.
+
+This is what your AI lead, compliance officer, and CISO log into when they
+want to answer: *which tools did our agents call, on whose authority, and
+did anything drift from the policy?* The console renders the audit log,
+tool-permission matrix, and drift reports backed by `chrono-synth-os`.
+
+> Product narrative: see `chrono-synth-os/.claude/gtm/01-pr-faq.md`.
+
+The same console also surfaces operator views (persona core, knowledge
+sources, marketplace, billing) for organizations using ChronoSynth's full
+platform — those features ride on the same governance substrate.
 
 ## Production Baseline
 
