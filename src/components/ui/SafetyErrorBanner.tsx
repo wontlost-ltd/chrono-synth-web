@@ -13,11 +13,15 @@ interface SafetyErrorBannerProps {
   onDismiss?: () => void;
 }
 
+/* 此函数对后端 *返回内容* 做关键字匹配以做错误归类。
+ * 后端错误消息可能是中文或英文，匹配字符串本身不是 UI 文案 —
+ * 不需要走 t()，反而 i18n 会把它"翻译"成无法匹配的版本。
+ * 当后端切到结构化 error code 后这个函数会被替换为 code-based 分类。 */
 function classifyError(message: string): SafetyErrorKind {
   const lower = message.toLowerCase();
-  if (lower.includes('quota') || lower.includes('配额')) return 'quota';
-  if (lower.includes('rate') || lower.includes('限流') || lower.includes('频繁')) return 'rate_limit';
-  if (lower.includes('policy') || lower.includes('安全策略') || lower.includes('注入')) return 'policy';
+  if (lower.includes('quota') || lower.includes('配额')) return 'quota'; // i18n-allow-cjk: backend keyword match
+  if (lower.includes('rate') || lower.includes('限流') || lower.includes('频繁')) return 'rate_limit'; // i18n-allow-cjk: backend keyword match
+  if (lower.includes('policy') || lower.includes('安全策略') || lower.includes('注入')) return 'policy'; // i18n-allow-cjk: backend keyword match
   return 'generic';
 }
 

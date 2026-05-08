@@ -1,11 +1,11 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Resolution } from '../../types';
 
-const OPTIONS: Array<{ value: Resolution; label: string }> = [
-  { value: 'year', label: '年' },
-  { value: '2y', label: '2年' },
-  { value: '5y', label: '5年' },
+const OPTION_KEYS: ReadonlyArray<{ value: Resolution; i18nKey: string }> = [
+  { value: 'year', i18nKey: 'resolution.year' },
+  { value: '2y', i18nKey: 'resolution.twoYears' },
+  { value: '5y', i18nKey: 'resolution.fiveYears' },
 ];
 
 interface ResolutionToggleProps {
@@ -16,22 +16,26 @@ interface ResolutionToggleProps {
 export function ResolutionToggle({ value, onChange }: ResolutionToggleProps) {
   const { t } = useTranslation();
   const groupRef = useRef<HTMLDivElement>(null);
+  const options = useMemo(
+    () => OPTION_KEYS.map((o) => ({ value: o.value, label: t(o.i18nKey) })),
+    [t],
+  );
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    const idx = OPTIONS.findIndex(o => o.value === value);
+    const idx = OPTION_KEYS.findIndex(o => o.value === value);
     let next = idx;
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { next = (idx + 1) % OPTIONS.length; }
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { next = (idx - 1 + OPTIONS.length) % OPTIONS.length; }
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { next = (idx + 1) % OPTION_KEYS.length; }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { next = (idx - 1 + OPTION_KEYS.length) % OPTION_KEYS.length; }
     else return;
     e.preventDefault();
-    onChange(OPTIONS[next]!.value);
+    onChange(OPTION_KEYS[next]!.value);
     const buttons = groupRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]');
     buttons?.[next]?.focus();
   }, [value, onChange]);
 
   return (
     <div ref={groupRef} className="inline-flex rounded-lg border border-border bg-surface p-0.5" role="radiogroup" aria-label={t('aria.timeResolution')} onKeyDown={handleKeyDown}>
-      {OPTIONS.map(opt => (
+      {options.map(opt => (
         <button
           key={opt.value}
           type="button"

@@ -16,11 +16,11 @@ const KIND_STYLES: Record<string, { bg: string; icon: string }> = {
   cross_down: { bg: 'bg-primary/10 border-primary', icon: '⬇' },
 };
 
-const KIND_LABELS: Record<string, string> = {
-  peak: '峰值',
-  trough: '谷值',
-  cross_up: '上穿',
-  cross_down: '下穿',
+const KIND_I18N_KEYS: Record<string, string> = {
+  peak: 'milestone.peak',
+  trough: 'milestone.trough',
+  cross_up: 'milestone.cross_up',
+  cross_down: 'milestone.cross_down',
 };
 
 const VIRTUAL_THRESHOLD = 50;
@@ -82,7 +82,8 @@ function VirtualTimeline({ sorted, interactive, onSelect }: { sorted: MilestoneE
 function TimelineItem({ event, interactive, onSelect }: { event: MilestoneEvent; interactive: boolean; onSelect?: (e: MilestoneEvent) => void }) {
   const { t } = useTranslation();
   const style = KIND_STYLES[event.kind] ?? KIND_STYLES['peak']!;
-  const kindLabel = KIND_LABELS[event.kind] ?? event.kind;
+  const kindI18nKey = KIND_I18N_KEYS[event.kind];
+  const kindLabel = kindI18nKey ? t(kindI18nKey) : event.kind;
   const label = `Y${event.year} ${kindLabel} ${event.metric} ${formatMetricValue(event.value, '')}`;
   const content = (
     <>

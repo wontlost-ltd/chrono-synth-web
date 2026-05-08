@@ -15,11 +15,15 @@ interface ValueDraft {
   weight: number;
 }
 
-/** 预设模板：覆盖常见用户画像 */
+/** 预设模板：覆盖常见用户画像
+ * 注意：values[].label 会被原样写入数据库 core_values.label —— 这是用户*数据*而非
+ * UI 文案。模板提供 zh-CN 默认值（与 zh-CN 默认产品语言对齐）；如果未来要让英文用户
+ * 看到英文默认价值观，应当在选择模板时根据 i18n.language 切换 values 数组本身，
+ * 而不是把这些字符串送进 t()。 */
 const TEMPLATES = [
-  { id: 'career', labelKey: 'onboarding.templateCareer', descKey: 'onboarding.templateCareerDesc', values: [{ label: '事业成就', weight: 0.9 }, { label: '工作生活平衡', weight: 0.7 }, { label: '财务安全', weight: 0.8 }] },
-  { id: 'family', labelKey: 'onboarding.templateFamily', descKey: 'onboarding.templateFamilyDesc', values: [{ label: '家庭关系', weight: 0.9 }, { label: '个人成长', weight: 0.6 }, { label: '健康', weight: 0.8 }] },
-  { id: 'explorer', labelKey: 'onboarding.templateExplorer', descKey: 'onboarding.templateExplorerDesc', values: [{ label: '自由', weight: 0.9 }, { label: '创造力', weight: 0.8 }, { label: '新体验', weight: 0.7 }] },
+  { id: 'career', labelKey: 'onboarding.templateCareer', descKey: 'onboarding.templateCareerDesc', values: [{ label: '事业成就', weight: 0.9 }, { label: '工作生活平衡', weight: 0.7 }, { label: '财务安全', weight: 0.8 }] }, // i18n-allow-cjk: seed data written to DB
+  { id: 'family', labelKey: 'onboarding.templateFamily', descKey: 'onboarding.templateFamilyDesc', values: [{ label: '家庭关系', weight: 0.9 }, { label: '个人成长', weight: 0.6 }, { label: '健康', weight: 0.8 }] }, // i18n-allow-cjk: seed data written to DB
+  { id: 'explorer', labelKey: 'onboarding.templateExplorer', descKey: 'onboarding.templateExplorerDesc', values: [{ label: '自由', weight: 0.9 }, { label: '创造力', weight: 0.8 }, { label: '新体验', weight: 0.7 }] }, // i18n-allow-cjk: seed data written to DB
   { id: 'custom', labelKey: 'onboarding.templateCustom', descKey: 'onboarding.templateCustomDesc', values: [] },
 ] as const;
 

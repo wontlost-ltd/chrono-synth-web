@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
+// i18n-allow-cjk: 语言切换器自显语言名必须保持原文，使任何语言下用户都能识别
 const LANGUAGES = [
-  { code: 'zh-CN', label: '中文' },
+  { code: 'zh-CN', label: '中文' }, // i18n-allow-cjk: language self-name
   { code: 'en-US', label: 'English' },
 ] as const;
 

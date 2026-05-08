@@ -44,7 +44,7 @@ export const TimeSeriesChart = React.memo(function TimeSeriesChart({ series, met
       <ResponsiveContainer width="100%" height={height}>
         <LineChart data={data} margin={{ top: 8, right: 16, bottom: 8, left: 16 }} role="img" aria-label={t('aria.timeSeriesChart', { metric: metricLabel })}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--color-chart-grid)" />
-          <XAxis dataKey="year" label={{ value: '年', position: 'insideBottomRight', offset: -4 }} />
+          <XAxis dataKey="year" label={{ value: t('chart.yearAxis'), position: 'insideBottomRight', offset: -4 }} />
           <YAxis label={{ value: metricLabel, angle: -90, position: 'insideLeft' }} />
           <Tooltip />
           <Legend />

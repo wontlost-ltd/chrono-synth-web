@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { RuntimeSyncStateV2 } from '@chrono/contracts';
 
 interface SyncStatusIndicatorProps {
@@ -19,25 +20,13 @@ const STATE_COLORS: Record<RuntimeSyncStateV2, string> = {
   recovery_required: '#9f2621',
 };
 
-const STATE_LABELS: Record<RuntimeSyncStateV2, string> = {
-  initial_sync:      '初始同步中',
-  online_synced:     '已同步',
-  online_dirty:      '有待上传',
-  syncing:           '同步中',
-  offline_queueing:  '离线（排队中）',
-  offline_readonly:  '离线（只读）',
-  conflict_inbox:    '有冲突',
-  degraded_remote:   '远端异常',
-  reauth_required:   '需重新认证',
-  recovery_required: '需手动恢复',
-};
-
 export function SyncStatusIndicator({
   state,
   pendingCount = 0,
   className,
 }: SyncStatusIndicatorProps) {
-  const label = STATE_LABELS[state];
+  const { t } = useTranslation();
+  const label = t(`syncStatus.${state}`);
   const ariaLabel = pendingCount > 0 ? `${label} (${pendingCount})` : label;
 
   return (
