@@ -174,23 +174,26 @@ jobs:
       # before any operator override (apiBaseUrl="" / sentryDsn="" /
       # environment="production").
       #
-      # `--add-host backend:127.0.0.1` is required because nginx.conf
-      # references `proxy_pass http://backend:3000` for /api/ /ws /healthz
-      # routes. In a real deployment the `backend` hostname resolves via
-      # docker-compose / k8s DNS to the os service. Here there's no os
-      # container, so without this flag nginx fails to start with
-      # "host not found in upstream 'backend'". Pointing the name at
-      # loopback satisfies the startup check; ZAP's passive scan probes
-      # static assets (`/`, `/assets/*`, `/runtime-config.js`,
-      # `/frontend-healthz`) and won't traverse the backend-proxied paths
-      # in baseline mode, so the dummy resolution is invisible to the
-      # scan results.
+      # `--add-host` overrides are required because nginx.conf references
+      # four upstream hostnames (backend, observability-worker, prometheus,
+      # grafana) for /api/ /ws /healthz /worker/ /prometheus/ /grafana/
+      # routes. In real deployments these resolve via docker-compose / k8s
+      # DNS. The DAST job runs nginx alone, so without these overrides
+      # nginx fails to start with "host not found in upstream '<name>'".
+      # Pointing the names at loopback satisfies the startup DNS check;
+      # ZAP's passive scan probes static assets (`/`, `/assets/*`,
+      # `/runtime-config.js`, `/frontend-healthz`) and won't traverse the
+      # proxied paths in baseline mode, so the dummy resolution is
+      # invisible to the scan output.
       - name: Start chrono-synth-web (nginx)
         run: |
           docker run -d \
             --name chrono-web-dast \
             --network host \
             --add-host=backend:127.0.0.1 \
+            --add-host=observability-worker:127.0.0.1 \
+            --add-host=prometheus:127.0.0.1 \
+            --add-host=grafana:127.0.0.1 \
             chrono-synth-web:dast-${{ github.sha }}
 
       - name: Wait for /frontend-healthz
