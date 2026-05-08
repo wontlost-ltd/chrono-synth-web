@@ -173,11 +173,24 @@ jobs:
       # to see the same `runtime-config.js` shape that prod/staging serves
       # before any operator override (apiBaseUrl="" / sentryDsn="" /
       # environment="production").
+      #
+      # `--add-host backend:127.0.0.1` is required because nginx.conf
+      # references `proxy_pass http://backend:3000` for /api/ /ws /healthz
+      # routes. In a real deployment the `backend` hostname resolves via
+      # docker-compose / k8s DNS to the os service. Here there's no os
+      # container, so without this flag nginx fails to start with
+      # "host not found in upstream 'backend'". Pointing the name at
+      # loopback satisfies the startup check; ZAP's passive scan probes
+      # static assets (`/`, `/assets/*`, `/runtime-config.js`,
+      # `/frontend-healthz`) and won't traverse the backend-proxied paths
+      # in baseline mode, so the dummy resolution is invisible to the
+      # scan results.
       - name: Start chrono-synth-web (nginx)
         run: |
           docker run -d \
             --name chrono-web-dast \
             --network host \
+            --add-host=backend:127.0.0.1 \
             chrono-synth-web:dast-${{ github.sha }}
 
       - name: Wait for /frontend-healthz
