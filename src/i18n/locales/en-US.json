@@ -1144,6 +1144,62 @@
       "title": "Grant your first tool permission"
     }
   },
+  "metric": {
+    "wealth": "Wealth",
+    "healthIndex": "Health Index",
+    "overallScore": "Overall Score",
+    "emotionalValence": "Mood",
+    "emotionalStress": "Stress",
+    "emotionalFulfillment": "Fulfillment",
+    "emotionalRegret": "Regret",
+    "spouseSecurity": "Spouse Security",
+    "childCost": "Child Cost",
+    "familyPressure": "Family Pressure"
+  },
+  "resolution": {
+    "year": "Year",
+    "twoYears": "2 Years",
+    "fiveYears": "5 Years"
+  },
+  "syncStatus": {
+    "initial_sync": "Initial sync",
+    "online_synced": "Synced",
+    "online_dirty": "Pending upload",
+    "syncing": "Syncing",
+    "offline_queueing": "Offline (queued)",
+    "offline_readonly": "Offline (read-only)",
+    "conflict_inbox": "Conflicts",
+    "degraded_remote": "Remote degraded",
+    "reauth_required": "Re-auth required",
+    "recovery_required": "Manual recovery required"
+  },
+  "chart": {
+    "yearAxis": "Year"
+  },
+  "milestone": {
+    "peak": "Peak",
+    "trough": "Trough",
+    "cross_up": "Crossed up",
+    "cross_down": "Crossed down"
+  },
+  "conflicts": {
+    "title": "Conflict Inbox",
+    "subtitle": "Resolve cross-runtime sync conflicts",
+    "refresh": "Refresh",
+    "empty": "No pending conflicts",
+    "resolving": "Resolving…",
+    "actions": {
+      "keep_local": "Keep local",
+      "keep_server": "Keep server",
+      "duplicate": "Create duplicate",
+      "merge_manually": "Merge manually"
+    }
+  },
+  "errors": {
+    "missingSimulationId": "Missing simulationId parameter",
+    "wsReconnectFailed": "WebSocket reconnect failed after {{max}} attempts",
+    "wsConnectionError": "WebSocket connection error"
+  },
   "theme": {
     "label": "Theme",
     "choices": {

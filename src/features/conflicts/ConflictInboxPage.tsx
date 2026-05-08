@@ -1,14 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import type { ConflictInboxItemV1 } from '@chrono/contracts';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useConflictInbox, type ConflictAction } from './useConflictInbox';
-
-const ACTION_LABELS: Record<ConflictAction, string> = {
-  keep_local: '保留本地',
-  keep_server: '保留服务器',
-  duplicate: '创建副本',
-  merge_manually: '手动合并',
-};
 
 const SEVERITY_CLASS: Record<ConflictInboxItemV1['severity'], string> = {
   blocking: 'bg-error/10 text-error',
@@ -30,6 +24,7 @@ function ConflictRow({
   resolving: boolean;
   onResolve: (action: ConflictAction) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <li className="rounded-lg border border-border bg-surface-elevated p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -56,7 +51,7 @@ function ConflictRow({
               onClick={() => onResolve(action)}
               className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {resolving ? '处理中' : ACTION_LABELS[action]}
+              {resolving ? t('conflicts.resolving') : t(`conflicts.actions.${action}`)}
             </button>
           ))}
         </div>
@@ -77,11 +72,12 @@ function ConflictRow({
 }
 
 export function ConflictInboxPage() {
+  const { t } = useTranslation();
   const { conflicts, loading, resolving, resolve, refresh } = useConflictInbox();
 
   return (
     <>
-      <PageHeader title="冲突收件箱" subtitle="处理跨运行时同步冲突" />
+      <PageHeader title={t('conflicts.title')} subtitle={t('conflicts.subtitle')} />
 
       <div className="mb-4 flex justify-end">
         <button
@@ -89,7 +85,7 @@ export function ConflictInboxPage() {
           onClick={refresh}
           className="rounded-md border border-border px-3 py-1.5 text-sm text-text-secondary hover:bg-surface"
         >
-          刷新
+          {t('conflicts.refresh')}
         </button>
       </div>
 
@@ -97,7 +93,7 @@ export function ConflictInboxPage() {
         <Skeleton variant="table" />
       ) : conflicts.length === 0 ? (
         <div className="rounded-lg border border-border bg-surface-elevated p-6 text-sm text-text-secondary">
-          没有待处理的冲突
+          {t('conflicts.empty')}
         </div>
       ) : (
         <ul className="space-y-3">

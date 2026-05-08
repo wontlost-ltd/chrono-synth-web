@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export type WsStatus = 'connecting' | 'connected' | 'disconnected';
 
@@ -27,6 +28,7 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
     maxReconnectAttempts = 10,
   } = options;
 
+  const { t } = useTranslation();
   const wsRef = useRef<WebSocket | null>(null);
   const attemptsRef = useRef(0);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -75,15 +77,15 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
         attemptsRef.current++;
         reconnectTimerRef.current = setTimeout(connect, delay);
       } else {
-        setWsError(`WebSocket 重连失败，已达最大尝试次数 (${maxReconnectAttempts})`);
+        setWsError(t('errors.wsReconnectFailed', { max: maxReconnectAttempts }));
       }
     };
 
     ws.onerror = () => {
-      setWsError('WebSocket 连接错误');
+      setWsError(t('errors.wsConnectionError'));
       ws.close();
     };
-  }, [url, reconnectInterval, maxReconnectInterval, maxReconnectAttempts]);
+  }, [url, reconnectInterval, maxReconnectInterval, maxReconnectAttempts, t]);
 
   const disconnect = useCallback(() => {
     clearTimeout(reconnectTimerRef.current);

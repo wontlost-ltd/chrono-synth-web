@@ -1,17 +1,17 @@
 import { useTranslation } from 'react-i18next';
 import type { MetricKey, MetricMeta } from '../../types';
 
-const DEFAULT_OPTIONS: Array<{ key: MetricKey; label: string }> = [
-  { key: 'wealth', label: '财富' },
-  { key: 'healthIndex', label: '健康指数' },
-  { key: 'overallScore', label: '综合评分' },
-  { key: 'emotionalState.valence', label: '情绪效价' },
-  { key: 'emotionalState.stress', label: '压力' },
-  { key: 'emotionalState.fulfillment', label: '成就感' },
-  { key: 'emotionalState.regret', label: '后悔' },
-  { key: 'familyState.spouseSecurity', label: '配偶安全感' },
-  { key: 'familyState.childCost', label: '育儿成本' },
-  { key: 'familyState.familyPressure', label: '家庭压力' },
+const DEFAULT_METRIC_KEYS: ReadonlyArray<{ key: MetricKey; i18nKey: string }> = [
+  { key: 'wealth', i18nKey: 'metric.wealth' },
+  { key: 'healthIndex', i18nKey: 'metric.healthIndex' },
+  { key: 'overallScore', i18nKey: 'metric.overallScore' },
+  { key: 'emotionalState.valence', i18nKey: 'metric.emotionalValence' },
+  { key: 'emotionalState.stress', i18nKey: 'metric.emotionalStress' },
+  { key: 'emotionalState.fulfillment', i18nKey: 'metric.emotionalFulfillment' },
+  { key: 'emotionalState.regret', i18nKey: 'metric.emotionalRegret' },
+  { key: 'familyState.spouseSecurity', i18nKey: 'metric.spouseSecurity' },
+  { key: 'familyState.childCost', i18nKey: 'metric.childCost' },
+  { key: 'familyState.familyPressure', i18nKey: 'metric.familyPressure' },
 ];
 
 interface MetricSelectorProps {
@@ -22,7 +22,9 @@ interface MetricSelectorProps {
 
 export function MetricSelector({ selected, onChange, metricMeta }: MetricSelectorProps) {
   const { t } = useTranslation();
-  const options = metricMeta?.map(m => ({ key: m.key, label: m.label })) ?? DEFAULT_OPTIONS;
+  const options: Array<{ key: MetricKey; label: string }> =
+    metricMeta?.map((m) => ({ key: m.key, label: m.label })) ??
+    DEFAULT_METRIC_KEYS.map((m) => ({ key: m.key, label: t(m.i18nKey) }));
 
   function toggle(key: MetricKey) {
     if (selected.includes(key)) {

@@ -1144,6 +1144,62 @@
       "title": "授权第一个工具"
     }
   },
+  "metric": {
+    "wealth": "财富",
+    "healthIndex": "健康指数",
+    "overallScore": "综合评分",
+    "emotionalValence": "情绪效价",
+    "emotionalStress": "压力",
+    "emotionalFulfillment": "成就感",
+    "emotionalRegret": "后悔",
+    "spouseSecurity": "配偶安全感",
+    "childCost": "育儿成本",
+    "familyPressure": "家庭压力"
+  },
+  "resolution": {
+    "year": "年",
+    "twoYears": "2年",
+    "fiveYears": "5年"
+  },
+  "syncStatus": {
+    "initial_sync": "初始同步中",
+    "online_synced": "已同步",
+    "online_dirty": "有待上传",
+    "syncing": "同步中",
+    "offline_queueing": "离线（排队中）",
+    "offline_readonly": "离线（只读）",
+    "conflict_inbox": "有冲突",
+    "degraded_remote": "远端异常",
+    "reauth_required": "需重新认证",
+    "recovery_required": "需手动恢复"
+  },
+  "chart": {
+    "yearAxis": "年"
+  },
+  "milestone": {
+    "peak": "峰值",
+    "trough": "谷值",
+    "cross_up": "上穿",
+    "cross_down": "下穿"
+  },
+  "conflicts": {
+    "title": "冲突收件箱",
+    "subtitle": "处理跨运行时同步冲突",
+    "refresh": "刷新",
+    "empty": "没有待处理的冲突",
+    "resolving": "处理中",
+    "actions": {
+      "keep_local": "保留本地",
+      "keep_server": "保留服务器",
+      "duplicate": "创建副本",
+      "merge_manually": "手动合并"
+    }
+  },
+  "errors": {
+    "missingSimulationId": "缺少 simulationId 参数",
+    "wsReconnectFailed": "WebSocket 重连失败，已达最大尝试次数 ({{max}})",
+    "wsConnectionError": "WebSocket 连接错误"
+  },
   "theme": {
     "label": "主题",
     "choices": {
