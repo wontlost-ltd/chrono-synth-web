@@ -1,14 +1,40 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useCompleteOnboarding } from '../api/queries/onboarding';
 import { useCreateValue } from '../api/queries/values';
-import { useCreateSimulation } from '../api/queries/simulations';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
-type Step = 'welcome' | 'template' | 'values' | 'simulation' | 'done';
+/* EP-2.4 PR A — Onboarding compressed from 5 → 4 steps.
+ * The previous `simulation` step (creating the user's first simulation)
+ * was removed because (a) creating a default simulation pre-baked the
+ * "wealth/health/family" assumptions into every user's account, and
+ * (b) post-onboarding the SetupChecklist companion already nudges the
+ * user toward "create your first simulation" with a deep link, so the
+ * functionality is preserved without forcing the choice up-front. */
+type Step = 'welcome' | 'template' | 'values' | 'done';
 
-const STEPS: Step[] = ['welcome', 'template', 'values', 'simulation', 'done'];
+const STEPS: Step[] = ['welcome', 'template', 'values', 'done'];
+
+const RESUME_STORAGE_KEY = 'chrono.onboarding.step';
+
+/** Resume reads the last persisted step and validates it against the
+ * current STEPS array. If the persisted value is from an older schema
+ * (e.g. saved 'simulation' from before the 5→4 compression), we fall
+ * back to 'welcome' silently — the user lost no real progress because
+ * `values` writes commit to the server inside their step handler, and
+ * `simulation` step writes were a one-shot the user can redo from the
+ * SetupChecklist. */
+function readResumeStep(): Step {
+  if (typeof window === 'undefined') return 'welcome';
+  try {
+    const raw = window.localStorage.getItem(RESUME_STORAGE_KEY);
+    if (raw && (STEPS as readonly string[]).includes(raw)) return raw as Step;
+  } catch {
+    /* localStorage may be disabled (private mode); fail silent */
+  }
+  return 'welcome';
+}
 
 interface ValueDraft {
   label: string;
@@ -33,15 +59,26 @@ export function Onboarding() {
   const navigate = useNavigate();
   const completeOnboarding = useCompleteOnboarding();
   const createValue = useCreateValue();
-  const createSim = useCreateSimulation();
 
-  const [step, setStep] = useState<Step>('welcome');
+  const [step, setStep] = useState<Step>(() => readResumeStep());
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [values, setValues] = useState<ValueDraft[]>([
     { label: '', weight: 0.8 },
     { label: '', weight: 0.6 },
   ]);
   const [error, setError] = useState<string | null>(null);
+
+  /* Persist current step on every transition so a refresh / accidental tab
+   * close resumes from the last completed step rather than restarting. The
+   * key is cleared in handleFinish() once the user reaches the dashboard. */
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(RESUME_STORAGE_KEY, step);
+    } catch {
+      /* private mode / localStorage disabled — onboarding still works,
+       * just won't survive a refresh */
+    }
+  }, [step]);
 
   const stepIndex = STEPS.indexOf(step);
 
@@ -72,36 +109,19 @@ export function Onboarding() {
       for (const v of filled) {
         await createValue.mutateAsync({ label: v.label.trim(), weight: v.weight });
       }
-      setStep('simulation');
+      /* Skip directly to done; first-simulation prompt now lives in the
+       * post-login SetupChecklist companion (5→4 compression rationale at
+       * the top of this file). */
+      setStep('done');
     } catch (err) {
       setError(err instanceof Error ? err.message : t('onboarding.valueError'));
     }
   }
 
-  async function handleSimulationNext() {
-    setError(null);
-    try {
-      const result = await createSim.mutateAsync({
-        paths: [
-          {
-            id: 'default',
-            label: t('onboarding.defaultPathLabel'),
-            description: t('onboarding.defaultPathDescription'),
-            initialConditions: { income: 300000, savings: 500000 },
-            branches: [],
-          },
-        ],
-        horizonYears: 10,
-        age: 30,
-      });
-      try { localStorage.setItem('last-sim-id', result.simulationId); } catch { /* ignored */ }
-      setStep('done');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : t('onboarding.simError'));
-    }
-  }
-
   async function handleFinish() {
+    /* Clear resume key first so even if completeOnboarding errors out we
+     * don't loop the user back into onboarding. */
+    try { window.localStorage.removeItem(RESUME_STORAGE_KEY); } catch { /* ignore */ }
     try {
       await completeOnboarding.mutateAsync();
       navigate('/dashboard');
@@ -110,7 +130,7 @@ export function Onboarding() {
     }
   }
 
-  const isPending = createValue.isPending || createSim.isPending || completeOnboarding.isPending;
+  const isPending = createValue.isPending || completeOnboarding.isPending;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-surface px-4">
@@ -205,21 +225,6 @@ export function Onboarding() {
                   {isPending ? t('common.loading') : t('onboarding.next')}
                 </button>
               </div>
-            </>
-          )}
-
-          {step === 'simulation' && (
-            <>
-              <h2 className="mb-2 text-lg font-medium">{t('onboarding.simulationTitle')}</h2>
-              <p className="mb-4 text-sm text-text-secondary">{t('onboarding.simulationDescription')}</p>
-              {error && <p className="mb-3 text-sm text-warning" role="alert">{error}</p>}
-              <button
-                onClick={handleSimulationNext}
-                disabled={isPending}
-                className="w-full rounded-lg bg-primary px-4 py-2 text-sm text-white disabled:opacity-50"
-              >
-                {isPending ? t('common.loading') : t('onboarding.createFirstSim')}
-              </button>
             </>
           )}
 
