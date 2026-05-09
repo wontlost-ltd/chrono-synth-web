@@ -59,7 +59,17 @@ export default function AutorunRunsPage() {
           columns={columns}
           getRowId={r => r.id}
           loading={isLoading}
-          emptyState={<EmptyState message={t('autorun.noRuns')} />}
+          emptyState={
+            <EmptyState
+              illustration="confirmations"
+              title={t('autorun.noRunsEmptyTitle')}
+              message={t('autorun.noRunsEmptyDescription')}
+              primaryAction={{
+                label: t('autorun.noRunsEmptyAction'),
+                to: id ? `/avatars/${id}/autorun` : '/avatars',
+              }}
+            />
+          }
         />
       )}
     </>

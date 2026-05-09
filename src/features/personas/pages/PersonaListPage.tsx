@@ -48,7 +48,17 @@ export default function PersonaListPage() {
           columns={columns}
           getRowId={r => r.id}
           loading={isLoading}
-          emptyState={<EmptyState message={t('personas.emptyState')} />}
+          emptyState={
+            <EmptyState
+              illustration="personas"
+              title={t('personas.emptyTitle')}
+              message={t('personas.emptyDescription')}
+              primaryAction={{
+                label: t('personas.emptyAction'),
+                onClick: () => setShowFork(true),
+              }}
+            />
+          }
           rowActions={row => <PersonaActions persona={row} />}
         />
       )}

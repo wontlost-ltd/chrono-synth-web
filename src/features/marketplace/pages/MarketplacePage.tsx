@@ -162,7 +162,17 @@ export default function MarketplacePage() {
           columns={columns}
           getRowId={row => row.id}
           loading={tasks.isLoading}
-          emptyState={<EmptyState message={t('marketplace.emptyState')} />}
+          emptyState={
+            <EmptyState
+              illustration="tools"
+              title={t('marketplace.emptyTitle')}
+              message={t('marketplace.emptyDescription')}
+              primaryAction={{
+                label: t('marketplace.emptyAction'),
+                onClick: () => setPublishOpen(true),
+              }}
+            />
+          }
           rowActions={row => (
             <TaskActions
               row={row}

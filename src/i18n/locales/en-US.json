@@ -488,7 +488,10 @@
       "social": "Social",
       "family": "Family",
       "creative": "Creative"
-    }
+    },
+    "emptyTitle": "No avatars yet",
+    "emptyDescription": "An Avatar is a conversational projection of a persona, with configurable autorun and domain-knowledge ingest.",
+    "emptyAction": "Create your first avatar"
   },
   "knowledgeSources": {
     "title": "Knowledge Sources",
@@ -535,7 +538,10 @@
       "type": "Select Type",
       "config": "Configuration",
       "confirm": "Confirm"
-    }
+    },
+    "emptyTitle": "No knowledge sources yet",
+    "emptyDescription": "Connect an RSS feed, API, file upload, or manual entry to feed external knowledge into a persona's memory.",
+    "emptyAction": "Add your first knowledge source"
   },
   "autorun": {
     "title": "Autorun Configuration",
@@ -560,7 +566,10 @@
     "colRunId": "Run ID",
     "colStatus": "Status",
     "colStarted": "Started",
-    "colItems": "Items Processed"
+    "colItems": "Items Processed",
+    "noRunsEmptyTitle": "No runs yet for this avatar",
+    "noRunsEmptyDescription": "Once Avatar autorun is enabled, every scheduled run lands here with knowledge ingest, pattern extraction, and drift-detection details.",
+    "noRunsEmptyAction": "View autorun configuration"
   },
   "personas": {
     "title": "Persona Management",
@@ -574,7 +583,10 @@
     "colLabel": "Name",
     "colStatus": "Status",
     "colQuota": "Resource Quota",
-    "colCreated": "Created"
+    "colCreated": "Created",
+    "emptyTitle": "No personas yet",
+    "emptyDescription": "Fork from a template or import a snapshot to create your first persona. Each persona has independent values, memory, and decision style.",
+    "emptyAction": "Create your first persona"
   },
   "personaCore": {
     "title": "Persona Core",
@@ -710,7 +722,10 @@
       "research": "Research",
       "operations": "Operations",
       "general": "General"
-    }
+    },
+    "emptyTitle": "No marketplace tasks yet",
+    "emptyDescription": "Publish a marketplace task to let other users' personas pick it up, or browse what's already out there.",
+    "emptyAction": "Publish your first task"
   },
   "toolPermissions": {
     "title": "Tool Permissions",

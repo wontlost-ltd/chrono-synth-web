@@ -488,7 +488,10 @@
       "social": "社交",
       "family": "家庭",
       "creative": "创造"
-    }
+    },
+    "emptyTitle": "暂无 Avatar",
+    "emptyDescription": "Avatar 是基于人格的对话化身，可以配置自动运行和领域知识积累。",
+    "emptyAction": "创建第一个 Avatar"
   },
   "knowledgeSources": {
     "title": "知识源管理",
@@ -535,7 +538,10 @@
       "type": "类型选择",
       "config": "配置",
       "confirm": "确认创建"
-    }
+    },
+    "emptyTitle": "暂无知识源",
+    "emptyDescription": "连接 RSS、API、文件或手动输入，把外部信息源接入人格的知识库。",
+    "emptyAction": "添加第一个知识源"
   },
   "autorun": {
     "title": "自动运行配置",
@@ -560,7 +566,10 @@
     "colRunId": "运行 ID",
     "colStatus": "状态",
     "colStarted": "开始时间",
-    "colItems": "处理条目"
+    "colItems": "处理条目",
+    "noRunsEmptyTitle": "该 Avatar 暂无运行记录",
+    "noRunsEmptyDescription": "启用 Avatar 自动运行后，每次调度的运行记录都会出现在这里，包含知识摄入、模式提取和漂移检测的明细。",
+    "noRunsEmptyAction": "查看自动运行配置"
   },
   "personas": {
     "title": "人格管理",
@@ -574,7 +583,10 @@
     "colLabel": "名称",
     "colStatus": "状态",
     "colQuota": "资源配额",
-    "colCreated": "创建时间"
+    "colCreated": "创建时间",
+    "emptyTitle": "暂无人格",
+    "emptyDescription": "从模板分支或导入快照来创建第一个人格。每个人格都拥有独立的价值观、记忆和决策风格。",
+    "emptyAction": "创建第一个人格"
   },
   "personaCore": {
     "title": "核心人格",
@@ -710,7 +722,10 @@
       "research": "研究",
       "operations": "运营",
       "general": "通用"
-    }
+    },
+    "emptyTitle": "暂无市场任务",
+    "emptyDescription": "发布一个市场任务让其他用户的人格协助处理，或浏览已发布的任务接单。",
+    "emptyAction": "发布第一个任务"
   },
   "toolPermissions": {
     "title": "工具权限",

@@ -7,7 +7,12 @@ export default defineConfig({
   // dev vite server (npm run dev) without a backend, so the podman
   // spec's /healthz request 404s. Run those via playwright.podman.config.ts
   // when the podman stack is up.
-  testIgnore: ['podman/**'],
+  //
+  // e2e/visual-regression/ runs in its own dedicated `vr-baseline` CI
+  // job (see .github/workflows/e2e.yml) with collect-mode policy +
+  // continue-on-error: true. Excluding from the default sweep prevents
+  // the main e2e job from blocking on missing-platform baselines.
+  testIgnore: ['podman/**', 'visual-regression/**'],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

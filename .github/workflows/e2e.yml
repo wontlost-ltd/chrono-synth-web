@@ -63,3 +63,48 @@ jobs:
           path: playwright-report/
           retention-days: 14
           if-no-files-found: ignore
+
+  # Visual Regression baseline (EP-2.4 PR B).
+  #
+  # Strategy: collect-mode for first-iteration. The repo ships macOS-suffixed
+  # baselines (chromium-darwin.png) committed by whoever ran
+  # `npx playwright test e2e/visual-regression/ --update-snapshots` locally.
+  # On CI (Linux), Playwright looks for chromium-linux suffixed files and
+  # doesn't find them, so the test fails. continue-on-error: true keeps
+  # PRs unblocked; the diff artifact tells reviewers what changed.
+  #
+  # Promoting to a hard gate: after one or two cycles where the team has
+  # checked in Linux baselines (run the same command on a Linux runner or
+  # commit the artifact), flip continue-on-error: false and remove this
+  # comment. Mirrors the DAST baseline collect-mode pattern from P0.1
+  # (ADR-0039 ZAP fail_action: false).
+  #
+  # PR-only trigger keeps push-to-main and the weekly cron quiet — VR
+  # adds ~2 min and isn't useful as drift detection on already-merged code.
+  vr-baseline:
+    name: VR baseline (Playwright snapshots)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Run VR baseline (collect mode — non-blocking)
+        run: |
+          npx playwright test --config=playwright.visual-regression.config.ts
+      - name: Upload VR diff report
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: vr-baseline-diff-${{ github.sha }}
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+          if-no-files-found: ignore
