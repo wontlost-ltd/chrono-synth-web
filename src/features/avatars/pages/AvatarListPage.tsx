@@ -49,7 +49,17 @@ export default function AvatarListPage() {
           columns={columns}
           getRowId={r => r.id}
           loading={isLoading}
-          emptyState={<EmptyState message={t('avatars.emptyState')} />}
+          emptyState={
+            <EmptyState
+              illustration="personas"
+              title={t('avatars.emptyTitle')}
+              message={t('avatars.emptyDescription')}
+              primaryAction={{
+                label: t('avatars.emptyAction'),
+                onClick: () => setShowCreate(true),
+              }}
+            />
+          }
           rowActions={row => (
             <div className="flex gap-2">
               <button onClick={() => navigate(`/avatars/${row.id}`)} className="text-sm text-primary hover:underline">

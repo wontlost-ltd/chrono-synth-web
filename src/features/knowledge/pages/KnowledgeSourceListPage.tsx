@@ -48,7 +48,17 @@ export default function KnowledgeSourceListPage() {
           columns={columns}
           getRowId={r => r.id}
           loading={isLoading}
-          emptyState={<EmptyState message={t('knowledgeSources.emptyState')} />}
+          emptyState={
+            <EmptyState
+              illustration="memories"
+              title={t('knowledgeSources.emptyTitle')}
+              message={t('knowledgeSources.emptyDescription')}
+              primaryAction={{
+                label: t('knowledgeSources.emptyAction'),
+                to: '/knowledge-sources/create',
+              }}
+            />
+          }
           rowActions={row => <RowActions source={row} onDelete={deleteSrc} navigate={navigate} />}
         />
       )}
