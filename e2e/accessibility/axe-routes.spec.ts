@@ -1,5 +1,5 @@
 /**
- * P1.3 — axe-core/playwright on every meaningful route
+ * P1.3 / EP-2.2 — axe-core/playwright on every meaningful route
  *
  * Tags: 'wcag2a', 'wcag2aa' — WCAG 2.1 AA conformance baseline.
  * 'best-practice' is excluded from the strict gate (too many false-positive
@@ -14,6 +14,26 @@
  * Auth-gated routes: we seed the session via localStorage before goto().
  * The mocks below are minimal — just enough to render the page; we don't
  * exercise data-fetching paths because axe runs against the rendered DOM.
+ *
+ * --- Why playwright-axe (and not vitest-axe) ---
+ *
+ * The execution-plan-2026-05.md EP-2.2 originally suggested vitest-axe.
+ * Intentional deviation: vitest-axe runs in jsdom, which has no real
+ * layout / paint engine. That makes several axe rules unreliable:
+ *
+ *   - color-contrast: jsdom returns synthetic computed styles; contrast
+ *     ratios get reported but reflect Tailwind class strings rather than
+ *     actually-rendered RGB values.
+ *   - focus-visible / focus-order: jsdom's focus emulation skips many
+ *     real-browser invariants (e.g. tab traps in modal portals).
+ *   - aria-live region detection: jsdom does not announce mutations the
+ *     way assistive tech does, so live-region rules misfire.
+ *
+ * Running axe inside Playwright Chromium catches the violations that
+ * actually impact users. The trade-off is a slower test (~1s per route
+ * vs ~50ms in jsdom), which is acceptable for the 13 routes covered
+ * here on a CI cron-and-PR cadence. See docs/operations/a11y-runbook.md
+ * for the full rationale and how to read failures.
  */
 
 import { test, expect, type Page } from '@playwright/test';
@@ -73,7 +93,33 @@ async function mockApisEmpty(page: Page) {
   await page.route('**/api/v1/billing/usage**', (route) => route.fulfill(empty(null)));
   await page.route('**/api/v1/personas**', (route) => route.fulfill(empty([])));
   await page.route('**/api/v1/avatars**', (route) => route.fulfill(empty([])));
+  /* Simulations: list endpoints return [], visualization endpoints return
+   * shape-correct empty objects so the chart components render their
+   * EmptyState (one of the highest-traffic a11y regression points). */
+  await page.route('**/api/v1/simulations/*/visualization/overview**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify({
+      data: { simulationId: 'axe-sim', summary: {}, timeline: [], pathCount: 0 },
+    }),
+  }));
+  await page.route('**/api/v1/simulations/*/visualization/paths**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify({
+      data: { paths: [], metricMeta: [] },
+    }),
+  }));
+  await page.route('**/api/v1/simulations/*/visualization/milestones**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify({ data: { events: [] } }),
+  }));
   await page.route('**/api/v1/simulations**', (route) => route.fulfill(empty([])));
+  /* Onboarding: status fetch decides whether to render walkthrough or
+   * redirect; returning a fresh-user payload keeps us on the page. */
+  await page.route('**/api/v1/onboarding/status**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify({
+      data: { completed: false, currentStep: 'welcome' },
+    }),
+  }));
+  /* Values: Onboarding's last step writes core_values; mock as empty
+   * so the page renders the form rather than an error state. */
+  await page.route('**/api/v1/values**', (route) => route.fulfill(empty([])));
 }
 
 interface Route {
@@ -83,11 +129,23 @@ interface Route {
   authed: boolean;
 }
 
-/* Scope: the unauth public surface + the 6 P0.4 admin/agent pages we just
- * migrated to i18n (highest scrutiny for new code) + a few core pages. */
+/* Scope: the unauth public surface + the 6 P0.4 admin/agent pages we
+ * migrated to i18n (highest scrutiny for new code) + a few core pages
+ * + the 3 user-facing routes EP-2.2 calls out (dashboard / onboarding /
+ * a deep simulation visualization page).
+ *
+ * Note on EP-2.2 wording: the plan listed "ConversationDetail" as one of
+ * the 5 core pages. There is no /conversations/:id route on the SPA — the
+ * conversation feature lives in the backend API only (P1-C). We substitute
+ * /simulations/:id/paths because PathComparison is the deepest visualization
+ * surface (charts + tables + i18n-localised metric labels) and is the most
+ * likely to regress on a11y as the design system evolves. */
 const ROUTES: Route[] = [
   { name: 'login', path: '/login', authed: false },
   { name: 'register', path: '/register', authed: false },
+  { name: 'dashboard', path: '/dashboard', authed: true },
+  { name: 'onboarding', path: '/onboarding', authed: true },
+  { name: 'simulation-paths', path: '/simulations/axe-sim/paths', authed: true },
   { name: 'admin-tool-permissions', path: '/admin/tool-permissions', authed: true },
   { name: 'admin-agency-authorizations', path: '/admin/agency-authorizations', authed: true },
   { name: 'admin-tool-invocations', path: '/admin/tool-invocations', authed: true },
