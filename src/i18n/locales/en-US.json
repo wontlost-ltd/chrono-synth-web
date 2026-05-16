@@ -226,6 +226,89 @@
       "llm_tokens": "LLM Tokens"
     }
   },
+  "onboardingV2": {
+    "title": "Get started with ChronoSynth",
+    "subtitle": "5 steps · about 3 minutes",
+    "skip": "Skip onboarding",
+    "continue": "Continue",
+    "saving": "Saving…",
+    "starting": "Starting…",
+    "loading": "Loading…",
+    "progressLabel": "Onboarding progress: step {{step}} of {{total}}",
+    "welcome": {
+      "title": "The audit log enterprise AI agents always needed.",
+      "description": "We'll walk you through registering your first agent, defining what it's allowed to do, and showing you what your audit log looks like — in about 3 minutes.",
+      "bullet1": "Name your organization",
+      "bullet2": "Register an agent and policies",
+      "bullet3": "See a synthetic invocation in the audit log",
+      "start": "Start →"
+    },
+    "org": {
+      "title": "Name your team",
+      "description": "This is the tenant that owns your agents and audit log. You can rename it later in Settings.",
+      "nameLabel": "Organization name",
+      "namePlaceholder": "Acme Inc"
+    },
+    "agent": {
+      "title": "Register your first agent",
+      "description": "An agent is the LLM-driven worker whose actions you'll be governing. You can register more later from the dashboard.",
+      "nameLabel": "Agent name",
+      "providerLabel": "LLM provider",
+      "provider": {
+        "openai": "OpenAI",
+        "anthropic": "Anthropic",
+        "skip": "Skip for now (tool-only agent)"
+      },
+      "keyLabel": "API key",
+      "keyPlaceholder": "sk-…",
+      "keyNote": "We'll encrypt this with your tenant's KMS key. You can rotate it any time from Settings → Secrets."
+    },
+    "policy": {
+      "title": "Define what this agent can do",
+      "description": "Tools your agent is allowed to call, and how. Defaults are sensible — you can edit any row or add more later.",
+      "scopeLabel": "Scope",
+      "decisionLabel": "Decision",
+      "scope": {
+        "read": "read-only",
+        "write": "write",
+        "execute": "execute"
+      },
+      "decision": {
+        "allow": "Allow",
+        "deny": "Deny",
+        "confirm": "Confirm"
+      }
+    },
+    "synthetic": {
+      "title": "Fire a test invocation",
+      "description": "We'll generate three example tool calls so you can see what your real agent's actions will look like in the audit log. This is fake data — no external tool will actually be called.",
+      "fire": "Run synthetic invocation →",
+      "firing": "Running…",
+      "fired": "✓ Fired — moving to audit log",
+      "note": "Real agent calls land here automatically once you wire your agent up."
+    },
+    "audit": {
+      "title": "Your audit log, live",
+      "description": "Below are the three synthetic events from step 4. This is the screen your compliance team will live in.",
+      "summary": "Real agent invocations land here in real time. Done!",
+      "done": "Open dashboard →",
+      "status": {
+        "success": "Success",
+        "pending": "Pending confirmation",
+        "denied": "Denied"
+      },
+      "note": {
+        "success": "Policy passed, action recorded.",
+        "pending": "High-risk action requires human approval before it runs.",
+        "denied": "Tool not in agent's allowed policy — blocked at the gate."
+      }
+    },
+    "errors": {
+      "orgNameRequired": "Please enter an organization name.",
+      "agentNameRequired": "Please enter a name for your agent.",
+      "unknown": "Something went wrong. Please try again."
+    }
+  },
   "onboarding": {
     "welcomeTitle": "Welcome to ChronoSynth",
     "welcomeDescription": "ChronoSynth helps you simulate and compare possible outcomes of different life paths. Let's set up your first simulation.",
