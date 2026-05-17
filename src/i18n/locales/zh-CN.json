@@ -226,6 +226,89 @@
       "llm_tokens": "LLM Token"
     }
   },
+  "onboardingV2": {
+    "title": "开始使用 ChronoSynth",
+    "subtitle": "5 步 · 约 3 分钟",
+    "skip": "跳过引导",
+    "continue": "继续",
+    "saving": "保存中…",
+    "starting": "启动中…",
+    "loading": "加载中…",
+    "progressLabel": "引导进度：第 {{step}} / {{total}} 步",
+    "welcome": {
+      "title": "企业 AI 代理一直需要的审计日志。",
+      "description": "我们将引导您注册第一个代理、定义它的可执行范围，并展示审计日志的样子——大约 3 分钟。",
+      "bullet1": "命名您的组织",
+      "bullet2": "注册一个代理并设置策略",
+      "bullet3": "在审计日志中查看一次合成调用",
+      "start": "开始 →"
+    },
+    "org": {
+      "title": "命名您的团队",
+      "description": "这是拥有代理和审计日志的租户。后续可以在 Settings 里重命名。",
+      "nameLabel": "组织名称",
+      "namePlaceholder": "Acme Inc"
+    },
+    "agent": {
+      "title": "注册第一个代理",
+      "description": "代理是由 LLM 驱动的执行者，您将对它的行为进行治理。后续可在仪表盘注册更多。",
+      "nameLabel": "代理名称",
+      "providerLabel": "LLM 提供方",
+      "provider": {
+        "openai": "OpenAI",
+        "anthropic": "Anthropic",
+        "skip": "暂时跳过（仅工具型代理）"
+      },
+      "keyLabel": "API 密钥",
+      "keyPlaceholder": "sk-…",
+      "keyNote": "我们将用您租户的 KMS 密钥加密存储。后续可在 Settings → Secrets 中轮换。"
+    },
+    "policy": {
+      "title": "定义该代理可以做什么",
+      "description": "代理被允许调用的工具及方式。默认值已合理设置——您可以修改任意行或后续添加。",
+      "scopeLabel": "范围",
+      "decisionLabel": "决策",
+      "scope": {
+        "read": "只读",
+        "write": "写入",
+        "execute": "执行"
+      },
+      "decision": {
+        "allow": "允许",
+        "deny": "拒绝",
+        "confirm": "需确认"
+      }
+    },
+    "synthetic": {
+      "title": "触发一次测试调用",
+      "description": "我们将生成 3 条示例工具调用，让您看到真实代理操作在审计日志中的样子。这是假数据——不会真的调用任何外部工具。",
+      "fire": "运行合成调用 →",
+      "firing": "运行中…",
+      "fired": "✓ 已触发——前往审计日志",
+      "note": "您接入真实代理后，调用会自动出现在这里。"
+    },
+    "audit": {
+      "title": "您的审计日志，实时呈现",
+      "description": "下方是第 4 步生成的 3 条合成事件。合规团队就在这个界面上工作。",
+      "summary": "真实代理调用将实时落到这里。完成！",
+      "done": "打开仪表盘 →",
+      "status": {
+        "success": "成功",
+        "pending": "待确认",
+        "denied": "已拒绝"
+      },
+      "note": {
+        "success": "策略通过，行为已记录。",
+        "pending": "高风险动作需人工确认后才执行。",
+        "denied": "工具不在代理的允许策略中——在网关阶段被拦截。"
+      }
+    },
+    "errors": {
+      "orgNameRequired": "请输入组织名称。",
+      "agentNameRequired": "请为代理输入名称。",
+      "unknown": "出现了一些问题，请重试。"
+    }
+  },
   "onboarding": {
     "welcomeTitle": "欢迎使用 ChronoSynth",
     "welcomeDescription": "ChronoSynth 帮助您模拟和对比人生不同路径的可能结果。让我们开始设置您的第一个模拟。",

@@ -15,4 +15,9 @@ test.describe('Onboarding', () => {
     await page.goto('/simulations');
     await expect(page).toHaveURL(/\/login/);
   });
+
+  test('onboarding v2 redirects to login when unauthenticated', async ({ page }) => {
+    await page.goto('/onboarding/v2');
+    await expect(page).toHaveURL(/\/login/);
+  });
 });

@@ -8,6 +8,7 @@ import { useAuth } from './hooks/useAuth';
 const Login = lazy(() => import('./pages/Login').then(m => ({ default: m.Login })));
 const Register = lazy(() => import('./pages/Register').then(m => ({ default: m.Register })));
 const Onboarding = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
+const OnboardingV2 = lazy(() => import('./pages/OnboardingV2').then(m => ({ default: m.OnboardingV2 })));
 const Dashboard = lazy(() => import('./pages/Dashboard').then(m => ({ default: m.Dashboard })));
 const Simulations = lazy(() => import('./pages/Simulations').then(m => ({ default: m.Simulations })));
 const SimulationWizard = lazy(() => import('./pages/SimulationWizard').then(m => ({ default: m.SimulationWizard })));
@@ -70,6 +71,7 @@ export const routes: RouteObject[] = [
   { path: '/login', element: <LazyPage><Login /></LazyPage> },
   { path: '/register', element: <LazyPage><Register /></LazyPage> },
   { path: '/onboarding', element: <Protected><Onboarding /></Protected> },
+  { path: '/onboarding/v2', element: <Protected><OnboardingV2 /></Protected> },
   { path: '/dashboard', element: <Protected><Dashboard /></Protected> },
   { path: '/simulations', element: <Protected><Simulations /></Protected> },
   { path: '/simulations/new', element: <Protected><SimulationWizard /></Protected> },
