@@ -50,7 +50,22 @@ function parseErrorBody(status: number, raw: string): {
     /* 非 JSON 错误体按原样处理 */
   }
 
-  let message = (parsed?.message ?? raw).trim();
+  /* 防御性 narrowing：恶意/不规范的错误体可能给出 message: {} / message: 42 / message: null。
+   * 不做 .trim() 之前先确认 typeof，否则一个 ApiError 路径会抛 TypeError，破坏统一的 sanitize 合约。
+   * 分支顺序：
+   *   1) message 是 string → 使用
+   *   2) parsed 存在但 message 不是 string（含 null / 数字 / 对象）→ 视为"有 JSON 但 message 不可用"，
+   *      不要回退到 raw（raw 是原始 JSON，把整个 JSON 渲染给用户会泄露其他字段并污染 sanitize 逻辑）
+   *   3) parsed 不存在（非 JSON 错误体）→ 使用 raw */
+  let rawMessage: string;
+  if (typeof parsed?.message === 'string') {
+    rawMessage = parsed.message;
+  } else if (parsed !== null) {
+    rawMessage = '';
+  } else {
+    rawMessage = raw;
+  }
+  let message = rawMessage.trim();
   if (!message || message.length > 200) message = `API request failed (${status})`;
   else if (/[<>]|stack|trace|sql|select|insert|update|delete/i.test(message)) message = `API request failed (${status})`;
   else message = `API ${status}: ${message}`;

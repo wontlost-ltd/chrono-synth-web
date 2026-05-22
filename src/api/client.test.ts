@@ -239,6 +239,46 @@ describe('apiFetch — extended error contract', () => {
     }
   });
 
+  it('tolerates non-string `message` in the error body (no TypeError)', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 400,
+      text: () => Promise.resolve(JSON.stringify({
+        error: 'ValidationError',
+        code: 'VALIDATION_FAILED',
+        message: { x: 1, y: 'unexpected shape' },
+      })),
+    });
+    try {
+      await apiFetch('/api/v1/auth/register', { method: 'POST', body: '{}' });
+      throw new Error('expected ApiError');
+    } catch (e) {
+      const err = e as ApiError;
+      expect(err).toBeInstanceOf(ApiError);
+      expect(err.status).toBe(400);
+      /* code 仍然要保留 — 是机器可读的稳定字段 */
+      expect(err.code).toBe('VALIDATION_FAILED');
+      /* message 应回退到通用 "API request failed" 而不是抛 TypeError */
+      expect(err.message).toBe('API request failed (400)');
+    }
+  });
+
+  it('tolerates null message in the error body', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 500,
+      text: () => Promise.resolve(JSON.stringify({ code: 'INTERNAL', message: null })),
+    });
+    try {
+      await apiFetch('/foo');
+      throw new Error('expected ApiError');
+    } catch (e) {
+      const err = e as ApiError;
+      expect(err.code).toBe('INTERNAL');
+      expect(err.message).toBe('API request failed (500)');
+    }
+  });
+
   it('exposes ValidationError fields untouched', async () => {
     mockFetch.mockResolvedValue({
       ok: false,
