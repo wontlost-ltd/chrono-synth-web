@@ -73,7 +73,13 @@ function ConflictRow({
 
 export function ConflictInboxPage() {
   const { t } = useTranslation();
-  const { conflicts, loading, resolving, resolve, refresh } = useConflictInbox();
+  const { conflicts, loading, resolving, error, resolve, refresh } = useConflictInbox();
+
+  /* 解析 i18n key 顺序：messageId（后端权威）→ conflicts.errors.<code> → 默认通用键。
+   * 这样后端添加新的 code 时，没翻译也能落到一个合理的 fallback 字符串。 */
+  const errorKey = error
+    ? error.messageId ?? (error.code ? `conflicts.errors.${error.code}` : 'conflicts.errors.UNKNOWN')
+    : null;
 
   return (
     <>
@@ -89,13 +95,37 @@ export function ConflictInboxPage() {
         </button>
       </div>
 
+      {error && (
+        <div
+          role="alert"
+          aria-live="polite"
+          className="mb-4 flex items-start justify-between gap-3 rounded-lg border border-error/40 bg-error/5 p-4 text-sm text-error"
+        >
+          <div>
+            <p className="font-medium">
+              {error.scope === 'load' ? t('conflicts.errors.loadTitle') : t('conflicts.errors.resolveTitle')}
+            </p>
+            <p className="mt-1 text-error/80">
+              {t(errorKey!, { defaultValue: error.message })}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={refresh}
+            className="shrink-0 rounded-md border border-error/40 px-3 py-1 text-xs text-error hover:bg-error/10"
+          >
+            {t('conflicts.errors.retry')}
+          </button>
+        </div>
+      )}
+
       {loading ? (
         <Skeleton variant="table" />
-      ) : conflicts.length === 0 ? (
+      ) : conflicts.length === 0 && !error ? (
         <div className="rounded-lg border border-border bg-surface-elevated p-6 text-sm text-text-secondary">
           {t('conflicts.empty')}
         </div>
-      ) : (
+      ) : conflicts.length === 0 ? null : (
         <ul className="space-y-3">
           {conflicts.map((item) => (
             <ConflictRow

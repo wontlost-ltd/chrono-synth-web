@@ -1,29 +1,68 @@
 import { API_BASE_URL } from '../config';
 import { getSession, setSession, clearSession } from '../store/session';
 import { addApiBreadcrumb } from '../lib/sentry';
-import { getCsrfToken } from '../lib/csrf';
+import { getCsrfToken, resetCsrfToken } from '../lib/csrf';
+
+/**
+ * 标准化 API 错误。除 status/message 外，保留后端给出的机器可读 `code`
+ * 与 i18n 渲染键 `messageId` —— 前端可据此切换文案 / 引导文案，不依赖
+ * 易漂移的 `message` 字面值。`fields` 仅在 ValidationError 时出现。
+ *
+ * Plan: poc-to-enterprise-ga-2026-v7.3.md §8 #8 — error contract symmetry。
+ */
+export interface ApiErrorBody {
+  code?: string;
+  message?: string;
+  messageId?: string;
+  fields?: Record<string, unknown>;
+}
 
 export class ApiError extends Error {
-  constructor(public readonly status: number, message: string) {
+  constructor(
+    public readonly status: number,
+    message: string,
+    public readonly code: string | null = null,
+    public readonly messageId: string | null = null,
+    public readonly fields: Readonly<Record<string, unknown>> | null = null,
+  ) {
     super(message);
     this.name = 'ApiError';
   }
 }
 
-function sanitizeErrorMessage(status: number, raw: string): string {
-  let message = raw;
+/**
+ * 从 fetch 错误体里提取标准化错误形状。无论后端是否给出完整字段，
+ * 都返回 `{ message, code, messageId, fields }`，让 UI 层可以稳定渲染。
+ *
+ * `message` 经过白名单 sanitize 以避免回显 SQL/堆栈片段；`code` 与
+ * `messageId` 不参与 sanitize，因为它们本就是受控枚举值。
+ */
+function parseErrorBody(status: number, raw: string): {
+  message: string;
+  code: string | null;
+  messageId: string | null;
+  fields: Record<string, unknown> | null;
+} {
+  let parsed: ApiErrorBody | null = null;
   try {
-    const parsed = JSON.parse(raw) as { message?: unknown };
-    if (typeof parsed.message === 'string' && parsed.message.trim()) {
-      message = parsed.message.trim();
-    }
+    parsed = JSON.parse(raw) as ApiErrorBody;
   } catch {
     /* 非 JSON 错误体按原样处理 */
   }
 
-  if (!message || message.length > 200) return `API request failed (${status})`;
-  if (/[<>]|stack|trace|sql|select|insert|update|delete/i.test(message)) return `API request failed (${status})`;
-  return `API ${status}: ${message}`;
+  let message = (parsed?.message ?? raw).trim();
+  if (!message || message.length > 200) message = `API request failed (${status})`;
+  else if (/[<>]|stack|trace|sql|select|insert|update|delete/i.test(message)) message = `API request failed (${status})`;
+  else message = `API ${status}: ${message}`;
+
+  return {
+    message,
+    code: typeof parsed?.code === 'string' ? parsed.code : null,
+    messageId: typeof parsed?.messageId === 'string' ? parsed.messageId : null,
+    fields: parsed?.fields && typeof parsed.fields === 'object' && !Array.isArray(parsed.fields)
+      ? parsed.fields as Record<string, unknown>
+      : null,
+  };
 }
 
 let refreshPromise: Promise<boolean> | null = null;
@@ -46,6 +85,9 @@ async function tryRefresh(): Promise<boolean> {
       }
       const json = await res.json() as { data: { accessToken: string } };
       setSession({ accessToken: json.data.accessToken });
+      /* refresh 成功 → 后端在 Set-Cookie 里下发新的 csrf_token；
+       * 强制重读，避免下一次 POST 仍带旧令牌触发 403。 */
+      resetCsrfToken();
       return true;
     } catch {
       clearSession();
@@ -106,7 +148,8 @@ async function doFetch<T>(path: string, init?: RequestInit, isRetry = false): Pr
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new ApiError(res.status, sanitizeErrorMessage(res.status, text));
+    const parsed = parseErrorBody(res.status, text);
+    throw new ApiError(res.status, parsed.message, parsed.code, parsed.messageId, parsed.fields);
   }
 
   if (res.status === 204 || res.headers.get('content-length') === '0') {

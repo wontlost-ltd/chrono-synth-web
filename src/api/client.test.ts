@@ -188,5 +188,74 @@ describe('ApiError', () => {
     expect(err.status).toBe(422);
     expect(err.message).toBe('Validation failed');
     expect(err).toBeInstanceOf(Error);
+    /* 默认字段保留为 null，保持向后兼容 */
+    expect(err.code).toBeNull();
+    expect(err.messageId).toBeNull();
+    expect(err.fields).toBeNull();
+  });
+
+  it('exposes code, messageId, and fields when backend returns them', () => {
+    const err = new ApiError(409, 'API 409: conflict', 'STATE_INVALID_TRANSITION', 'state.transition.blocked', { entityId: 'p_42' });
+    expect(err.code).toBe('STATE_INVALID_TRANSITION');
+    expect(err.messageId).toBe('state.transition.blocked');
+    expect(err.fields).toEqual({ entityId: 'p_42' });
+  });
+});
+
+describe('apiFetch — extended error contract', () => {
+  it('extracts code + messageId from JSON error body', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 429,
+      text: () => Promise.resolve(JSON.stringify({
+        error: 'RateLimitError',
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: 'Quota exceeded for tenant',
+        messageId: 'quota.exceeded',
+      })),
+    });
+    try {
+      await apiFetch('/api/v2/version');
+    } catch (e) {
+      const err = e as ApiError;
+      expect(err.status).toBe(429);
+      expect(err.code).toBe('RATE_LIMIT_EXCEEDED');
+      expect(err.messageId).toBe('quota.exceeded');
+    }
+  });
+
+  it('keeps code/messageId null when body is not JSON', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 502,
+      text: () => Promise.resolve('upstream gateway error'),
+    });
+    try {
+      await apiFetch('/foo');
+    } catch (e) {
+      const err = e as ApiError;
+      expect(err.code).toBeNull();
+      expect(err.messageId).toBeNull();
+    }
+  });
+
+  it('exposes ValidationError fields untouched', async () => {
+    mockFetch.mockResolvedValue({
+      ok: false,
+      status: 400,
+      text: () => Promise.resolve(JSON.stringify({
+        error: 'ValidationError',
+        code: 'VALIDATION_FAILED',
+        message: 'Invalid input',
+        fields: { email: 'must be valid', password: 'too short' },
+      })),
+    });
+    try {
+      await apiFetch('/api/v1/auth/register', { method: 'POST', body: '{}' });
+    } catch (e) {
+      const err = e as ApiError;
+      expect(err.code).toBe('VALIDATION_FAILED');
+      expect(err.fields).toEqual({ email: 'must be valid', password: 'too short' });
+    }
   });
 });

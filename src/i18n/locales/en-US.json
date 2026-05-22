@@ -1291,6 +1291,16 @@
       "keep_server": "Keep server",
       "duplicate": "Create duplicate",
       "merge_manually": "Merge manually"
+    },
+    "errors": {
+      "loadTitle": "Couldn't load conflict inbox",
+      "resolveTitle": "Couldn't resolve conflict",
+      "retry": "Retry",
+      "UNKNOWN": "Something went wrong. Please retry, or contact support if it persists.",
+      "AUTH_REQUIRED": "Your session expired. Please sign in again to view conflicts.",
+      "AUTH_FORBIDDEN": "You don't have permission to resolve conflicts in this tenant.",
+      "STATE_INVALID_TRANSITION": "This conflict was already resolved on another device. The inbox was refreshed.",
+      "RATE_LIMIT_EXCEEDED": "Too many requests — please wait a moment and try again."
     }
   },
   "errors": {

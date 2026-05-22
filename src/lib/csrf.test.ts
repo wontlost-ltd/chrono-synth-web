@@ -5,6 +5,7 @@ beforeEach(() => {
   resetCsrfToken();
   document.head.innerHTML = '';
   document.cookie = 'XSRF-TOKEN=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+  document.cookie = 'csrf_token=; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 });
 
 describe('getCsrfToken', () => {
@@ -21,9 +22,20 @@ describe('getCsrfToken', () => {
     expect(getCsrfToken()).toBe('meta-token-abc');
   });
 
-  it('reads token from XSRF-TOKEN cookie when meta absent', () => {
+  it('reads token from csrf_token cookie (chrono-synth-os emits this name)', () => {
+    document.cookie = 'csrf_token=primary-token-abc';
+    expect(getCsrfToken()).toBe('primary-token-abc');
+  });
+
+  it('reads token from legacy XSRF-TOKEN cookie when meta + csrf_token absent', () => {
     document.cookie = 'XSRF-TOKEN=cookie-token-xyz';
     expect(getCsrfToken()).toBe('cookie-token-xyz');
+  });
+
+  it('prefers csrf_token over XSRF-TOKEN when both cookies set', () => {
+    document.cookie = 'csrf_token=primary-wins';
+    document.cookie = 'XSRF-TOKEN=legacy-loses';
+    expect(getCsrfToken()).toBe('primary-wins');
   });
 
   it('prefers meta tag over cookie', () => {

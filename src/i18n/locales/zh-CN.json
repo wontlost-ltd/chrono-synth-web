@@ -1291,6 +1291,16 @@
       "keep_server": "保留服务器",
       "duplicate": "创建副本",
       "merge_manually": "手动合并"
+    },
+    "errors": {
+      "loadTitle": "加载冲突收件箱失败",
+      "resolveTitle": "处理冲突失败",
+      "retry": "重试",
+      "UNKNOWN": "出现了未知错误，请稍后重试。如果问题持续，请联系支持。",
+      "AUTH_REQUIRED": "会话已过期，请重新登录后再查看冲突。",
+      "AUTH_FORBIDDEN": "你没有在当前租户内处理冲突的权限。",
+      "STATE_INVALID_TRANSITION": "该冲突已在另一台设备上被处理，收件箱已刷新。",
+      "RATE_LIMIT_EXCEEDED": "请求过于频繁，请稍后再试。"
     }
   },
   "errors": {

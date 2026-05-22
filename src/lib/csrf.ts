@@ -14,11 +14,22 @@ function readFromMeta(): string | null {
   return el?.content ?? null;
 }
 
-/** 从 cookie 中读取 XSRF-TOKEN（部分后端框架使用此方式下发） */
+/**
+ * 从 cookie 中读取 CSRF 令牌。
+ *
+ * 顺序：
+ *   1) `csrf_token` — chrono-synth-os 的 auth 路由下发的 paired cookie
+ *      （非 HttpOnly，与 chrono_refresh 配对，用于 double-submit 防护）
+ *   2) `XSRF-TOKEN` — 兼容部分后端框架（Spring/Angular 默认拼写）
+ *
+ * 两者都存在时以 `csrf_token` 为准，因为本项目后端权威使用该名。
+ */
 function readFromCookie(): string | null {
   if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
-  return match?.[1] ? decodeURIComponent(match[1]) : null;
+  const primary = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+  if (primary?.[1]) return decodeURIComponent(primary[1]);
+  const legacy = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/);
+  return legacy?.[1] ? decodeURIComponent(legacy[1]) : null;
 }
 
 /**
