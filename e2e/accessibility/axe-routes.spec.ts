@@ -120,6 +120,22 @@ async function mockApisEmpty(page: Page) {
   /* Values: Onboarding's last step writes core_values; mock as empty
    * so the page renders the form rather than an error state. */
   await page.route('**/api/v1/values**', (route) => route.fulfill(empty([])));
+
+  /* §8 Step 14 routes: marketplace / autorun / persona-core /
+   * conflicts / growth. Each rendered as EmptyState when data is [].
+   * The growth page reads aggregated counters; mock as a zero-state. */
+  await page.route('**/api/v1/marketplace/tasks**', (route) => route.fulfill(empty([])));
+  await page.route('**/api/v1/marketplace/categories**', (route) => route.fulfill(empty([])));
+  await page.route('**/api/v1/avatars/*/autorun**', (route) => route.fulfill(empty(null)));
+  await page.route('**/api/v1/avatars/*/autorun/runs**', (route) => route.fulfill(empty([])));
+  await page.route('**/api/v1/persona-core**', (route) => route.fulfill(empty(null)));
+  await page.route('**/api/v1/persona-core/**', (route) => route.fulfill(empty([])));
+  await page.route('**/api/v1/conflicts**', (route) => route.fulfill(empty([])));
+  await page.route('**/api/v1/growth**', (route) => route.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify({
+      data: { metrics: [], milestones: [], counters: {} },
+    }),
+  }));
 }
 
 interface Route {
@@ -154,6 +170,16 @@ const ROUTES: Route[] = [
   { name: 'agent-confirmations', path: '/agent/confirmations', authed: true },
   { name: 'billing', path: '/billing', authed: true },
   { name: 'settings', path: '/settings', authed: true },
+  /* §8 Step 14 — the 5 feature routes the plan called out as the
+   * remaining a11y coverage gap. Each route is rendered with mocked
+   * empty data so the EmptyState's a11y semantics are what we audit
+   * (headings, landmark roles, focus order); the loaded-data path is
+   * exercised by per-feature vitest suites. */
+  { name: 'marketplace', path: '/marketplace', authed: true },
+  { name: 'autorun-config', path: '/avatars/axe-avatar/autorun', authed: true },
+  { name: 'persona-core', path: '/persona-core', authed: true },
+  { name: 'conflicts', path: '/conflicts', authed: true },
+  { name: 'growth', path: '/growth', authed: true },
 ];
 
 for (const route of ROUTES) {
