@@ -183,6 +183,7 @@ export function CommandPalette({ commands }: CommandPaletteProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={dialogId}
+        data-testid="cmdk-palette"
         className="w-[min(92vw,560px)] overflow-hidden rounded-xl border border-border bg-surface-elevated shadow-2xl"
       >
         <div className="border-b border-border px-4 py-3">

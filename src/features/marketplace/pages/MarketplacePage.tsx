@@ -140,7 +140,7 @@ export default function MarketplacePage() {
             </button>
           ))}
         </div>
-        <div className="ml-auto flex min-w-[220px] items-center gap-2">
+        <label className="ml-auto flex min-w-[220px] items-center gap-2">
           <span className="text-sm text-text-secondary">{t('marketplace.assignPersona')}</span>
           <select
             value={selectedPersonaId}
@@ -151,7 +151,7 @@ export default function MarketplacePage() {
               <option key={persona.id} value={persona.id}>{persona.displayName}</option>
             ))}
           </select>
-        </div>
+        </label>
       </section>
 
       {tasks.error ? (
