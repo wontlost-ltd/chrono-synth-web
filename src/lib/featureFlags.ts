@@ -42,6 +42,12 @@ interface FlagSnapshot {
   source: Map<FeatureFlagId, 'static' | 'override' | 'remote'>;
 }
 
+/* Provider connectivity state — exposed via `useRemoteFlagStatus` so
+ * debug UI / health pages can show whether the SSE link is live. */
+export type RemoteFlagStatus = 'idle' | 'connecting' | 'live' | 'stale';
+let remoteStatus: RemoteFlagStatus = 'idle';
+const statusListeners = new Set<() => void>();
+
 const LOCAL_STORAGE_PREFIX = 'chrono.flag.';
 
 /* Default values are the safe "ship this, let people opt out" stance.
@@ -138,4 +144,28 @@ export function _resetFeatureFlagsForTest(): void {
 export function refreshFlagsFromStorage(): void {
   snapshot = buildSnapshot();
   notify();
+}
+
+/* ── Remote provider connectivity ─────────────────────────────────── */
+
+/** Update remote status + notify subscribers. */
+export function _setRemoteStatus(next: RemoteFlagStatus): void {
+  if (remoteStatus === next) return;
+  remoteStatus = next;
+  for (const fn of statusListeners) fn();
+}
+
+export function getRemoteStatus(): RemoteFlagStatus {
+  return remoteStatus;
+}
+
+/** React hook — re-renders when SSE provider state changes. */
+export function useRemoteFlagStatus(): RemoteFlagStatus {
+  const [s, setS] = useState(remoteStatus);
+  useEffect(() => {
+    const handler = (): void => setS(remoteStatus);
+    statusListeners.add(handler);
+    return () => { statusListeners.delete(handler); };
+  }, []);
+  return s;
 }

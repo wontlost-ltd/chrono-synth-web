@@ -10,6 +10,9 @@ initAnalytics();
 import { bootstrapTheme } from './lib/theme';
 bootstrapTheme();
 
+import { bootstrapFeatureFlagsRemote } from './lib/featureFlagsRemote';
+bootstrapFeatureFlagsRemote();
+
 import './i18n';
 
 import { StrictMode } from 'react';
