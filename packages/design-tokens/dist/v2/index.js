@@ -11,7 +11,7 @@ export * from './spacing.js';
 export * from './motion.js';
 import { colorTokensLight, colorTokensDark, colorTokensHighContrast } from './colors.js';
 import { duration, easing, spring } from './motion.js';
-import { space, radius, shadow, baseUnit } from './spacing.js';
+import { space, radius, shadow, baseUnit, size } from './spacing.js';
 import { display, heading, body, mono, fontFamilies } from './typography.js';
 /**
  * The full v2 token set, indexed by theme. Consumers typically pick a
@@ -32,7 +32,7 @@ export const tokensV2 = {
         body,
         mono,
     },
-    spacing: { baseUnit, space, radius, shadow },
+    spacing: { baseUnit, space, radius, shadow, size },
     motion: { duration, easing, spring },
 };
 //# sourceMappingURL=index.js.map

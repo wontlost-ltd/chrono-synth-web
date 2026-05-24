@@ -1316,5 +1316,204 @@
       "dark": "深色",
       "highContrast": "高对比度"
     }
+  },
+  "enterpriseConsole": {
+    "title": "企业控制台",
+    "subtitle": "在一个地方管理组织、部署配置、控制平面视图与审计证据。",
+    "requiresAdmin": "企业控制台需要管理员账号。",
+    "actions": {
+      "workerHealth": "Worker 健康检查",
+      "prometheus": "Prometheus",
+      "grafana": "Grafana"
+    },
+    "metrics": {
+      "tenant": "租户",
+      "tenantHint": "所有企业操作均基于 JWT 限定的租户",
+      "organizations": "组织",
+      "deploymentMode": "部署模式",
+      "deploymentModeHint": "共享 Kafka 主题命名空间",
+      "auditEvents": "审计事件",
+      "auditEventsHint": "本租户最近的业务审计记录"
+    },
+    "tabs": {
+      "deployment": "部署配置",
+      "organizations": "组织与 RBAC",
+      "control": "控制平面",
+      "vault": "密钥库",
+      "audit": "审计追踪"
+    },
+    "sections": {
+      "currentPosture": {
+        "title": "当前态势",
+        "subtitle": "本租户的专用部署、加密与企业身份态势。"
+      },
+      "deploymentProfile": {
+        "title": "部署配置",
+        "subtitle": "持久化租户部署配置，供 OIDC、SCIM、加密与 Kafka 命名空间路由消费。"
+      },
+      "scimProvisioning": {
+        "title": "SCIM 用户预配",
+        "subtitle": "生成新的 SCIM Bearer 令牌，供 IdP 驱动企业用户预配。"
+      },
+      "organizationsList": {
+        "title": "组织",
+        "subtitle": "为当前租户创建组织并授予企业工作空间角色。"
+      },
+      "createOrganization": {
+        "title": "创建组织",
+        "subtitle": "以当前管理员作为 org_admin，引导一个带默认工作空间的组织。"
+      },
+      "memberships": {
+        "title": "成员与角色绑定",
+        "subtitleSelected": "管理 {{org}} 的成员。",
+        "subtitleEmpty": "请先选择一个组织。"
+      },
+      "personas": { "title": "人格", "subtitle": "当前人格阵列、所有权与钱包态势。" },
+      "tasks": { "title": "任务", "subtitle": "市场任务积压与完成态势。" },
+      "wallets": { "title": "钱包", "subtitle": "人格钱包敞口与结算时效性。" },
+      "governance": { "title": "治理", "subtitle": "未决案件、申诉与最近的审核操作。" },
+      "tenantKeyVersions": {
+        "title": "租户密钥版本",
+        "subtitle": "本租户的平台托管加密密钥。轮转以签发新版本；吊销以下线已泄露的密钥。"
+      },
+      "vaultAudit": {
+        "title": "密钥库操作审计",
+        "subtitle": "针对本租户密钥库的最近 50 次加密操作。"
+      },
+      "businessAudit": {
+        "title": "业务审计追踪",
+        "subtitle": "平台审计记录器近期捕获的敏感操作。"
+      }
+    },
+    "buttons": {
+      "saveProfile": "保存配置",
+      "saving": "保存中...",
+      "generateToken": "生成令牌",
+      "generating": "生成中...",
+      "createOrganization": "创建组织",
+      "creating": "创建中...",
+      "addOrUpdateMember": "添加 / 更新成员",
+      "updating": "更新中...",
+      "rotate": "轮转",
+      "rotating": "轮转中…",
+      "revoke": "吊销",
+      "revoking": "吊销中…",
+      "rotateNamed": "轮转 \"{{ref}}\"",
+      "selected": "已选择",
+      "viewMembers": "查看成员"
+    },
+    "fields": {
+      "organizationName": "组织名称",
+      "slug": "标识符",
+      "defaultWorkspaceName": "默认工作空间名称",
+      "defaultWorkspaceSlug": "默认工作空间标识符",
+      "userEmail": "用户邮箱",
+      "roles": "角色",
+      "deployment": "部署",
+      "deploymentMode": "部署模式",
+      "databaseIsolation": "数据库隔离",
+      "encryptionMode": "加密模式",
+      "kmsKeyReference": "KMS 密钥引用",
+      "enableTenantOidc": "启用租户 OIDC",
+      "issuerUrl": "Issuer URL",
+      "clientId": "Client ID",
+      "clientSecret": "Client Secret",
+      "audience": "Audience",
+      "scope": "Scope",
+      "emailClaim": "Email Claim",
+      "nameClaim": "Name Claim",
+      "kafkaNamespace": "Kafka 命名空间",
+      "encryption": "加密",
+      "ssoScim": "SSO / SCIM",
+      "dbIsolation": "数据库隔离：{{mode}}",
+      "kafkaNamespaceHint": "可观测性主题的运行时路由目标",
+      "encryptionKeyringDefault": "平台托管密钥环",
+      "deploymentLoading": "加载中",
+      "oidcOn": "OIDC 启用",
+      "oidcOff": "OIDC 未启用",
+      "scimReady": "SCIM 就绪",
+      "scimMissing": "无 SCIM 令牌",
+      "updatedAt": "更新于 {{when}}",
+      "oneTimeTokenLabel": "一次性令牌值",
+      "oneTimeTokenHelp": "请立即复制 — 关闭后不会再次显示。",
+      "secretPlaceholder": "留空以保留当前已加密的密钥"
+    },
+    "columns": {
+      "organization": "组织",
+      "slug": "标识符",
+      "defaultWorkspace": "默认工作空间",
+      "created": "创建时间",
+      "email": "邮箱",
+      "roles": "角色",
+      "status": "状态",
+      "joined": "加入时间",
+      "keyRef": "密钥引用",
+      "provider": "提供方",
+      "version": "版本",
+      "revoked": "吊销时间",
+      "operation": "操作",
+      "action": "动作",
+      "actor": "操作者",
+      "target": "目标",
+      "targetType": "目标类型",
+      "timestamp": "时间戳",
+      "time": "时间",
+      "outcome": "结果",
+      "persona": "人格",
+      "owner": "所有者",
+      "wallet": "钱包",
+      "task": "任务",
+      "category": "类别",
+      "reward": "奖励",
+      "balance": "余额",
+      "reserve": "储备",
+      "lastSettled": "上次结算",
+      "trigger": "触发器",
+      "severity": "严重度"
+    },
+    "empty": {
+      "organizations": "暂无组织。",
+      "members": "暂无成员。",
+      "membersAssigned": "尚未分配成员。",
+      "selectOrgFirst": "请创建或选择一个组织以管理成员。",
+      "personas": "未找到人格。",
+      "tasks": "未找到任务。",
+      "wallets": "未找到钱包。",
+      "governance": "未找到治理案件。",
+      "vaultKeys": "未找到密钥版本。首次密钥库操作时会自动生成。",
+      "vaultAudit": "暂无密钥库操作。",
+      "audit": "暂无审计记录。"
+    },
+    "summary": {
+      "total": "总数",
+      "active": "活跃",
+      "restricted": "受限",
+      "deceased": "已注销",
+      "open": "未决",
+      "accepted": "已接受",
+      "completed": "已完成",
+      "wallets": "钱包",
+      "totalBalance": "总余额",
+      "tokenReserve": "令牌储备",
+      "cases": "案件",
+      "actionApplied": "已执行",
+      "appealed": "已申诉"
+    },
+    "errors": {
+      "deploymentLoadFailed": "加载部署配置失败：{{error}}",
+      "vaultKeysLoadFailed": "加载密钥版本失败：{{error}}",
+      "auditLoadFailed": "加载审计日志失败：{{error}}",
+      "organizationsLoadFailed": "加载组织失败：{{error}}",
+      "membersLoadFailed": "加载成员失败：{{error}}"
+    },
+    "metricsActive": {
+      "createFirstOrg": "创建第一个组织以启用 RBAC",
+      "activeOrg": "当前组织：{{org}}"
+    },
+    "success": {
+      "deploymentSaved": "部署配置已保存。",
+      "organizationCreated": "组织 {{name}} 已创建。",
+      "memberBindingsUpdated": "组织成员角色绑定已更新。"
+    }
   }
 }

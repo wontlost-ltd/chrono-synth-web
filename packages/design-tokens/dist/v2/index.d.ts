@@ -199,6 +199,10 @@ export declare const tokensV2: {
             readonly xl: "0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.10)";
             readonly elastic: "0 8px 24px -8px rgba(30, 58, 138, 0.30)";
         };
+        readonly size: {
+            readonly touchTarget: "44px";
+            readonly touchTargetDense: "36px";
+        };
     };
     readonly motion: {
         readonly duration: {

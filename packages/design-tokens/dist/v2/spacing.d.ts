@@ -10,6 +10,22 @@
  *   space.8 = 32px  (section break)
  */
 export declare const baseUnit: 4;
+/**
+ * Interactive target sizes. The 44px touch target is the WCAG 2.5.5
+ * (AAA) recommendation and matches both Apple HIG (44pt) and Material
+ * Design (48dp ≈ 44px on standard density). Below this size, fingers
+ * on touch devices miss the target frequently enough to count as an
+ * accessibility regression — including for users with motor
+ * impairments using mouse pointers.
+ *
+ * Apply via `min-height: var(--size-touch-target)` (or `min-h-touch`
+ * once the Tailwind plugin is wired). Padding alone is not enough;
+ * the hit-test rectangle must be ≥44×44.
+ */
+export declare const size: {
+    readonly touchTarget: "44px";
+    readonly touchTargetDense: "36px";
+};
 export declare const space: {
     readonly 0: 0;
     readonly '0.5': 2;

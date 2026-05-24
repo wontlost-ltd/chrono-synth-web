@@ -1316,5 +1316,204 @@
       "dark": "Dark",
       "highContrast": "High contrast"
     }
+  },
+  "enterpriseConsole": {
+    "title": "Enterprise Console",
+    "subtitle": "Operate organizations, deployment profiles, control-plane views, and audit evidence from one place.",
+    "requiresAdmin": "Enterprise Console requires an admin account.",
+    "actions": {
+      "workerHealth": "Worker Health",
+      "prometheus": "Prometheus",
+      "grafana": "Grafana"
+    },
+    "metrics": {
+      "tenant": "Tenant",
+      "tenantHint": "JWT-scoped tenant for all enterprise actions",
+      "organizations": "Organizations",
+      "deploymentMode": "Deployment Mode",
+      "deploymentModeHint": "Shared Kafka topic namespace",
+      "auditEvents": "Audit Events",
+      "auditEventsHint": "Recent business audit records for this tenant"
+    },
+    "tabs": {
+      "deployment": "Deployment Profile",
+      "organizations": "Organizations & RBAC",
+      "control": "Control Plane",
+      "vault": "Key Vault",
+      "audit": "Audit Trail"
+    },
+    "sections": {
+      "currentPosture": {
+        "title": "Current Posture",
+        "subtitle": "Dedicated deployment, encryption, and enterprise identity posture for this tenant."
+      },
+      "deploymentProfile": {
+        "title": "Deployment Profile",
+        "subtitle": "Persist the tenant deployment profile consumed by OIDC, SCIM, encryption, and Kafka namespace routing."
+      },
+      "scimProvisioning": {
+        "title": "SCIM Provisioning",
+        "subtitle": "Generate a new SCIM bearer token for IdP-driven enterprise user provisioning."
+      },
+      "organizationsList": {
+        "title": "Organizations",
+        "subtitle": "Create organizations and grant enterprise workspace roles for the current tenant."
+      },
+      "createOrganization": {
+        "title": "Create Organization",
+        "subtitle": "Bootstrap an organization with its default workspace and the current admin as org_admin."
+      },
+      "memberships": {
+        "title": "Memberships & Role Bindings",
+        "subtitleSelected": "Manage members for {{org}}.",
+        "subtitleEmpty": "Select an organization first."
+      },
+      "personas": { "title": "Personas", "subtitle": "Current persona fleet, ownership, and wallet posture." },
+      "tasks": { "title": "Tasks", "subtitle": "Marketplace backlog and completion posture." },
+      "wallets": { "title": "Wallets", "subtitle": "Persona wallet exposure and settlement freshness." },
+      "governance": { "title": "Governance", "subtitle": "Open cases, appeals, and recent moderation actions." },
+      "tenantKeyVersions": {
+        "title": "Tenant Key Versions",
+        "subtitle": "Platform-managed encryption keys for this tenant. Rotate to issue a new version; revoke to retire a compromised key."
+      },
+      "vaultAudit": {
+        "title": "Vault Operation Audit",
+        "subtitle": "Last 50 cryptographic operations performed against this tenant's vault."
+      },
+      "businessAudit": {
+        "title": "Business Audit Trail",
+        "subtitle": "Recent sensitive actions captured by the platform audit logger."
+      }
+    },
+    "buttons": {
+      "saveProfile": "Save Profile",
+      "saving": "Saving...",
+      "generateToken": "Generate Token",
+      "generating": "Generating...",
+      "createOrganization": "Create Organization",
+      "creating": "Creating...",
+      "addOrUpdateMember": "Add / Update Member",
+      "updating": "Updating...",
+      "rotate": "Rotate",
+      "rotating": "Rotating…",
+      "revoke": "Revoke",
+      "revoking": "Revoking…",
+      "rotateNamed": "Rotate \"{{ref}}\"",
+      "selected": "Selected",
+      "viewMembers": "View Members"
+    },
+    "fields": {
+      "organizationName": "Organization Name",
+      "slug": "Slug",
+      "defaultWorkspaceName": "Default Workspace Name",
+      "defaultWorkspaceSlug": "Default Workspace Slug",
+      "userEmail": "User Email",
+      "roles": "Roles",
+      "deployment": "Deployment",
+      "deploymentMode": "Deployment Mode",
+      "databaseIsolation": "Database Isolation",
+      "encryptionMode": "Encryption Mode",
+      "kmsKeyReference": "KMS Key Reference",
+      "enableTenantOidc": "Enable Tenant OIDC",
+      "issuerUrl": "Issuer URL",
+      "clientId": "Client ID",
+      "clientSecret": "Client Secret",
+      "audience": "Audience",
+      "scope": "Scope",
+      "emailClaim": "Email Claim",
+      "nameClaim": "Name Claim",
+      "kafkaNamespace": "Kafka Namespace",
+      "encryption": "Encryption",
+      "ssoScim": "SSO / SCIM",
+      "dbIsolation": "DB isolation: {{mode}}",
+      "kafkaNamespaceHint": "Runtime routing target for observability topics",
+      "encryptionKeyringDefault": "Platform-managed keyring",
+      "deploymentLoading": "loading",
+      "oidcOn": "OIDC on",
+      "oidcOff": "OIDC off",
+      "scimReady": "SCIM ready",
+      "scimMissing": "No SCIM token",
+      "updatedAt": "Updated {{when}}",
+      "oneTimeTokenLabel": "One-time token value",
+      "oneTimeTokenHelp": "Copy this immediately — it will not be shown again.",
+      "secretPlaceholder": "Leave blank to keep the current encrypted secret"
+    },
+    "columns": {
+      "organization": "Organization",
+      "slug": "Slug",
+      "defaultWorkspace": "Default Workspace",
+      "created": "Created",
+      "email": "Email",
+      "roles": "Roles",
+      "status": "Status",
+      "joined": "Joined",
+      "keyRef": "Key Ref",
+      "provider": "Provider",
+      "version": "Version",
+      "revoked": "Revoked",
+      "operation": "Operation",
+      "action": "Action",
+      "actor": "Actor",
+      "target": "Target",
+      "targetType": "Target Type",
+      "timestamp": "Timestamp",
+      "time": "Time",
+      "outcome": "Outcome",
+      "persona": "Persona",
+      "owner": "Owner",
+      "wallet": "Wallet",
+      "task": "Task",
+      "category": "Category",
+      "reward": "Reward",
+      "balance": "Balance",
+      "reserve": "Reserve",
+      "lastSettled": "Last Settled",
+      "trigger": "Trigger",
+      "severity": "Severity"
+    },
+    "empty": {
+      "organizations": "No organizations yet.",
+      "members": "No members yet.",
+      "membersAssigned": "No members assigned yet.",
+      "selectOrgFirst": "Create or select an organization to manage memberships.",
+      "personas": "No personas found.",
+      "tasks": "No tasks found.",
+      "wallets": "No wallets found.",
+      "governance": "No governance cases found.",
+      "vaultKeys": "No key versions found. Keys are provisioned on first vault operation.",
+      "vaultAudit": "No vault operations yet.",
+      "audit": "No audit entries."
+    },
+    "summary": {
+      "total": "Total",
+      "active": "Active",
+      "restricted": "Restricted",
+      "deceased": "Deceased",
+      "open": "Open",
+      "accepted": "Accepted",
+      "completed": "Completed",
+      "wallets": "Wallets",
+      "totalBalance": "Total Balance",
+      "tokenReserve": "Token Reserve",
+      "cases": "Cases",
+      "actionApplied": "Action Applied",
+      "appealed": "Appealed"
+    },
+    "errors": {
+      "deploymentLoadFailed": "Failed to load deployment profile: {{error}}",
+      "vaultKeysLoadFailed": "Failed to load vault keys: {{error}}",
+      "auditLoadFailed": "Failed to load audit log: {{error}}",
+      "organizationsLoadFailed": "Failed to load organizations: {{error}}",
+      "membersLoadFailed": "Failed to load members: {{error}}"
+    },
+    "metricsActive": {
+      "createFirstOrg": "Create the first org to enable RBAC",
+      "activeOrg": "Active org: {{org}}"
+    },
+    "success": {
+      "deploymentSaved": "Deployment profile saved.",
+      "organizationCreated": "Organization {{name}} created.",
+      "memberBindingsUpdated": "Organization member bindings updated."
+    }
   }
 }

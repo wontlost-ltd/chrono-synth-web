@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '../components/layout/PageHeader';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Skeleton } from '../components/ui/Skeleton';
@@ -152,7 +153,8 @@ function applyProfileToForm(profile: DeploymentProfile): UpdateDeploymentProfile
 }
 
 export function EnterpriseConsole() {
-  useDocumentTitle('Enterprise Console');
+  const { t } = useTranslation();
+  useDocumentTitle(t('enterpriseConsole.title'));
   const { role, tenantId } = useAuth();
   const isAdmin = role === 'admin';
 
@@ -209,60 +211,62 @@ export function EnterpriseConsole() {
   }, [organizations.data, selectedOrganizationId]);
 
   if (!isAdmin) {
-    return <EmptyState variant="error" message="Enterprise Console requires an admin account." />;
+    return <EmptyState variant="error" message={t('enterpriseConsole.requiresAdmin')} />;
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Enterprise Console"
-        subtitle="Operate organizations, deployment profiles, control-plane views, and audit evidence from one place."
+        title={t('enterpriseConsole.title')}
+        subtitle={t('enterpriseConsole.subtitle')}
         actions={(
           <div className="flex flex-wrap gap-2">
             <a
               href="/worker/healthz"
               target="_blank"
               rel="noreferrer"
-              className="rounded-lg border border-border px-3 py-2 text-sm text-text-secondary hover:bg-surface"
+              className="inline-flex items-center min-h-touch rounded-lg border border-border px-3 py-2 text-sm text-text-secondary hover:bg-surface"
             >
-              Worker Health
+              {t('enterpriseConsole.actions.workerHealth')}
             </a>
             <a
               href="/prometheus/targets"
               target="_blank"
               rel="noreferrer"
-              className="rounded-lg border border-border px-3 py-2 text-sm text-text-secondary hover:bg-surface"
+              className="inline-flex items-center min-h-touch rounded-lg border border-border px-3 py-2 text-sm text-text-secondary hover:bg-surface"
             >
-              Prometheus
+              {t('enterpriseConsole.actions.prometheus')}
             </a>
             <a
               href="/grafana/d/chrono-synth-overview/chrono-synth-enterprise-overview"
               target="_blank"
               rel="noreferrer"
-              className="rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-light"
+              className="inline-flex items-center min-h-touch rounded-lg bg-primary px-3 py-2 text-sm font-medium text-white hover:bg-primary-light"
             >
-              Grafana
+              {t('enterpriseConsole.actions.grafana')}
             </a>
           </div>
         )}
       />
 
       <div className="grid gap-4 md:grid-cols-4">
-        <MetricTile label="Tenant" value={tenantId} hint="JWT-scoped tenant for all enterprise actions" />
+        <MetricTile label={t('enterpriseConsole.metrics.tenant')} value={tenantId} hint={t('enterpriseConsole.metrics.tenantHint')} />
         <MetricTile
-          label="Organizations"
+          label={t('enterpriseConsole.metrics.organizations')}
           value={organizations.data?.length ?? 0}
-          hint={selectedOrganizationId ? `Active org: ${selectedOrganizationId}` : 'Create the first org to enable RBAC'}
+          hint={selectedOrganizationId
+            ? t('enterpriseConsole.metricsActive.activeOrg', { org: selectedOrganizationId })
+            : t('enterpriseConsole.metricsActive.createFirstOrg')}
         />
         <MetricTile
-          label="Deployment Mode"
-          value={deploymentProfile.data?.deploymentMode ?? 'loading'}
-          hint={deploymentProfile.data?.kafkaNamespace ?? 'Shared Kafka topic namespace'}
+          label={t('enterpriseConsole.metrics.deploymentMode')}
+          value={deploymentProfile.data?.deploymentMode ?? t('enterpriseConsole.fields.deploymentLoading')}
+          hint={deploymentProfile.data?.kafkaNamespace ?? t('enterpriseConsole.metrics.deploymentModeHint')}
         />
         <MetricTile
-          label="Audit Events"
+          label={t('enterpriseConsole.metrics.auditEvents')}
           value={auditLogs.data?.pagination.total ?? 0}
-          hint="Recent business audit records for this tenant"
+          hint={t('enterpriseConsole.metrics.auditEventsHint')}
         />
       </div>
 
@@ -270,11 +274,11 @@ export function EnterpriseConsole() {
         value={activeTab}
         onChange={setActiveTab}
         items={[
-          { id: 'deployment', label: 'Deployment Profile' },
-          { id: 'organizations', label: 'Organizations & RBAC' },
-          { id: 'control', label: 'Control Plane' },
-          { id: 'vault', label: 'Key Vault' },
-          { id: 'audit', label: 'Audit Trail' },
+          { id: 'deployment', label: t('enterpriseConsole.tabs.deployment') },
+          { id: 'organizations', label: t('enterpriseConsole.tabs.organizations') },
+          { id: 'control', label: t('enterpriseConsole.tabs.control') },
+          { id: 'vault', label: t('enterpriseConsole.tabs.vault') },
+          { id: 'audit', label: t('enterpriseConsole.tabs.audit') },
         ]}
         renderPanel={(tabId) => {
           switch (tabId) {
@@ -313,7 +317,7 @@ export function EnterpriseConsole() {
                       },
                     }, {
                       onSuccess: () => {
-                        setDeploymentSuccess('Deployment profile saved.');
+                        setDeploymentSuccess(t('enterpriseConsole.success.deploymentSaved'));
                       },
                     });
                   }}
@@ -358,7 +362,7 @@ export function EnterpriseConsole() {
                       defaultWorkspaceSlug: organizationForm.defaultWorkspaceSlug?.trim() || undefined,
                     }, {
                       onSuccess: (data) => {
-                        setOrganizationSuccess(`Organization ${data.organization.name} created.`);
+                        setOrganizationSuccess(t('enterpriseConsole.success.organizationCreated', { name: data.organization.name }));
                         setSelectedOrganizationId(data.organization.organizationId);
                         setOrganizationForm(DEFAULT_ORGANIZATION_FORM);
                       },
@@ -372,7 +376,7 @@ export function EnterpriseConsole() {
                       roles: memberRoles,
                     }, {
                       onSuccess: () => {
-                        setOrganizationSuccess('Organization member bindings updated.');
+                        setOrganizationSuccess(t('enterpriseConsole.success.memberBindingsUpdated'));
                         setMemberEmail('');
                         setMemberRoles(['viewer']);
                       },
@@ -467,31 +471,55 @@ function DeploymentPanel({
   onSave: () => void;
   onGenerateScim: () => void;
 }) {
+  const { t } = useTranslation();
   if (loading) return <Skeleton variant="table" />;
-  if (error) return <EmptyState variant="error" message={`Failed to load deployment profile: ${error}`} />;
+  if (error) return <EmptyState variant="error" message={t('enterpriseConsole.errors.deploymentLoadFailed', { error })} />;
+
+  const oidcLabel = profile?.oidc.enabled
+    ? t('enterpriseConsole.fields.oidcOn')
+    : t('enterpriseConsole.fields.oidcOff');
+  const scimLabel = profile?.scimTokenConfigured
+    ? t('enterpriseConsole.fields.scimReady')
+    : t('enterpriseConsole.fields.scimMissing');
 
   return (
     <div className="space-y-6">
-      <SectionCard title="Current Posture" subtitle="Dedicated deployment, encryption, and enterprise identity posture for this tenant.">
+      <SectionCard title={t('enterpriseConsole.sections.currentPosture.title')} subtitle={t('enterpriseConsole.sections.currentPosture.subtitle')}>
         <div className="grid gap-4 md:grid-cols-4">
-          <MetricTile label="Deployment" value={profile?.deploymentMode ?? '—'} hint={`DB isolation: ${profile?.databaseIsolationMode ?? '—'}`} />
-          <MetricTile label="Kafka Namespace" value={profile?.kafkaNamespace ?? 'shared'} hint="Runtime routing target for observability topics" />
-          <MetricTile label="Encryption" value={profile?.encryptionMode ?? '—'} hint={profile?.kmsKeyRef ?? 'Platform-managed keyring'} />
-          <MetricTile label="SSO / SCIM" value={`${profile?.oidc.enabled ? 'OIDC on' : 'OIDC off'} / ${profile?.scimTokenConfigured ? 'SCIM ready' : 'No SCIM token'}`} hint={`Updated ${formatDateTime(profile?.updatedAt)}`} />
+          <MetricTile
+            label={t('enterpriseConsole.fields.deployment')}
+            value={profile?.deploymentMode ?? '—'}
+            hint={t('enterpriseConsole.fields.dbIsolation', { mode: profile?.databaseIsolationMode ?? '—' })}
+          />
+          <MetricTile
+            label={t('enterpriseConsole.fields.kafkaNamespace')}
+            value={profile?.kafkaNamespace ?? 'shared'}
+            hint={t('enterpriseConsole.fields.kafkaNamespaceHint')}
+          />
+          <MetricTile
+            label={t('enterpriseConsole.fields.encryption')}
+            value={profile?.encryptionMode ?? '—'}
+            hint={profile?.kmsKeyRef ?? t('enterpriseConsole.fields.encryptionKeyringDefault')}
+          />
+          <MetricTile
+            label={t('enterpriseConsole.fields.ssoScim')}
+            value={`${oidcLabel} / ${scimLabel}`}
+            hint={t('enterpriseConsole.fields.updatedAt', { when: formatDateTime(profile?.updatedAt) })}
+          />
         </div>
       </SectionCard>
 
       <SectionCard
-        title="Deployment Profile"
-        subtitle="Persist the tenant deployment profile consumed by OIDC, SCIM, encryption, and Kafka namespace routing."
+        title={t('enterpriseConsole.sections.deploymentProfile.title')}
+        subtitle={t('enterpriseConsole.sections.deploymentProfile.subtitle')}
         actions={(
           <button
             type="button"
             onClick={onSave}
             disabled={saving}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-light disabled:opacity-50"
+            className="inline-flex items-center min-h-touch rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-light disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save Profile'}
+            {saving ? t('enterpriseConsole.buttons.saving') : t('enterpriseConsole.buttons.saveProfile')}
           </button>
         )}
       >
@@ -502,7 +530,7 @@ function DeploymentPanel({
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <label className="text-sm text-text-secondary">
-            Deployment Mode
+            {t('enterpriseConsole.fields.deploymentMode')}
             <select
               value={form.deploymentMode}
               onChange={(event) => onChange({ ...form, deploymentMode: event.target.value as UpdateDeploymentProfileInput['deploymentMode'] })}
@@ -513,7 +541,7 @@ function DeploymentPanel({
             </select>
           </label>
           <label className="text-sm text-text-secondary">
-            Database Isolation
+            {t('enterpriseConsole.fields.databaseIsolation')}
             <select
               value={form.databaseIsolationMode}
               onChange={(event) => onChange({ ...form, databaseIsolationMode: event.target.value as UpdateDeploymentProfileInput['databaseIsolationMode'] })}
@@ -524,7 +552,7 @@ function DeploymentPanel({
             </select>
           </label>
           <label className="text-sm text-text-secondary">
-            Kafka Namespace
+            {t('enterpriseConsole.fields.kafkaNamespace')}
             <input
               value={form.kafkaNamespace ?? ''}
               onChange={(event) => onChange({ ...form, kafkaNamespace: event.target.value })}
@@ -533,7 +561,7 @@ function DeploymentPanel({
             />
           </label>
           <label className="text-sm text-text-secondary">
-            Encryption Mode
+            {t('enterpriseConsole.fields.encryptionMode')}
             <select
               value={form.encryptionMode}
               onChange={(event) => onChange({ ...form, encryptionMode: event.target.value as UpdateDeploymentProfileInput['encryptionMode'] })}
@@ -544,7 +572,7 @@ function DeploymentPanel({
             </select>
           </label>
           <label className="text-sm text-text-secondary md:col-span-2">
-            KMS Key Reference
+            {t('enterpriseConsole.fields.kmsKeyReference')}
             <input
               value={form.kmsKeyRef ?? ''}
               onChange={(event) => onChange({ ...form, kmsKeyRef: event.target.value })}
@@ -567,11 +595,11 @@ function DeploymentPanel({
                 },
               })}
             />
-            Enable Tenant OIDC
+            {t('enterpriseConsole.fields.enableTenantOidc')}
           </label>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="text-sm text-text-secondary">
-              Issuer URL
+              {t('enterpriseConsole.fields.issuerUrl')}
               <input
                 value={form.oidc.issuerUrl}
                 onChange={(event) => onChange({ ...form, oidc: { ...form.oidc, issuerUrl: event.target.value } })}
@@ -580,7 +608,7 @@ function DeploymentPanel({
               />
             </label>
             <label className="text-sm text-text-secondary">
-              Client ID
+              {t('enterpriseConsole.fields.clientId')}
               <input
                 value={form.oidc.clientId}
                 onChange={(event) => onChange({ ...form, oidc: { ...form.oidc, clientId: event.target.value } })}
@@ -588,17 +616,17 @@ function DeploymentPanel({
               />
             </label>
             <label className="text-sm text-text-secondary">
-              Client Secret
+              {t('enterpriseConsole.fields.clientSecret')}
               <input
                 type="password"
                 value={form.oidc.clientSecret ?? ''}
                 onChange={(event) => onChange({ ...form, oidc: { ...form.oidc, clientSecret: event.target.value } })}
-                placeholder="Leave blank to keep the current encrypted secret"
+                placeholder={t('enterpriseConsole.fields.secretPlaceholder')}
                 className="mt-1 w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-primary"
               />
             </label>
             <label className="text-sm text-text-secondary">
-              Audience
+              {t('enterpriseConsole.fields.audience')}
               <input
                 value={form.oidc.audience}
                 onChange={(event) => onChange({ ...form, oidc: { ...form.oidc, audience: event.target.value } })}
@@ -606,7 +634,7 @@ function DeploymentPanel({
               />
             </label>
             <label className="text-sm text-text-secondary">
-              Scope
+              {t('enterpriseConsole.fields.scope')}
               <input
                 value={form.oidc.scope}
                 onChange={(event) => onChange({ ...form, oidc: { ...form.oidc, scope: event.target.value } })}
@@ -614,7 +642,7 @@ function DeploymentPanel({
               />
             </label>
             <label className="text-sm text-text-secondary">
-              Email Claim
+              {t('enterpriseConsole.fields.emailClaim')}
               <input
                 value={form.oidc.emailClaim}
                 onChange={(event) => onChange({ ...form, oidc: { ...form.oidc, emailClaim: event.target.value } })}
@@ -622,7 +650,7 @@ function DeploymentPanel({
               />
             </label>
             <label className="text-sm text-text-secondary">
-              Name Claim
+              {t('enterpriseConsole.fields.nameClaim')}
               <input
                 value={form.oidc.nameClaim}
                 onChange={(event) => onChange({ ...form, oidc: { ...form.oidc, nameClaim: event.target.value } })}
@@ -634,30 +662,34 @@ function DeploymentPanel({
       </SectionCard>
 
       <SectionCard
-        title="SCIM Provisioning"
-        subtitle="Generate a new SCIM bearer token for IdP-driven enterprise user provisioning."
+        title={t('enterpriseConsole.sections.scimProvisioning.title')}
+        subtitle={t('enterpriseConsole.sections.scimProvisioning.subtitle')}
         actions={(
           <button
             type="button"
             onClick={onGenerateScim}
             disabled={scimGenerating}
-            className="rounded-lg border border-border px-4 py-2 text-sm text-text-secondary hover:bg-surface disabled:opacity-50"
+            className="inline-flex items-center min-h-touch rounded-lg border border-border px-4 py-2 text-sm text-text-secondary hover:bg-surface disabled:opacity-50"
           >
-            {scimGenerating ? 'Generating...' : 'Generate Token'}
+            {scimGenerating
+              ? t('enterpriseConsole.buttons.generating')
+              : t('enterpriseConsole.buttons.generateToken')}
           </button>
         )}
       >
         <InlineMessage tone="error" message={scimError} />
         {generatedScimToken ? (
           <div className="rounded-lg bg-surface p-4">
-            <p className="text-xs uppercase tracking-wide text-text-secondary">One-time token value</p>
+            <p className="text-xs uppercase tracking-wide text-text-secondary">
+              {t('enterpriseConsole.fields.oneTimeTokenLabel')}
+            </p>
             <code className="mt-2 block overflow-x-auto whitespace-pre-wrap break-all text-sm text-text-primary">
               {generatedScimToken}
             </code>
           </div>
         ) : (
           <p className="text-sm text-text-secondary">
-            Generate a fresh token when you are ready to wire your IdP. Existing tokens are never re-displayed.
+            {t('enterpriseConsole.fields.oneTimeTokenHelp')}
           </p>
         )}
       </SectionCard>
@@ -710,45 +742,51 @@ function OrganizationsPanel({
   onCreateOrganization: () => void;
   onAddMember: () => void;
 }) {
+  const { t } = useTranslation();
   const organizationColumns: Column<OrganizationSummary>[] = [
-    { id: 'name', header: 'Organization', cell: (row) => row.name },
-    { id: 'slug', header: 'Slug', cell: (row) => row.slug },
-    { id: 'workspace', header: 'Default Workspace', cell: (row) => row.defaultWorkspace?.name ?? '—' },
-    { id: 'createdAt', header: 'Created', cell: (row) => formatDateTime(row.createdAt) },
+    { id: 'name', header: t('enterpriseConsole.columns.organization'), cell: (row) => row.name },
+    { id: 'slug', header: t('enterpriseConsole.columns.slug'), cell: (row) => row.slug },
+    { id: 'workspace', header: t('enterpriseConsole.columns.defaultWorkspace'), cell: (row) => row.defaultWorkspace?.name ?? '—' },
+    { id: 'createdAt', header: t('enterpriseConsole.columns.created'), cell: (row) => formatDateTime(row.createdAt) },
   ];
   const memberColumns: Column<OrganizationMember>[] = [
-    { id: 'email', header: 'Email', cell: (row) => row.email },
-    { id: 'roles', header: 'Roles', cell: (row) => row.roles.join(', ') },
-    { id: 'status', header: 'Status', cell: (row) => row.status },
-    { id: 'joinedAt', header: 'Joined', cell: (row) => formatDateTime(row.joinedAt) },
+    { id: 'email', header: t('enterpriseConsole.columns.email'), cell: (row) => row.email },
+    { id: 'roles', header: t('enterpriseConsole.columns.roles'), cell: (row) => row.roles.join(', ') },
+    { id: 'status', header: t('enterpriseConsole.columns.status'), cell: (row) => row.status },
+    { id: 'joinedAt', header: t('enterpriseConsole.columns.joined'), cell: (row) => formatDateTime(row.joinedAt) },
   ];
 
   return (
     <div className="space-y-6">
       <InlineMessage tone="success" message={successMessage} />
 
-      <SectionCard title="Organizations" subtitle="Create organizations and grant enterprise workspace roles for the current tenant.">
+      <SectionCard title={t('enterpriseConsole.sections.organizationsList.title')} subtitle={t('enterpriseConsole.sections.organizationsList.subtitle')}>
         {organizationsLoading ? (
           <Skeleton variant="table" />
         ) : organizationsError ? (
-          <EmptyState variant="error" message={`Failed to load organizations: ${organizationsError}`} />
+          <EmptyState variant="error" message={t('enterpriseConsole.errors.organizationsLoadFailed', { error: organizationsError })} />
         ) : (
           <DataTable
             rows={organizations}
             columns={organizationColumns}
             getRowId={(row) => row.organizationId}
-            emptyState={<EmptyState message="No organizations yet." />}
+            emptyState={<EmptyState message={t('enterpriseConsole.empty.organizations')} />}
             rowActions={(row) => (
               <button
                 type="button"
                 onClick={() => onSelectOrganization(row.organizationId)}
-                className={`rounded-lg px-3 py-1 text-xs font-medium ${
+                /* Full 44px touch target — the DataTable row itself
+                 * is not focusable / clickable, so the button is the
+                 * only pointer target and must meet WCAG 2.5.5. */
+                className={`inline-flex items-center min-h-touch rounded-lg px-3 py-1 text-xs font-medium ${
                   row.organizationId === selectedOrganizationId
                     ? 'bg-primary text-white'
                     : 'border border-border text-text-secondary hover:bg-surface'
                 }`}
               >
-                {row.organizationId === selectedOrganizationId ? 'Selected' : 'View Members'}
+                {row.organizationId === selectedOrganizationId
+                  ? t('enterpriseConsole.buttons.selected')
+                  : t('enterpriseConsole.buttons.viewMembers')}
               </button>
             )}
           />
@@ -756,23 +794,25 @@ function OrganizationsPanel({
       </SectionCard>
 
       <SectionCard
-        title="Create Organization"
-        subtitle="Bootstrap an organization with its default workspace and the current admin as org_admin."
+        title={t('enterpriseConsole.sections.createOrganization.title')}
+        subtitle={t('enterpriseConsole.sections.createOrganization.subtitle')}
         actions={(
           <button
             type="button"
             onClick={onCreateOrganization}
             disabled={createPending || !organizationForm.name.trim()}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-light disabled:opacity-50"
+            className="inline-flex items-center min-h-touch rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-light disabled:opacity-50"
           >
-            {createPending ? 'Creating...' : 'Create Organization'}
+            {createPending
+              ? t('enterpriseConsole.buttons.creating')
+              : t('enterpriseConsole.buttons.createOrganization')}
           </button>
         )}
       >
         <InlineMessage tone="error" message={createError} />
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <label className="text-sm text-text-secondary">
-            Organization Name
+            {t('enterpriseConsole.fields.organizationName')}
             <input
               value={organizationForm.name}
               onChange={(event) => onChangeOrganizationForm({ ...organizationForm, name: event.target.value })}
@@ -780,7 +820,7 @@ function OrganizationsPanel({
             />
           </label>
           <label className="text-sm text-text-secondary">
-            Slug
+            {t('enterpriseConsole.fields.slug')}
             <input
               value={organizationForm.slug ?? ''}
               onChange={(event) => onChangeOrganizationForm({ ...organizationForm, slug: event.target.value })}
@@ -789,7 +829,7 @@ function OrganizationsPanel({
             />
           </label>
           <label className="text-sm text-text-secondary">
-            Default Workspace Name
+            {t('enterpriseConsole.fields.defaultWorkspaceName')}
             <input
               value={organizationForm.defaultWorkspaceName ?? ''}
               onChange={(event) => onChangeOrganizationForm({ ...organizationForm, defaultWorkspaceName: event.target.value })}
@@ -797,7 +837,7 @@ function OrganizationsPanel({
             />
           </label>
           <label className="text-sm text-text-secondary">
-            Default Workspace Slug
+            {t('enterpriseConsole.fields.defaultWorkspaceSlug')}
             <input
               value={organizationForm.defaultWorkspaceSlug ?? ''}
               onChange={(event) => onChangeOrganizationForm({ ...organizationForm, defaultWorkspaceSlug: event.target.value })}
@@ -809,16 +849,20 @@ function OrganizationsPanel({
       </SectionCard>
 
       <SectionCard
-        title="Memberships & Role Bindings"
-        subtitle={selectedOrganizationId ? `Manage members for ${selectedOrganizationId}.` : 'Select an organization first.'}
+        title={t('enterpriseConsole.sections.memberships.title')}
+        subtitle={selectedOrganizationId
+          ? t('enterpriseConsole.sections.memberships.subtitleSelected', { org: selectedOrganizationId })
+          : t('enterpriseConsole.sections.memberships.subtitleEmpty')}
         actions={selectedOrganizationId ? (
           <button
             type="button"
             onClick={onAddMember}
             disabled={memberPending || !memberEmail.trim()}
-            className="rounded-lg border border-border px-4 py-2 text-sm text-text-secondary hover:bg-surface disabled:opacity-50"
+            className="inline-flex items-center min-h-touch rounded-lg border border-border px-4 py-2 text-sm text-text-secondary hover:bg-surface disabled:opacity-50"
           >
-            {memberPending ? 'Updating...' : 'Add / Update Member'}
+            {memberPending
+              ? t('enterpriseConsole.buttons.updating')
+              : t('enterpriseConsole.buttons.addOrUpdateMember')}
           </button>
         ) : null}
       >
@@ -827,7 +871,7 @@ function OrganizationsPanel({
           <>
             <div className="mb-4 grid gap-4 md:grid-cols-[2fr_3fr]">
               <label className="text-sm text-text-secondary">
-                User Email
+                {t('enterpriseConsole.fields.userEmail')}
                 <input
                   value={memberEmail}
                   onChange={(event) => onMemberEmailChange(event.target.value)}
@@ -836,7 +880,7 @@ function OrganizationsPanel({
                 />
               </label>
               <div className="text-sm text-text-secondary">
-                Roles
+                {t('enterpriseConsole.fields.roles')}
                 <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
                   {ORG_ROLE_OPTIONS.map((role) => {
                     const checked = memberRoles.includes(role);
@@ -864,18 +908,18 @@ function OrganizationsPanel({
             {membersLoading ? (
               <Skeleton variant="table" />
             ) : membersError ? (
-              <EmptyState variant="error" message={`Failed to load members: ${membersError}`} />
+              <EmptyState variant="error" message={t('enterpriseConsole.errors.membersLoadFailed', { error: membersError })} />
             ) : (
               <DataTable
                 rows={members}
                 columns={memberColumns}
                 getRowId={(row) => row.membershipId}
-                emptyState={<EmptyState message="No members assigned yet." />}
+                emptyState={<EmptyState message={t('enterpriseConsole.empty.membersAssigned')} />}
               />
             )}
           </>
         ) : (
-          <EmptyState message="Create or select an organization to manage memberships." />
+          <EmptyState message={t('enterpriseConsole.empty.selectOrgFirst')} />
         )}
       </SectionCard>
     </div>
@@ -913,26 +957,27 @@ function ControlPlanePanel({
   onWalletPageChange: (page: number) => void;
   onGovernancePageChange: (page: number) => void;
 }) {
+  const { t } = useTranslation();
   if (loading) return <Skeleton variant="table" />;
   if (errors.length > 0) return <EmptyState variant="error" message={errors.join('\n')} />;
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionCard title="Personas" subtitle="Current persona fleet, ownership, and wallet posture.">
+        <SectionCard title={t('enterpriseConsole.sections.personas.title')} subtitle={t('enterpriseConsole.sections.personas.subtitle')}>
           <div className="mb-4 grid gap-3 sm:grid-cols-4">
-            <MetricTile label="Total" value={personas?.summary.total ?? 0} />
-            <MetricTile label="Active" value={personas?.summary.active ?? 0} />
-            <MetricTile label="Restricted" value={personas?.summary.restricted ?? 0} />
-            <MetricTile label="Deceased" value={personas?.summary.deceased ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.total')} value={personas?.summary.total ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.active')} value={personas?.summary.active ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.restricted')} value={personas?.summary.restricted ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.deceased')} value={personas?.summary.deceased ?? 0} />
           </div>
           <DataTable
             rows={personas?.data ?? []}
             columns={[
-              { id: 'displayName', header: 'Persona', cell: (row) => row.displayName },
-              { id: 'status', header: 'Status', cell: (row) => row.status },
-              { id: 'ownerEmail', header: 'Owner', cell: (row) => row.ownerEmail ?? row.ownerUserId },
-              { id: 'walletBalance', header: 'Wallet', cell: (row) => row.walletBalance ?? '—' },
+              { id: 'displayName', header: t('enterpriseConsole.columns.persona'), cell: (row) => row.displayName },
+              { id: 'status', header: t('enterpriseConsole.columns.status'), cell: (row) => row.status },
+              { id: 'ownerEmail', header: t('enterpriseConsole.columns.owner'), cell: (row) => row.ownerEmail ?? row.ownerUserId },
+              { id: 'walletBalance', header: t('enterpriseConsole.columns.wallet'), cell: (row) => row.walletBalance ?? '—' },
             ]}
             getRowId={(row) => row.personaId}
             pagination={personas ? {
@@ -941,24 +986,24 @@ function ControlPlanePanel({
               total: personas.pagination.total,
               onChange: onPersonaPageChange,
             } : undefined}
-            emptyState={<EmptyState message="No personas found." />}
+            emptyState={<EmptyState message={t('enterpriseConsole.empty.personas')} />}
           />
         </SectionCard>
 
-        <SectionCard title="Tasks" subtitle="Marketplace backlog and completion posture.">
+        <SectionCard title={t('enterpriseConsole.sections.tasks.title')} subtitle={t('enterpriseConsole.sections.tasks.subtitle')}>
           <div className="mb-4 grid gap-3 sm:grid-cols-4">
-            <MetricTile label="Total" value={tasks?.summary.total ?? 0} />
-            <MetricTile label="Open" value={tasks?.summary.open ?? 0} />
-            <MetricTile label="Accepted" value={tasks?.summary.accepted ?? 0} />
-            <MetricTile label="Completed" value={tasks?.summary.completed ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.total')} value={tasks?.summary.total ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.open')} value={tasks?.summary.open ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.accepted')} value={tasks?.summary.accepted ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.completed')} value={tasks?.summary.completed ?? 0} />
           </div>
           <DataTable
             rows={tasks?.data ?? []}
             columns={[
-              { id: 'title', header: 'Task', cell: (row) => row.title },
-              { id: 'status', header: 'Status', cell: (row) => row.status },
-              { id: 'category', header: 'Category', cell: (row) => row.category },
-              { id: 'reward', header: 'Reward', cell: (row) => row.reward },
+              { id: 'title', header: t('enterpriseConsole.columns.task'), cell: (row) => row.title },
+              { id: 'status', header: t('enterpriseConsole.columns.status'), cell: (row) => row.status },
+              { id: 'category', header: t('enterpriseConsole.columns.category'), cell: (row) => row.category },
+              { id: 'reward', header: t('enterpriseConsole.columns.reward'), cell: (row) => row.reward },
             ]}
             getRowId={(row) => row.taskId}
             pagination={tasks ? {
@@ -967,26 +1012,26 @@ function ControlPlanePanel({
               total: tasks.pagination.total,
               onChange: onTaskPageChange,
             } : undefined}
-            emptyState={<EmptyState message="No tasks found." />}
+            emptyState={<EmptyState message={t('enterpriseConsole.empty.tasks')} />}
           />
         </SectionCard>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <SectionCard title="Wallets" subtitle="Persona wallet exposure and settlement freshness.">
+        <SectionCard title={t('enterpriseConsole.sections.wallets.title')} subtitle={t('enterpriseConsole.sections.wallets.subtitle')}>
           <div className="mb-4 grid gap-3 sm:grid-cols-4">
-            <MetricTile label="Wallets" value={wallets?.summary.total ?? 0} />
-            <MetricTile label="Active" value={wallets?.summary.active ?? 0} />
-            <MetricTile label="Total Balance" value={wallets?.summary.totalBalance ?? 0} />
-            <MetricTile label="Token Reserve" value={wallets?.summary.totalTokenBalance ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.wallets')} value={wallets?.summary.total ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.active')} value={wallets?.summary.active ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.totalBalance')} value={wallets?.summary.totalBalance ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.tokenReserve')} value={wallets?.summary.totalTokenBalance ?? 0} />
           </div>
           <DataTable
             rows={wallets?.data ?? []}
             columns={[
-              { id: 'displayName', header: 'Persona', cell: (row) => row.displayName ?? row.personaId },
-              { id: 'balance', header: 'Balance', cell: (row) => `${row.balance} ${row.currency}` },
-              { id: 'tokenBalance', header: 'Reserve', cell: (row) => row.tokenBalance },
-              { id: 'lastSettledAt', header: 'Last Settled', cell: (row) => formatDateTime(row.lastSettledAt) },
+              { id: 'displayName', header: t('enterpriseConsole.columns.persona'), cell: (row) => row.displayName ?? row.personaId },
+              { id: 'balance', header: t('enterpriseConsole.columns.balance'), cell: (row) => `${row.balance} ${row.currency}` },
+              { id: 'tokenBalance', header: t('enterpriseConsole.columns.reserve'), cell: (row) => row.tokenBalance },
+              { id: 'lastSettledAt', header: t('enterpriseConsole.columns.lastSettled'), cell: (row) => formatDateTime(row.lastSettledAt) },
             ]}
             getRowId={(row) => row.walletId}
             pagination={wallets ? {
@@ -995,24 +1040,24 @@ function ControlPlanePanel({
               total: wallets.pagination.total,
               onChange: onWalletPageChange,
             } : undefined}
-            emptyState={<EmptyState message="No wallets found." />}
+            emptyState={<EmptyState message={t('enterpriseConsole.empty.wallets')} />}
           />
         </SectionCard>
 
-        <SectionCard title="Governance" subtitle="Open cases, appeals, and recent moderation actions.">
+        <SectionCard title={t('enterpriseConsole.sections.governance.title')} subtitle={t('enterpriseConsole.sections.governance.subtitle')}>
           <div className="mb-4 grid gap-3 sm:grid-cols-4">
-            <MetricTile label="Cases" value={governance?.summary.total ?? 0} />
-            <MetricTile label="Open" value={governance?.summary.open ?? 0} />
-            <MetricTile label="Action Applied" value={governance?.summary.actionApplied ?? 0} />
-            <MetricTile label="Appealed" value={governance?.summary.appealed ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.cases')} value={governance?.summary.total ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.open')} value={governance?.summary.open ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.actionApplied')} value={governance?.summary.actionApplied ?? 0} />
+            <MetricTile label={t('enterpriseConsole.summary.appealed')} value={governance?.summary.appealed ?? 0} />
           </div>
           <DataTable
             rows={governance?.data ?? []}
             columns={[
-              { id: 'displayName', header: 'Persona', cell: (row) => row.displayName ?? row.personaId },
-              { id: 'triggerType', header: 'Trigger', cell: (row) => row.triggerType },
-              { id: 'severity', header: 'Severity', cell: (row) => row.severity },
-              { id: 'status', header: 'Status', cell: (row) => row.status },
+              { id: 'displayName', header: t('enterpriseConsole.columns.persona'), cell: (row) => row.displayName ?? row.personaId },
+              { id: 'triggerType', header: t('enterpriseConsole.columns.trigger'), cell: (row) => row.triggerType },
+              { id: 'severity', header: t('enterpriseConsole.columns.severity'), cell: (row) => row.severity },
+              { id: 'status', header: t('enterpriseConsole.columns.status'), cell: (row) => row.status },
             ]}
             getRowId={(row) => row.caseId}
             pagination={governance ? {
@@ -1021,7 +1066,7 @@ function ControlPlanePanel({
               total: governance.pagination.total,
               onChange: onGovernancePageChange,
             } : undefined}
-            emptyState={<EmptyState message="No governance cases found." />}
+            emptyState={<EmptyState message={t('enterpriseConsole.empty.governance')} />}
           />
         </SectionCard>
       </div>
@@ -1052,8 +1097,9 @@ function VaultPanel({
   onRotate: (keyRef: string) => void;
   onRevoke: (keyRef: string) => void;
 }) {
+  const { t } = useTranslation();
   if (loading) return <Skeleton variant="table" />;
-  if (error) return <EmptyState variant="error" message={`Failed to load vault keys: ${error}`} />;
+  if (error) return <EmptyState variant="error" message={t('enterpriseConsole.errors.vaultKeysLoadFailed', { error })} />;
 
   const keyRefs = [...new Set(keys.map((k) => k.keyRef))];
 
@@ -1066,29 +1112,29 @@ function VaultPanel({
       )}
 
       <SectionCard
-        title="Tenant Key Versions"
-        subtitle="Platform-managed encryption keys for this tenant. Rotate to issue a new version; revoke to retire a compromised key."
+        title={t('enterpriseConsole.sections.tenantKeyVersions.title')}
+        subtitle={t('enterpriseConsole.sections.tenantKeyVersions.subtitle')}
       >
         {keys.length === 0 ? (
-          <EmptyState message="No key versions found. Keys are provisioned on first vault operation." />
+          <EmptyState message={t('enterpriseConsole.empty.vaultKeys')} />
         ) : (
           <DataTable<VaultKeyVersion>
             rows={keys}
             columns={[
-              { id: 'keyRef', header: 'Key Ref', cell: (row) => row.keyRef },
-              { id: 'provider', header: 'Provider', cell: (row) => row.provider },
-              { id: 'version', header: 'Version', cell: (row) => `v${row.version}` },
+              { id: 'keyRef', header: t('enterpriseConsole.columns.keyRef'), cell: (row) => row.keyRef },
+              { id: 'provider', header: t('enterpriseConsole.columns.provider'), cell: (row) => row.provider },
+              { id: 'version', header: t('enterpriseConsole.columns.version'), cell: (row) => `v${row.version}` },
               {
                 id: 'status',
-                header: 'Status',
+                header: t('enterpriseConsole.columns.status'),
                 cell: (row) => (
                   <span className={row.status === 'active' ? 'text-green-600 font-medium' : 'text-red-500'}>
                     {row.status}
                   </span>
                 ),
               },
-              { id: 'createdAt', header: 'Created', cell: (row) => formatDateTime(row.createdAt) },
-              { id: 'revokedAt', header: 'Revoked', cell: (row) => formatDateTime(row.revokedAt) },
+              { id: 'createdAt', header: t('enterpriseConsole.columns.created'), cell: (row) => formatDateTime(row.createdAt) },
+              { id: 'revokedAt', header: t('enterpriseConsole.columns.revoked'), cell: (row) => formatDateTime(row.revokedAt) },
             ]}
             getRowId={(row) => `${row.keyRef}-${row.version}`}
             rowActions={(row) =>
@@ -1098,22 +1144,22 @@ function VaultPanel({
                     type="button"
                     disabled={rotating}
                     onClick={() => onRotate(row.keyRef)}
-                    className="rounded px-3 py-1 text-xs font-medium bg-surface border border-border hover:bg-surface-elevated disabled:opacity-50"
+                    className="inline-flex items-center min-h-touch rounded px-3 py-1 text-xs font-medium bg-surface border border-border hover:bg-surface-elevated disabled:opacity-50"
                   >
-                    {rotating ? 'Rotating…' : 'Rotate'}
+                    {rotating ? t('enterpriseConsole.buttons.rotating') : t('enterpriseConsole.buttons.rotate')}
                   </button>
                   <button
                     type="button"
                     disabled={revoking}
                     onClick={() => onRevoke(row.keyRef)}
-                    className="rounded px-3 py-1 text-xs font-medium text-red-600 border border-red-200 hover:bg-red-50 disabled:opacity-50"
+                    className="inline-flex items-center min-h-touch rounded px-3 py-1 text-xs font-medium text-red-600 border border-red-200 hover:bg-red-50 disabled:opacity-50"
                   >
-                    {revoking ? 'Revoking…' : 'Revoke'}
+                    {revoking ? t('enterpriseConsole.buttons.revoking') : t('enterpriseConsole.buttons.revoke')}
                   </button>
                 </div>
               ) : null
             }
-            emptyState={<EmptyState message="No key versions." />}
+            emptyState={<EmptyState message={t('enterpriseConsole.empty.vaultKeys')} />}
           />
         )}
 
@@ -1125,9 +1171,11 @@ function VaultPanel({
                 type="button"
                 disabled={rotating}
                 onClick={() => onRotate(ref)}
-                className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium hover:bg-surface-elevated disabled:opacity-50"
+                className="inline-flex items-center min-h-touch rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium hover:bg-surface-elevated disabled:opacity-50"
               >
-                {rotating ? 'Rotating…' : `Rotate "${ref}"`}
+                {rotating
+                  ? t('enterpriseConsole.buttons.rotating')
+                  : t('enterpriseConsole.buttons.rotateNamed', { ref })}
               </button>
             ))}
           </div>
@@ -1135,28 +1183,28 @@ function VaultPanel({
       </SectionCard>
 
       <SectionCard
-        title="Vault Operation Audit"
-        subtitle="Last 50 cryptographic operations performed against this tenant's vault."
+        title={t('enterpriseConsole.sections.vaultAudit.title')}
+        subtitle={t('enterpriseConsole.sections.vaultAudit.subtitle')}
       >
         <DataTable<VaultAuditEntry>
           rows={auditEntries}
           columns={[
-            { id: 'operation', header: 'Operation', cell: (row) => row.operation },
-            { id: 'keyRef', header: 'Key Ref', cell: (row) => row.keyRef },
-            { id: 'keyVersion', header: 'Version', cell: (row) => row.keyVersion !== null ? `v${row.keyVersion}` : '—' },
+            { id: 'operation', header: t('enterpriseConsole.columns.operation'), cell: (row) => row.operation },
+            { id: 'keyRef', header: t('enterpriseConsole.columns.keyRef'), cell: (row) => row.keyRef },
+            { id: 'keyVersion', header: t('enterpriseConsole.columns.version'), cell: (row) => row.keyVersion !== null ? `v${row.keyVersion}` : '—' },
             {
               id: 'outcome',
-              header: 'Outcome',
+              header: t('enterpriseConsole.columns.outcome'),
               cell: (row) => (
                 <span className={row.outcome === 'ok' ? 'text-green-600' : 'text-red-500 font-medium'}>
                   {row.outcome}
                 </span>
               ),
             },
-            { id: 'performedAt', header: 'Time', cell: (row) => formatDateTime(row.performedAt) },
+            { id: 'performedAt', header: t('enterpriseConsole.columns.time'), cell: (row) => formatDateTime(row.performedAt) },
           ]}
           getRowId={(row) => row.id}
-          emptyState={<EmptyState message="No vault operations recorded yet." />}
+          emptyState={<EmptyState message={t('enterpriseConsole.empty.vaultAudit')} />}
           rowActions={(row) =>
             row.errorMessage ? (
               <span className="text-xs text-red-500">{row.errorMessage}</span>
@@ -1181,19 +1229,20 @@ function AuditPanel({
   page: number;
   onPageChange: (page: number) => void;
 }) {
+  const { t } = useTranslation();
   if (loading) return <Skeleton variant="table" />;
-  if (error) return <EmptyState variant="error" message={`Failed to load audit log: ${error}`} />;
+  if (error) return <EmptyState variant="error" message={t('enterpriseConsole.errors.auditLoadFailed', { error })} />;
 
   return (
     <div className="space-y-6">
-      <SectionCard title="Business Audit Trail" subtitle="Recent sensitive actions captured by the platform audit logger.">
+      <SectionCard title={t('enterpriseConsole.sections.businessAudit.title')} subtitle={t('enterpriseConsole.sections.businessAudit.subtitle')}>
         <DataTable
           rows={audit?.data ?? []}
           columns={[
-            { id: 'actionType', header: 'Action', cell: (row) => row.actionType },
-            { id: 'targetType', header: 'Target Type', cell: (row) => row.targetType ?? '—' },
-            { id: 'actorId', header: 'Actor', cell: (row) => row.actorId ?? row.userEmail ?? row.userId ?? 'system' },
-            { id: 'createdAt', header: 'Time', cell: (row) => formatDateTime(new Date(row.createdAt).toISOString()) },
+            { id: 'actionType', header: t('enterpriseConsole.columns.action'), cell: (row) => row.actionType },
+            { id: 'targetType', header: t('enterpriseConsole.columns.targetType'), cell: (row) => row.targetType ?? '—' },
+            { id: 'actorId', header: t('enterpriseConsole.columns.actor'), cell: (row) => row.actorId ?? row.userEmail ?? row.userId ?? 'system' },
+            { id: 'createdAt', header: t('enterpriseConsole.columns.time'), cell: (row) => formatDateTime(new Date(row.createdAt).toISOString()) },
           ]}
           getRowId={(row) => row.id}
           pagination={audit ? {
@@ -1202,7 +1251,7 @@ function AuditPanel({
             total: audit.pagination.total,
             onChange: onPageChange,
           } : undefined}
-          emptyState={<EmptyState message="No audit rows found." />}
+          emptyState={<EmptyState message={t('enterpriseConsole.empty.audit')} />}
           rowActions={(row) => (
             <details className="max-w-[24rem] text-left">
               <summary className="cursor-pointer text-xs text-primary">Payload</summary>
