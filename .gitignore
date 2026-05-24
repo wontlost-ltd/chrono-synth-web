@@ -13,3 +13,7 @@ playwright-report/
 .DS_Store
 **/.DS_Store
 packages/*/node_modules
+storybook-static/
+chromatic.log
+build-storybook.log
+chromatic-build-*.json

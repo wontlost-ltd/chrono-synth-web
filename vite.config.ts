@@ -8,20 +8,37 @@ import { fileURLToPath } from 'node:url';
 
 const configDir = dirname(fileURLToPath(import.meta.url));
 
+/* Storybook reuses this config but ships its own ~2MB manager runtime,
+ * which the PWA plugin's `injectManifest` rejects.
+ *
+ * Detection: SB 9 doesn't set a STORYBOOK env var consistently, so we
+ * sniff process.argv for the `storybook` binary or look for the npm
+ * lifecycle script name. Either signal means the surrounding build is
+ * for SB, and we drop the PWA plugin. The app's production build
+ * still gets PWA + service worker as before. */
+const isStorybookBuild =
+  process.env.STORYBOOK === 'true' ||
+  process.env.npm_lifecycle_event?.includes('storybook') === true ||
+  process.argv.some((arg) => arg.includes('/storybook/') || arg.endsWith('storybook'));
+
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      srcDir: 'src',
-      filename: 'sw.ts',
-      strategies: 'injectManifest',
-      manifest: false,
-      injectManifest: {
-        globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
-      },
-    }),
+    ...(isStorybookBuild
+      ? []
+      : [
+          VitePWA({
+            registerType: 'autoUpdate',
+            srcDir: 'src',
+            filename: 'sw.ts',
+            strategies: 'injectManifest',
+            manifest: false,
+            injectManifest: {
+              globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+            },
+          }),
+        ]),
   ],
   resolve: {
     alias: {
