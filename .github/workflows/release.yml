@@ -3,7 +3,8 @@ name: Release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'           # GA: v2.0.0
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'         # pre-release: v2.0.0-beta.1 / -rc.2
 
 jobs:
   build-and-push:
@@ -33,13 +34,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Pre-release tags (v2.0.0-beta.1) emit only the full version tag;
+      # they do NOT claim `latest` or `2.0` aliases that GA tags own.
       - id: meta
         uses: docker/metadata-action@v6
         with:
           images: ghcr.io/wontlost-ltd/chrono-synth-web
+          flavor: |
+            latest=${{ !contains(github.ref_name, '-') }}
           tags: |
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ !contains(github.ref_name, '-') }}
             type=sha,prefix=sha-
 
       - uses: docker/build-push-action@v7
@@ -51,15 +56,21 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # GA tags block on CRITICAL+HIGH; pre-release tags block on CRITICAL
+      # only (HIGH findings get reviewed during dogfooding, not gate the build).
       - name: Trivy image scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/wontlost-ltd/chrono-synth-web:${{ steps.meta.outputs.version }}
           format: table
           exit-code: '1'
-          severity: CRITICAL,HIGH
+          severity: ${{ contains(github.ref_name, '-') && 'CRITICAL' || 'CRITICAL,HIGH' }}
 
+  # Auto-trigger downstream deploy for GA tags only. Pre-release tags
+  # are explicitly internal-beta and operators promote them manually
+  # after dogfooding clears the checklist.
   dispatch-deploy:
+    if: ${{ !contains(github.ref_name, '-') }}
     runs-on: ubuntu-latest
     needs: build-and-push
     steps:
