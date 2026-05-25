@@ -11,7 +11,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM nginxinc/nginx-unprivileged:1.29-alpine3.23
+FROM nginxinc/nginx-unprivileged:1.31-alpine3.23
 USER root
 RUN apk upgrade --no-cache
 RUN mkdir -p /app/scripts /usr/share/nginx/html \
