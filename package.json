@@ -58,7 +58,7 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^5.2.0",
-    "chromatic": "^13.3.5",
+    "chromatic": "^17.0.0",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^29.1.1",
     "storybook": "^9.1.20",
