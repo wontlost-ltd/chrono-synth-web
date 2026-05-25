@@ -1,13 +1,19 @@
 # ChronoSynth Web
 
-The web console for **ChronoSynth — agent governance for enterprise AI**.
+The web console for **ChronoSynth (Enterprise)** — agent governance for
+enterprise AI.
 
 This is what your AI lead, compliance officer, and CISO log into when they
 want to answer: *which tools did our agents call, on whose authority, and
 did anything drift from the policy?* The console renders the audit log,
 tool-permission matrix, and drift reports backed by `chrono-synth-os`.
 
-> Product narrative: see `chrono-synth-os/.claude/gtm/01-pr-faq.md`.
+> 🧭 This repo is **the enterprise host**. The consumer-facing
+> ChronoCompanion product lives in `chrono-synth-os/apps/companion-web/`
+> with a different brand, routing, and pricing model. See
+> [ADR-0046](../chrono-synth-os/docs/adr/0046-dual-product-companion.md).
+>
+> Detailed product narrative: see `chrono-synth-os/.claude/gtm/01-pr-faq.md`.
 
 The same console also surfaces operator views (persona core, knowledge
 sources, marketplace, billing) for organizations using ChronoSynth's full
