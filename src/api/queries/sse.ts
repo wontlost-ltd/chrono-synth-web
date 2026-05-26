@@ -17,6 +17,8 @@ export function useSse<T = unknown>(channel: string, onMessage: (data: T) => voi
     let abortController: AbortController | null = null;
     let reconnectTimer: number | null = null;
     let stopped = false;
+    /* 初始 1s 重试，指数退避，cap 30s（之前 10s 导致 Cloudflare Tunnel
+     * 偶发 502 时持续 polling 噪音 + 占用浏览器并发槽位）。 */
     let reconnectDelayMs = 1000;
 
     function clearReconnectTimer() {
@@ -33,7 +35,7 @@ export function useSse<T = unknown>(channel: string, onMessage: (data: T) => voi
         reconnectTimer = null;
         void connect();
       }, delay);
-      reconnectDelayMs = Math.min(reconnectDelayMs * 2, 10_000);
+      reconnectDelayMs = Math.min(reconnectDelayMs * 2, 30_000);
     }
 
     async function connect() {

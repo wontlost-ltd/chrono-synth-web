@@ -82,15 +82,28 @@ function parseErrorBody(status: number, raw: string): {
 
 let refreshPromise: Promise<boolean> | null = null;
 
-/** 尝试通过 HttpOnly cookie 刷新 accessToken */
+/** 尝试通过 HttpOnly cookie 刷新 accessToken。
+ *
+ * /auth/refresh 走 cookie auth + 受 CSRF 保护（双 cookie 模式），所以
+ * 必须把 csrf_token cookie 的值通过 X-CSRF-Token header 回送 —— 否则
+ * 服务端的 csrf 插件返回 403 CSRF_TOKEN_MISMATCH，前端把它当成「refresh
+ * 失败」清掉 session，用户被强制重登。这是个长期存在的"自动登出"bug。
+ */
 async function tryRefresh(): Promise<boolean> {
   if (refreshPromise) return refreshPromise;
 
   refreshPromise = (async () => {
     try {
+      const csrf = getCsrfToken();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'X-CSRF-Protection': '1',
+      };
+      if (csrf) headers['X-CSRF-Token'] = csrf;
+
       const res = await fetch(`${API_BASE_URL}/api/v1/auth/refresh`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         credentials: 'include',
         body: '{}',
       });

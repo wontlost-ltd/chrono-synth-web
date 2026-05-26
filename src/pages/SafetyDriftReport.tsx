@@ -31,9 +31,11 @@ const ALERT_LABEL: Record<DriftAlertLevel, string> = {
   critical: 'Critical',
 };
 
-function formatTimestamp(ms: number): string {
-  if (!ms) return '—';
-  return new Date(ms).toLocaleString();
+function formatTimestamp(ms: number | string | null | undefined): string {
+  if (ms === null || ms === undefined || ms === '') return '—';
+  const n = typeof ms === 'string' ? parseInt(ms, 10) : ms;
+  if (!Number.isFinite(n) || n <= 0) return '—';
+  return new Date(n).toLocaleString();
 }
 
 function formatDelta(d: number): string {
