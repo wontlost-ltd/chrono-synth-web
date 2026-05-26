@@ -65,27 +65,42 @@ export async function flush(): Promise<void> {
   if (queue.length === 0) return;
   const batch = queue.splice(0, queue.length);
 
+  /* Resolve the bearer dynamically — avoids importing session module here
+   * (analytics is imported eagerly; session must stay tree-shakeable). The
+   * dynamic import is awaited only when we actually have events to flush. */
+  let auth: Record<string, string> = {};
+  try {
+    const session = (await import('../store/session')).getSession();
+    if (session.accessToken) auth = { Authorization: `Bearer ${session.accessToken}` };
+  } catch { /* session module not available — fire anonymously */ }
+
   /* Use sendBeacon when the document is unloading — guaranteed delivery
-   * even if the page is being torn down. Fall back to fetch otherwise. */
+   * even if the page is being torn down. Fall back to fetch otherwise.
+   * sendBeacon cannot carry custom headers, so unauthenticated beacon
+   * pings will 401; that's acceptable lossy telemetry on unload. */
   if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function' && document.visibilityState === 'hidden') {
     const ok = navigator.sendBeacon(
       FLUSH_ENDPOINT,
       new Blob([JSON.stringify({ events: batch })], { type: 'application/json' }),
     );
     if (ok) return;
-    /* sendBeacon refused (size, or transport error) — fall through to fetch. */
   }
 
   try {
-    await fetch(FLUSH_ENDPOINT, {
+    const res = await fetch(FLUSH_ENDPOINT, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...auth },
       body: JSON.stringify({ events: batch }),
       credentials: 'include',
       keepalive: true,
     });
+    /* 401/404 = telemetry route absent or session not yet established.
+     * Either is a no-op from the user's perspective; do not log. */
+    if (!res.ok && res.status !== 401 && res.status !== 404) {
+      /* unexpected status — drop silently per the "telemetry must never break flow" rule */
+    }
   } catch {
-    /* Telemetry must never break user flow. Drop the batch and move on. */
+    /* Network gone — drop batch */
   }
 }
 

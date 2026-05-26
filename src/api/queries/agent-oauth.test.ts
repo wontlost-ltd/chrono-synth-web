@@ -34,7 +34,7 @@ describe('GOOGLE_SCOPES', () => {
 
 describe('useUserOauthTokens', () => {
   it('unwraps data envelope', async () => {
-    mockApiFetch.mockResolvedValue({ data: [{ id: 'uoauth_1', scope: 'foo' }] });
+    mockApiFetch.mockResolvedValue([{ id: 'uoauth_1', scope: 'foo' }]);
     const { result } = renderHook(() => useUserOauthTokens(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([{ id: 'uoauth_1', scope: 'foo' }]);
@@ -44,7 +44,7 @@ describe('useUserOauthTokens', () => {
 
 describe('useStartGoogleAuthorize', () => {
   it('returns the authorize URL the caller can navigate to', async () => {
-    mockApiFetch.mockResolvedValue({ data: { authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth?…' } });
+    mockApiFetch.mockResolvedValue({ authorizeUrl: 'https://accounts.google.com/o/oauth2/v2/auth?…' });
     const { result } = renderHook(() => useStartGoogleAuthorize(), { wrapper: createWrapper() });
     const out = await result.current.mutateAsync({
       scope: 'https://www.googleapis.com/auth/calendar',

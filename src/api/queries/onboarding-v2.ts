@@ -28,18 +28,13 @@ interface StatusResponse {
   session: OnboardingV2Session | null;
 }
 
-interface Envelope<T> {
-  data: T;
-}
-
 const STATUS_KEY = ['onboarding', 'v2', 'status'] as const;
 
 export function useOnboardingV2Status() {
   return useQuery({
     queryKey: STATUS_KEY,
     queryFn: ({ signal }) =>
-      apiFetch<Envelope<StatusResponse>>('/api/v1/onboarding/v2/status', { signal })
-        .then((r) => r.data),
+      apiFetch<StatusResponse>('/api/v1/onboarding/v2/status', { signal }),
     /* 引导状态本应靠 mutation 主动失效；这里给个保底 5min 刷新 */
     staleTime: 5 * 60 * 1000,
   });
@@ -49,10 +44,10 @@ export function useStartOnboardingV2() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () =>
-      apiFetch<Envelope<OnboardingV2Session>>('/api/v1/onboarding/v2/start', {
+      apiFetch<OnboardingV2Session>('/api/v1/onboarding/v2/start', {
         method: 'POST',
         body: '{}',
-      }).then((r) => r.data),
+      }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: STATUS_KEY }); },
   });
 }
@@ -61,10 +56,10 @@ export function useSubmitOrganizationStep() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: { sessionId: string; organizationName: string }) =>
-      apiFetch<Envelope<{ session: OnboardingV2Session; organizationId: string }>>(
+      apiFetch<{ session: OnboardingV2Session; organizationId: string }>(
         '/api/v1/onboarding/v2/organization',
         { method: 'POST', body: JSON.stringify(input) },
-      ).then((r) => r.data),
+      ),
     onSuccess: () => { qc.invalidateQueries({ queryKey: STATUS_KEY }); },
   });
 }
@@ -80,10 +75,10 @@ export function useSubmitAgentStep() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: OnboardingAgentInput) =>
-      apiFetch<Envelope<{ session: OnboardingV2Session; agentId: string }>>(
+      apiFetch<{ session: OnboardingV2Session; agentId: string }>(
         '/api/v1/onboarding/v2/agent',
         { method: 'POST', body: JSON.stringify(input) },
-      ).then((r) => r.data),
+      ),
     onSuccess: () => { qc.invalidateQueries({ queryKey: STATUS_KEY }); },
   });
 }
@@ -98,10 +93,10 @@ export function useSubmitPolicyStep() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: { sessionId: string; agentId: string; policies: OnboardingPolicyEntry[] }) =>
-      apiFetch<Envelope<{ session: OnboardingV2Session; policyCount: number }>>(
+      apiFetch<{ session: OnboardingV2Session; policyCount: number }>(
         '/api/v1/onboarding/v2/policy',
         { method: 'POST', body: JSON.stringify(input) },
-      ).then((r) => r.data),
+      ),
     onSuccess: () => { qc.invalidateQueries({ queryKey: STATUS_KEY }); },
   });
 }
@@ -110,10 +105,10 @@ export function useFireSyntheticInvocation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: { sessionId: string; agentId: string }) =>
-      apiFetch<Envelope<{ session: OnboardingV2Session; invocationIds: string[] }>>(
+      apiFetch<{ session: OnboardingV2Session; invocationIds: string[] }>(
         '/api/v1/onboarding/v2/synthetic-invocation',
         { method: 'POST', body: JSON.stringify(input) },
-      ).then((r) => r.data),
+      ),
     onSuccess: () => { qc.invalidateQueries({ queryKey: STATUS_KEY }); },
   });
 }
@@ -122,10 +117,10 @@ export function useCompleteOnboardingV2() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: { sessionId: string }) =>
-      apiFetch<Envelope<{ session: OnboardingV2Session; completedAt: number | null }>>(
+      apiFetch<{ session: OnboardingV2Session; completedAt: number | null }>(
         '/api/v1/onboarding/v2/complete',
         { method: 'POST', body: JSON.stringify(input) },
-      ).then((r) => r.data),
+      ),
     onSuccess: () => { qc.invalidateQueries({ queryKey: STATUS_KEY }); },
   });
 }
@@ -134,10 +129,10 @@ export function useSkipOnboardingV2() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: { sessionId: string; currentStep: number }) =>
-      apiFetch<Envelope<{ session: OnboardingV2Session; skippedAtStep: number }>>(
+      apiFetch<{ session: OnboardingV2Session; skippedAtStep: number }>(
         '/api/v1/onboarding/v2/skip',
         { method: 'POST', body: JSON.stringify(input) },
-      ).then((r) => r.data),
+      ),
     onSuccess: () => { qc.invalidateQueries({ queryKey: STATUS_KEY }); },
   });
 }

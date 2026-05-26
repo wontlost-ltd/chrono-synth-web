@@ -16,18 +16,14 @@ export interface PendingConfirmation {
   status: string;
 }
 
-interface Envelope<T> { data: T }
-
 export function usePendingConfirmations(limit = 20, enabled = true) {
   return useQuery({
     queryKey: ['agent', 'confirmations', 'pending', limit],
-    queryFn: async ({ signal }) => {
-      const r = await apiFetch<Envelope<PendingConfirmation[]>>(
+    queryFn: ({ signal }) =>
+      apiFetch<PendingConfirmation[]>(
         `/api/v1/agent/confirmations/pending?limit=${limit}`,
         { signal },
-      );
-      return r.data;
-    },
+      ),
     enabled,
     refetchInterval: 30_000,
   });
@@ -42,14 +38,13 @@ export interface ApproveInput {
 export function useApproveConfirmation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: ApproveInput) => {
+    mutationFn: (input: ApproveInput) => {
       const body: Record<string, unknown> = { arguments: input.arguments };
       if (input.sessionId) body.sessionId = input.sessionId;
-      const r = await apiFetch<Envelope<unknown>>(
+      return apiFetch<unknown>(
         `/api/v1/agent/confirmations/${input.tokenId}/approve`,
         { method: 'POST', body: JSON.stringify(body) },
       );
-      return r.data;
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['agent', 'confirmations'] });
@@ -61,7 +56,7 @@ export function useRejectConfirmation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ tokenId, reason }: { tokenId: string; reason?: string }) =>
-      apiFetch<Envelope<{ rejected: boolean }>>(
+      apiFetch<{ rejected: boolean }>(
         `/api/v1/agent/confirmations/${tokenId}/reject`,
         { method: 'POST', body: JSON.stringify({ reason: reason ?? 'user_rejected' }) },
       ),

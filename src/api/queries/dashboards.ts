@@ -48,10 +48,9 @@ export function usePersonaHealth(personaId: string, enabled = true) {
   return useQuery({
     queryKey: ['dashboards', 'persona', personaId],
     enabled: enabled && personaId.length > 0,
-    queryFn: async ({ signal }) => {
+    queryFn: ({ signal }) => {
       const path = `/api/v1/admin/dashboards/persona/${encodeURIComponent(personaId)}`;
-      const res = await apiFetch<{ data: PersonaHealthPayload }>(path, { signal });
-      return res.data;
+      return apiFetch<PersonaHealthPayload>(path, { signal });
     },
     staleTime: 5 * 60 * 1000,
   });

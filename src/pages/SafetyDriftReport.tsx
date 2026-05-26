@@ -58,7 +58,7 @@ export function SafetyDriftReport() {
   if (isLoading) return <Skeleton variant="card" />;
 
   const summary = status.data;
-  const report = latest.data ?? summary?.drift.latestReport ?? null;
+  const report = latest.data ?? summary?.personaDrift?.lastReport ?? null;
 
   return (
     <div className="space-y-6">
@@ -90,14 +90,14 @@ export function SafetyDriftReport() {
             <div className="mt-1 text-3xl font-bold">
               {summary.memoryConfidence.unverifiedCount}
               <span className="text-base font-normal text-text-secondary">
-                /{summary.memoryConfidence.total}
+                /{summary.memoryConfidence.totalCount}
               </span>
             </div>
             <p className="mt-1 text-xs text-text-secondary">{t('safetyDrift.cards.unverifiedMemorySubtitle')}</p>
           </div>
           <div className="rounded-xl border border-border p-4">
             <div className="text-xs uppercase text-text-secondary">{t('safetyDrift.cards.recentAlerts')}</div>
-            <div className="mt-1 text-3xl font-bold">{summary.drift.recentAlerts.length}</div>
+            <div className="mt-1 text-3xl font-bold">{summary.personaDrift?.recentAlerts.length ?? 0}</div>
             <p className="mt-1 text-xs text-text-secondary">{t('safetyDrift.cards.recentAlertsSubtitle')}</p>
           </div>
         </div>
@@ -168,11 +168,11 @@ export function SafetyDriftReport() {
         </section>
       )}
 
-      {summary && summary.drift.recentAlerts.length > 0 && (
+      {summary && (summary.personaDrift?.recentAlerts.length ?? 0) > 0 && (
         <section className="border rounded-lg p-4 space-y-2">
           <h2 className="text-lg font-semibold">{t('safetyDrift.recentAlerts.heading')}</h2>
           <ul className="text-sm space-y-1">
-            {summary.drift.recentAlerts.map((a) => (
+            {summary.personaDrift!.recentAlerts.map((a) => (
               <li key={a.reportId} className="flex items-center gap-3">
                 <span className="font-mono text-xs flex-1 truncate">{a.reportId}</span>
                 <span className="text-text-secondary">{formatTimestamp(a.analyzedAt)}</span>

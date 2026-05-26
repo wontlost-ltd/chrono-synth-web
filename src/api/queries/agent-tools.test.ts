@@ -30,7 +30,7 @@ beforeEach(() => {
 
 describe('useToolPermissions', () => {
   it('unwraps the data envelope', async () => {
-    mockApiFetch.mockResolvedValue({ data: [{ id: 'tperm_1', toolId: 'web_search' }] });
+    mockApiFetch.mockResolvedValue([{ id: 'tperm_1', toolId: 'web_search' }]);
     const { result } = renderHook(() => useToolPermissions(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual([{ id: 'tperm_1', toolId: 'web_search' }]);
@@ -45,7 +45,7 @@ describe('useToolPermissions', () => {
 
 describe('useToolPermissionsByPersona', () => {
   it('targets the per-persona endpoint', async () => {
-    mockApiFetch.mockResolvedValue({ data: [] });
+    mockApiFetch.mockResolvedValue([]);
     const { result } = renderHook(() => useToolPermissionsByPersona('p1'), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(mockApiFetch).toHaveBeenCalledWith('/api/v1/admin/personas/p1/tool-permissions', expect.any(Object));
@@ -59,7 +59,7 @@ describe('useToolPermissionsByPersona', () => {
 
 describe('useGrantToolPermission', () => {
   it('POSTs the input and unwraps the result', async () => {
-    mockApiFetch.mockResolvedValue({ data: { id: 'tperm_1', revocationKey: 'rk_xyz' } });
+    mockApiFetch.mockResolvedValue({ id: 'tperm_1', revocationKey: 'rk_xyz' });
     const { result } = renderHook(() => useGrantToolPermission(), { wrapper: createWrapper() });
     const out = await result.current.mutateAsync({
       personaId: 'p1', toolId: 'web_search', scope: 'execute',
@@ -86,7 +86,7 @@ describe('useRevokeToolPermission', () => {
 
 describe('useAgencyAuthorizationsByPersona', () => {
   it('encodes personaId in the query string', async () => {
-    mockApiFetch.mockResolvedValue({ data: [] });
+    mockApiFetch.mockResolvedValue([]);
     const { result } = renderHook(
       () => useAgencyAuthorizationsByPersona('persona/with slash'),
       { wrapper: createWrapper() },
@@ -101,7 +101,7 @@ describe('useAgencyAuthorizationsByPersona', () => {
 
 describe('useCreateAgencyAuthorization', () => {
   it('POSTs and unwraps the data envelope', async () => {
-    mockApiFetch.mockResolvedValue({ data: { id: 'aa_1', revocationKey: 'rk_aa' } });
+    mockApiFetch.mockResolvedValue({ id: 'aa_1', revocationKey: 'rk_aa' });
     const { result } = renderHook(() => useCreateAgencyAuthorization(), { wrapper: createWrapper() });
     const out = await result.current.mutateAsync({
       personaId: 'p1',
@@ -151,7 +151,7 @@ describe('useRevokeAgencyAuthorization', () => {
 
 describe('useToolInvocations', () => {
   it('builds query string with limit', async () => {
-    mockApiFetch.mockResolvedValue({ data: [] });
+    mockApiFetch.mockResolvedValue([]);
     const { result } = renderHook(() => useToolInvocations('p1', 100), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(mockApiFetch).toHaveBeenCalledWith(

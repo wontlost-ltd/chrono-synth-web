@@ -73,14 +73,20 @@ export function AgentOauthGoogle() {
                   type="button"
                   className="rounded border border-border bg-surface px-3 py-1 text-sm hover:bg-surface/80 disabled:opacity-50"
                   disabled={granted || start.isPending}
-                  onClick={async () => {
-                    const result = await start.mutateAsync({
-                      scope: s.value,
-                      redirectAfter: '/agent/oauth/google',
-                    });
-                    if (typeof window !== 'undefined') {
-                      window.location.assign(result.authorizeUrl);
-                    }
+                  onClick={() => {
+                    /* Use mutate (fire-and-forget) — errors land in `start.error`
+                     * for the banner below; never `mutateAsync` here because the
+                     * rejection would propagate out as an unhandled promise. */
+                    start.mutate(
+                      { scope: s.value, redirectAfter: '/agent/oauth/google' },
+                      {
+                        onSuccess: (result) => {
+                          if (typeof window !== 'undefined') {
+                            window.location.assign(result.authorizeUrl);
+                          }
+                        },
+                      },
+                    );
                   }}
                 >
                   {granted

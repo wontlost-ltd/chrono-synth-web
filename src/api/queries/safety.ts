@@ -3,7 +3,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiFetch } from '../client';
+import { apiFetch, ApiError } from '../client';
 
 export type DriftAlertLevel = 'ok' | 'warning' | 'critical';
 
@@ -29,18 +29,15 @@ export interface DriftReport {
   auditId?: string | null;
 }
 
-interface DriftEnvelope { data: DriftReport }
-
 export function useLatestDriftReport(enabled = true) {
   return useQuery({
     queryKey: ['admin', 'safety', 'drift-report'],
     queryFn: async ({ signal }) => {
       try {
-        const resp = await apiFetch<DriftEnvelope>('/api/v1/admin/safety/drift-report', { signal });
-        return resp.data;
+        return await apiFetch<DriftReport>('/api/v1/admin/safety/drift-report', { signal });
       } catch (err) {
-        /* 404 = 还没生成过报告 */
-        if (err instanceof Error && err.message.includes('404')) return null;
+        /* 404 = 还没生成过报告，前端展示 EmptyState 而非错误 */
+        if (err instanceof ApiError && err.status === 404) return null;
         throw err;
       }
     },
@@ -51,12 +48,8 @@ export function useLatestDriftReport(enabled = true) {
 export function useGenerateDriftReport() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
-      const resp = await apiFetch<DriftEnvelope>('/api/v1/admin/safety/drift-report', {
-        method: 'POST',
-      });
-      return resp.data;
-    },
+    mutationFn: () =>
+      apiFetch<DriftReport>('/api/v1/admin/safety/drift-report', { method: 'POST' }),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['admin', 'safety', 'drift-report'] });
       void qc.invalidateQueries({ queryKey: ['admin', 'safety', 'status'] });
@@ -66,12 +59,16 @@ export function useGenerateDriftReport() {
 
 export interface SafetyStatusSummary {
   memoryConfidence: {
-    total: number;
+    /** 服务端字段名为 totalCount（string 序列化的 bigint） */
+    totalCount: string | number;
     unverifiedCount: number;
+    unverifiedRatio?: number;
     bySourceKind: Record<string, number>;
   };
-  drift: {
-    latestReport: DriftReport | null;
+  /** 服务端字段名为 personaDrift */
+  personaDrift: {
+    /** 服务端字段名为 lastReport */
+    lastReport: DriftReport | null;
     recentAlerts: Array<{
       reportId: string;
       analyzedAt: number;
@@ -86,13 +83,8 @@ export interface SafetyStatusSummary {
 export function useSafetyStatus(enabled = true) {
   return useQuery({
     queryKey: ['admin', 'safety', 'status'],
-    queryFn: async ({ signal }) => {
-      const resp = await apiFetch<{ data: SafetyStatusSummary }>(
-        '/api/v1/admin/safety/status',
-        { signal },
-      );
-      return resp.data;
-    },
+    queryFn: ({ signal }) =>
+      apiFetch<SafetyStatusSummary>('/api/v1/admin/safety/status', { signal }),
     enabled,
   });
 }

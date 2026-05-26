@@ -179,12 +179,25 @@ async function doFetch<T>(path: string, init?: RequestInit, isRetry = false): Pr
   const body = await res.text();
   if (!body.trim()) return undefined as T;
 
-  let json: { data?: T };
+  let json: unknown;
   try {
-    json = JSON.parse(body) as { data?: T };
+    json = JSON.parse(body) as unknown;
   } catch {
     throw new ApiError(res.status, `Invalid JSON response`);
   }
 
-  return (json.data ?? json) as T;
+  /* Unwrap `{data: T}` envelope only when `data` is the SOLE field.
+     Server responses like `{data: [...], pagination, summary}` are rich
+     envelopes that callers want as-is — auto-unwrapping there would drop
+     pagination/summary and break the UI. */
+  if (
+    json !== null &&
+    typeof json === 'object' &&
+    !Array.isArray(json) &&
+    'data' in json &&
+    Object.keys(json).length === 1
+  ) {
+    return (json as { data: T }).data;
+  }
+  return json as T;
 }

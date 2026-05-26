@@ -17,15 +17,11 @@ export interface UserOauthTokenMeta {
   revokedAt: number | null;
 }
 
-interface Envelope<T> { data: T }
-
 export function useUserOauthTokens(enabled = true) {
   return useQuery({
     queryKey: ['agent', 'oauth', 'google'],
-    queryFn: async ({ signal }) => {
-      const r = await apiFetch<Envelope<UserOauthTokenMeta[]>>('/api/v1/agent/oauth/google', { signal });
-      return r.data;
-    },
+    queryFn: ({ signal }) =>
+      apiFetch<UserOauthTokenMeta[]>('/api/v1/agent/oauth/google', { signal }),
     enabled,
   });
 }
@@ -41,13 +37,11 @@ export interface AuthorizeUrlInput {
  */
 export function useStartGoogleAuthorize() {
   return useMutation({
-    mutationFn: async (input: AuthorizeUrlInput) => {
-      const r = await apiFetch<Envelope<{ authorizeUrl: string }>>(
+    mutationFn: (input: AuthorizeUrlInput) =>
+      apiFetch<{ authorizeUrl: string }>(
         '/api/v1/agent/oauth/google/authorize',
         { method: 'POST', body: JSON.stringify(input) },
-      );
-      return r.data;
-    },
+      ),
   });
 }
 

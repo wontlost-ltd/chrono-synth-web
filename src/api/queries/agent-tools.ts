@@ -81,17 +81,13 @@ export interface ToolInvocation {
   confirmationTokenId: string | null;
 }
 
-interface Envelope<T> { data: T }
-
 /* ── 工具权限 ───────────────────────────────────────────────────── */
 
 export function useToolPermissions(enabled = true) {
   return useQuery({
     queryKey: ['admin', 'tool-permissions'],
-    queryFn: async ({ signal }) => {
-      const r = await apiFetch<Envelope<ToolPermission[]>>('/api/v1/admin/tool-permissions', { signal });
-      return r.data;
-    },
+    queryFn: ({ signal }) =>
+      apiFetch<ToolPermission[]>('/api/v1/admin/tool-permissions', { signal }),
     enabled,
   });
 }
@@ -99,13 +95,11 @@ export function useToolPermissions(enabled = true) {
 export function useToolPermissionsByPersona(personaId: string | null, enabled = true) {
   return useQuery({
     queryKey: ['admin', 'tool-permissions', 'persona', personaId],
-    queryFn: async ({ signal }) => {
-      const r = await apiFetch<Envelope<ToolPermission[]>>(
+    queryFn: ({ signal }) =>
+      apiFetch<ToolPermission[]>(
         `/api/v1/admin/personas/${personaId}/tool-permissions`,
         { signal },
-      );
-      return r.data;
-    },
+      ),
     enabled: enabled && !!personaId,
   });
 }
@@ -121,13 +115,11 @@ export interface GrantToolPermissionInput {
 export function useGrantToolPermission() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: GrantToolPermissionInput) => {
-      const r = await apiFetch<Envelope<{ id: string; revocationKey: string }>>(
+    mutationFn: (input: GrantToolPermissionInput) =>
+      apiFetch<{ id: string; revocationKey: string }>(
         '/api/v1/admin/tool-permissions',
         { method: 'POST', body: JSON.stringify(input) },
-      );
-      return r.data;
-    },
+      ),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['admin', 'tool-permissions'] });
     },
@@ -163,13 +155,11 @@ export interface CreateAgencyAuthorizationInput {
 export function useAgencyAuthorizationsByPersona(personaId: string | null, enabled = true) {
   return useQuery({
     queryKey: ['admin', 'agency-authorizations', 'persona', personaId],
-    queryFn: async ({ signal }) => {
-      const r = await apiFetch<Envelope<AgencyAuthorization[]>>(
+    queryFn: ({ signal }) =>
+      apiFetch<AgencyAuthorization[]>(
         `/api/v1/admin/agency-authorizations?personaId=${encodeURIComponent(personaId ?? '')}`,
         { signal },
-      );
-      return r.data;
-    },
+      ),
     enabled: enabled && !!personaId,
   });
 }
@@ -177,13 +167,11 @@ export function useAgencyAuthorizationsByPersona(personaId: string | null, enabl
 export function useCreateAgencyAuthorization() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: CreateAgencyAuthorizationInput) => {
-      const r = await apiFetch<Envelope<{ id: string; revocationKey: string }>>(
+    mutationFn: (input: CreateAgencyAuthorizationInput) =>
+      apiFetch<{ id: string; revocationKey: string }>(
         '/api/v1/admin/agency-authorizations',
         { method: 'POST', body: JSON.stringify(input) },
-      );
-      return r.data;
-    },
+      ),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['admin', 'agency-authorizations'] });
     },
@@ -225,13 +213,11 @@ export function useRevokeAgencyAuthorization() {
 export function useToolInvocations(personaId: string | null, limit = 50, enabled = true) {
   return useQuery({
     queryKey: ['admin', 'tool-invocations', 'persona', personaId, limit],
-    queryFn: async ({ signal }) => {
-      const r = await apiFetch<Envelope<ToolInvocation[]>>(
+    queryFn: ({ signal }) =>
+      apiFetch<ToolInvocation[]>(
         `/api/v1/admin/personas/${personaId}/tool-invocations?limit=${limit}`,
         { signal },
-      );
-      return r.data;
-    },
+      ),
     enabled: enabled && !!personaId,
   });
 }

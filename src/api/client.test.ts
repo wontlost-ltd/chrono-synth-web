@@ -52,6 +52,29 @@ describe('apiFetch', () => {
     expect(result).toEqual({ name: 'test' });
   });
 
+  it('preserves multi-field envelopes (data + pagination + summary) intact', async () => {
+    /* Regression: previously apiFetch unconditionally returned json.data,
+     * dropping pagination/summary siblings. EnterpriseConsole + similar
+     * pages need the whole envelope. */
+    mockFetch.mockResolvedValue({
+      ok: true,
+      status: 200,
+      headers: {
+        get: (k: string) => (k === 'content-type' ? 'application/json' : null),
+      },
+      text: () => Promise.resolve(JSON.stringify({
+        data: [{ id: 1 }, { id: 2 }],
+        pagination: { page: 1, pageSize: 20, total: 2 },
+        summary: { total: 2, active: 2 },
+      })),
+    });
+    type Resp = { data: Array<{ id: number }>; pagination: { total: number }; summary: { total: number } };
+    const result = await apiFetch<Resp>('/multi');
+    expect(result.data).toHaveLength(2);
+    expect(result.pagination.total).toBe(2);
+    expect(result.summary.total).toBe(2);
+  });
+
   it('throws ApiError on non-ok response', async () => {
     mockFetch.mockResolvedValue({
       ok: false,
