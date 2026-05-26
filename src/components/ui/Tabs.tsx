@@ -61,11 +61,18 @@ export function Tabs({ value, onChange, items, renderPanel }: TabsProps) {
               tabIndex={selected ? 0 : -1}
               disabled={item.disabled}
               onClick={() => selectTab(item.id)}
-              className={`whitespace-nowrap px-4 py-2.5 text-sm font-medium transition-colors
-                ${selected ? 'border-b-2 border-primary text-primary' : 'text-text-secondary hover:text-text-primary'}
+              className={`relative whitespace-nowrap px-4 py-2.5 text-sm font-medium transition-colors
+                ${selected ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'}
                 ${item.disabled ? 'cursor-not-allowed opacity-50' : ''}`}
             >
               {item.label}
+              {selected && (
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-x-3 -bottom-px h-[2px] rounded-t"
+                  style={{ background: 'var(--gradient-brand)', boxShadow: '0 0 8px rgba(99, 102, 241, 0.6)' }}
+                />
+              )}
             </button>
           );
         })}

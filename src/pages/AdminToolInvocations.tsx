@@ -76,7 +76,7 @@ export function AdminToolInvocations() {
       </div>
 
       {!personaId ? (
-        <EmptyState message={t('toolInvocations.empty.enterPersona')} />
+        <EmptyState illustration="search" message={t('toolInvocations.empty.enterPersona')} />
       ) : list.isLoading ? (
         <Skeleton variant="card" />
       ) : list.error ? (
@@ -85,7 +85,7 @@ export function AdminToolInvocations() {
           message={t('toolInvocations.errors.loadFailed', { message: (list.error as Error).message })}
         />
       ) : (list.data ?? []).length === 0 ? (
-        <EmptyState message={t('toolInvocations.empty.personaEmpty', { personaId })} />
+        <EmptyState illustration="tools" message={t('toolInvocations.empty.personaEmpty', { personaId })} />
       ) : (
         <div className="rounded-xl border border-border overflow-x-auto">
           <table className="w-full text-sm">

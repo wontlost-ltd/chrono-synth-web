@@ -42,8 +42,8 @@ describe('Skeleton', () => {
     expect(container.firstElementChild?.className).toContain('mt-4');
   });
 
-  it('has pulse animation class', () => {
+  it('has shimmer animation class', () => {
     const { container } = render(<Skeleton />);
-    expect(container.firstElementChild?.className).toContain('animate-pulse');
+    expect(container.firstElementChild?.className).toContain('skeleton-shimmer');
   });
 });

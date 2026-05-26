@@ -90,12 +90,52 @@ function formatJson(value: unknown): string {
   }
 }
 
-function MetricTile({ label, value, hint }: { label: string; value: string | number; hint?: string }) {
+function MetricTile({
+  label,
+  value,
+  hint,
+  accent = 'cyan',
+  trend,
+}: {
+  label: string;
+  value: string | number;
+  hint?: string;
+  accent?: 'cyan' | 'indigo' | 'violet' | 'amber';
+  trend?: number; // signed percent delta (-100..100)
+}) {
+  const accentColor = {
+    cyan:   { from: '#22D3EE', to: '#67E8F9', dot: '#22D3EE' },
+    indigo: { from: '#6366F1', to: '#818CF8', dot: '#6366F1' },
+    violet: { from: '#A855F7', to: '#C084FC', dot: '#A855F7' },
+    amber:  { from: '#F59E0B', to: '#FBBF24', dot: '#F59E0B' },
+  }[accent];
+
   return (
-    <div className="rounded-xl border border-border bg-surface-elevated p-4">
-      <p className="text-xs font-medium uppercase tracking-wide text-text-secondary">{label}</p>
-      <p className="mt-2 text-2xl font-bold text-text-primary">{value}</p>
-      {hint && <p className="mt-1 text-xs text-text-secondary">{hint}</p>}
+    <div className="relative overflow-hidden rounded-xl border border-border bg-surface-elevated p-4">
+      {/* left accent rail */}
+      <div
+        aria-hidden="true"
+        className="absolute left-0 top-3 bottom-3 w-[3px] rounded-r"
+        style={{ background: `linear-gradient(180deg, ${accentColor.from}, ${accentColor.to})` }}
+      />
+      <div className="pl-2">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-text-secondary">{label}</p>
+        <div className="mt-2 flex items-baseline gap-2">
+          <p className="text-2xl font-bold text-text-primary tabular-nums">{value}</p>
+          {typeof trend === 'number' && (
+            <span
+              className="inline-flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[11px] font-semibold tabular-nums"
+              style={{
+                background: trend >= 0 ? 'rgba(34, 197, 94, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+                color: trend >= 0 ? '#22C55E' : '#F87171',
+              }}
+            >
+              {trend >= 0 ? '↑' : '↓'} {Math.abs(trend).toFixed(1)}%
+            </span>
+          )}
+        </div>
+        {hint && <p className="mt-1.5 text-xs text-text-tertiary">{hint}</p>}
+      </div>
     </div>
   );
 }
@@ -250,8 +290,14 @@ export function EnterpriseConsole() {
       />
 
       <div className="grid gap-4 md:grid-cols-4">
-        <MetricTile label={t('enterpriseConsole.metrics.tenant')} value={tenantId} hint={t('enterpriseConsole.metrics.tenantHint')} />
         <MetricTile
+          accent="cyan"
+          label={t('enterpriseConsole.metrics.tenant')}
+          value={tenantId}
+          hint={t('enterpriseConsole.metrics.tenantHint')}
+        />
+        <MetricTile
+          accent="indigo"
           label={t('enterpriseConsole.metrics.organizations')}
           value={organizations.data?.length ?? 0}
           hint={selectedOrganizationId
@@ -259,11 +305,13 @@ export function EnterpriseConsole() {
             : t('enterpriseConsole.metricsActive.createFirstOrg')}
         />
         <MetricTile
+          accent="violet"
           label={t('enterpriseConsole.metrics.deploymentMode')}
           value={deploymentProfile.data?.deploymentMode ?? t('enterpriseConsole.fields.deploymentLoading')}
           hint={deploymentProfile.data?.kafkaNamespace ?? t('enterpriseConsole.metrics.deploymentModeHint')}
         />
         <MetricTile
+          accent="amber"
           label={t('enterpriseConsole.metrics.auditEvents')}
           value={auditLogs.data?.pagination.total ?? 0}
           hint={t('enterpriseConsole.metrics.auditEventsHint')}

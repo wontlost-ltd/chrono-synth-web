@@ -212,8 +212,11 @@ table, .tabular-nums, [data-tabular] {
   border-collapse: separate;
 }
 :root[data-theme='dark'] thead {
-  background-color: rgba(99, 102, 241, 0.06);
   border-bottom: 1px solid var(--color-border);
+}
+:root[data-theme='dark'] thead.bg-surface,
+:root[data-theme='dark'] thead.bg-surface-elevated {
+  background-color: rgba(99, 102, 241, 0.06) !important;
 }
 :root[data-theme='dark'] thead th {
   text-transform: uppercase;
@@ -294,6 +297,23 @@ table, .tabular-nums, [data-tabular] {
     linear-gradient(to right, rgba(99, 102, 241, 0.04) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
   background-size: auto, auto, 32px 32px, 32px 32px;
+}
+
+/* Shimmer keyframe used by Skeleton */
+@keyframes ai-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-shimmer {
+  background:
+    linear-gradient(90deg,
+      transparent 0%,
+      rgba(99, 102, 241, 0.1) 50%,
+      transparent 100%
+    ),
+    rgba(99, 102, 241, 0.06);
+  background-size: 200% 100%, auto;
+  animation: ai-shimmer 1.6s ease-in-out infinite;
 }
 
 /* Status dot with glow */

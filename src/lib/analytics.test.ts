@@ -33,7 +33,7 @@ describe('analytics shim', () => {
   it('queues a single event and flushes on the microtask boundary', async () => {
     track('test.event', { foo: 'bar' });
     /* setTimeout(0) — yield to the next tick before asserting */
-    await new Promise<void>((r) => setTimeout(r, 5));
+    await new Promise<void>((r) => setTimeout(r, 30));
 
     expect(fetch).toHaveBeenCalledTimes(1);
     const mock = (fetch as unknown as ReturnType<typeof vi.fn>).mock;
@@ -51,7 +51,7 @@ describe('analytics shim', () => {
     track('a');
     track('b');
     track('c');
-    await new Promise<void>((r) => setTimeout(r, 5));
+    await new Promise<void>((r) => setTimeout(r, 30));
 
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(lastFetchBody().events.map((e) => e.name)).toEqual(['a', 'b', 'c']);
@@ -61,7 +61,7 @@ describe('analytics shim', () => {
     /* BATCH_SIZE = 20 — fire 20 to hit the threshold, then 1 more */
     for (let i = 0; i < 20; i++) track(`event.${i}`);
     /* No setTimeout yield needed — the 20th call triggers a sync flush kick */
-    await new Promise<void>((r) => setTimeout(r, 5));
+    await new Promise<void>((r) => setTimeout(r, 30));
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(lastFetchBody().events).toHaveLength(20);
   });

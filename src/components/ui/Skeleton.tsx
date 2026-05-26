@@ -15,7 +15,7 @@ export function Skeleton({ variant = 'card', className = '' }: SkeletonProps) {
 
   return (
     <div
-      className={`animate-pulse rounded-xl bg-border/50 ${heights[variant]} ${className}`}
+      className={`skeleton-shimmer rounded-xl border border-border ${heights[variant]} ${className}`}
       role="status"
       aria-label={t('common.loading')}
     >

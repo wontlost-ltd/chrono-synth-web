@@ -70,13 +70,21 @@ export function EmptyState({
   const showIllustration = illustration ?? (isError ? 'error' : null);
   return (
     <div
-      className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface px-6 py-16 text-center"
+      className="relative flex flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-surface-elevated px-6 py-16 text-center"
       role={isError ? 'alert' : 'status'}
     >
+      {/* Ambient gradient glow behind the illustration */}
+      {!isError && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-8 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full opacity-50"
+          style={{ background: 'var(--gradient-brand-soft)', filter: 'blur(24px)' }}
+        />
+      )}
       {showIllustration && (
         <Illustration
           name={showIllustration}
-          className={isError ? 'text-warning' : 'text-text-secondary/70'}
+          className={`relative ${isError ? 'text-warning' : 'text-[#818CF8]'}`}
         />
       )}
       {title && (
@@ -99,8 +107,8 @@ export function EmptyState({
 function ActionButton({ action, variant }: { action: EmptyStateAction; variant: 'primary' | 'secondary' }) {
   const baseClass =
     variant === 'primary'
-      ? 'rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
-      : 'text-sm text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
+      ? 'btn-brand rounded-lg px-4 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary'
+      : 'text-sm text-text-link hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
 
   if (action.to) {
     return (
