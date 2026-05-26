@@ -18,8 +18,11 @@ import './i18n';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
-import './styles/globals.css';
+/* themes.css contains the codegen'd dark/light/high-contrast palettes.
+ * globals.css after = brand v2 overrides (deeper surface tiers, gradient
+ * tokens) win on duplicate variable names. Keep this order intact. */
 import './styles/themes.css';
+import './styles/globals.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
