@@ -49,17 +49,17 @@ interface PersistedState {
 }
 
 function readState(key: string): PersistedState {
-  if (typeof window === 'undefined') return { dismissed: false, collapsed: false };
+  if (typeof window === 'undefined') return { dismissed: false, collapsed: true };
   try {
     const raw = window.localStorage.getItem(key);
-    if (!raw) return { dismissed: false, collapsed: false };
+    if (!raw) return { dismissed: false, collapsed: true };
     const parsed = JSON.parse(raw) as Partial<PersistedState>;
     return {
       dismissed: !!parsed.dismissed,
       collapsed: !!parsed.collapsed,
     };
   } catch {
-    return { dismissed: false, collapsed: false };
+    return { dismissed: false, collapsed: true };
   }
 }
 

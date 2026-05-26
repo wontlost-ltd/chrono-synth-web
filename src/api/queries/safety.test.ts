@@ -57,7 +57,7 @@ describe('useLatestDriftReport', () => {
     mockApiFetch.mockRejectedValue(new MockApiError(500, 'Internal Server Error'));
     const { result } = renderHook(() => useLatestDriftReport(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect((result.current.error as { status: number }).status).toBe(500);
+    expect((result.current.error as unknown as { status: number }).status).toBe(500);
   });
 });
 

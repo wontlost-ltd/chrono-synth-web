@@ -41,6 +41,24 @@ function permissionStatusLabel(p: ToolPermission, t: TFunction): string {
   return t('toolPermissions.statusLabels.active');
 }
 
+const SCOPE_STYLE: Record<ToolScope, { bg: string; fg: string; border: string }> = {
+  read:    { bg: 'rgba(34, 211, 238, 0.12)',  fg: '#67E8F9', border: 'rgba(34, 211, 238, 0.3)' },
+  write:   { bg: 'rgba(251, 191, 36, 0.12)',  fg: '#FCD34D', border: 'rgba(251, 191, 36, 0.3)' },
+  execute: { bg: 'rgba(168, 85, 247, 0.14)',  fg: '#D8B4FE', border: 'rgba(168, 85, 247, 0.35)' },
+};
+
+function ScopeBadge({ scope }: { scope: ToolScope }) {
+  const s = SCOPE_STYLE[scope];
+  return (
+    <span
+      className="inline-block rounded px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider"
+      style={{ backgroundColor: s.bg, color: s.fg, border: `1px solid ${s.border}` }}
+    >
+      {scope}
+    </span>
+  );
+}
+
 export function AdminToolPermissions() {
   const { t } = useTranslation();
   useDocumentTitle(t('toolPermissions.title'));
@@ -145,15 +163,21 @@ export function AdminToolPermissions() {
             </thead>
             <tbody>
               {rows.map((p) => (
-                <tr key={p.id} className="border-b border-border/50">
-                  <td className="p-3 font-mono text-xs">{p.personaId}</td>
-                  <td className="p-3 font-mono text-xs">{p.toolId}</td>
-                  <td className="p-3">{p.scope}</td>
-                  <td className="p-3 font-mono text-xs">
+                <tr key={p.id}>
+                  <td className="p-3">
+                    <span className="chip-mono" title={p.personaId}>
+                      {p.personaId.length > 18 ? `${p.personaId.slice(0, 14)}…${p.personaId.slice(-3)}` : p.personaId}
+                    </span>
+                  </td>
+                  <td className="p-3 font-mono text-[13px] text-text-primary">{p.toolId}</td>
+                  <td className="p-3">
+                    <ScopeBadge scope={p.scope} />
+                  </td>
+                  <td className="p-3 font-mono text-xs text-text-secondary">
                     {summarizeConstraints(p.constraints)}
                   </td>
-                  <td className="p-3 text-xs">{formatTimestamp(p.grantedAt)}</td>
-                  <td className="p-3 text-xs">{formatTimestamp(p.expiresAt)}</td>
+                  <td className="p-3 text-xs text-text-secondary tabular-nums">{formatTimestamp(p.grantedAt)}</td>
+                  <td className="p-3 text-xs text-text-secondary tabular-nums">{formatTimestamp(p.expiresAt)}</td>
                   <td className="p-3">
                     <StatusBadge status={permissionStatus(p)} label={permissionStatusLabel(p, t)} />
                   </td>

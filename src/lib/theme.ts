@@ -14,17 +14,22 @@ export type ThemeChoice = 'light' | 'dark' | 'high-contrast' | 'system';
 const STORAGE_KEY = 'chrono.theme';
 const DOM_ATTRIBUTE = 'data-theme';
 
+/** v2 brand default — dark mode showcases the cyan-violet AI palette best.
+ *  Users who explicitly chose 'system' still get OS-driven, only first-time
+ *  visits flip to dark instead of following the OS. */
+const DEFAULT_CHOICE: ThemeChoice = 'dark';
+
 const VALID: ReadonlySet<ThemeChoice> = new Set(['light', 'dark', 'high-contrast', 'system']);
 
 function readStored(): ThemeChoice {
-  if (typeof window === 'undefined') return 'system';
+  if (typeof window === 'undefined') return DEFAULT_CHOICE;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw && VALID.has(raw as ThemeChoice)) return raw as ThemeChoice;
   } catch {
     /* ignore */
   }
-  return 'system';
+  return DEFAULT_CHOICE;
 }
 
 function applyToDom(choice: ThemeChoice): void {
